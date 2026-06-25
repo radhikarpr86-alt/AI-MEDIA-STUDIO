@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0f0f23">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="description" content="AI Media Studio - Generate foto & video dengan AI, edit media, koleksi, dan chat AI. Multi-user, gratis & premium.">
+  <title>AI Media Studio v1.0</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230f0f23'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-size='60' fill='%23ffffff'%3E🎨%3C/text%3E%3C/svg%3E">
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkFJIE1lZGlhIFN0dWRpbyIsCiAgInNob3J0X25hbWUiOiAiQUkgTWVkaWEiLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjBmMjMiLAogICJ0aGVtZV9jb2xvciI6ICIjMGYwZjIzIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nJTIzMGYwZjIzJy8lM0UlM0N0ZXh0IHg9JzUwJyB5PSc2OCcgdGV4dC1hbmNob3I9J21pZGRsZScgZm9udC1zaXplPSc2MCcgZmlsbD0nJTIzZmZmZmZmJyUzRSZwIzEyNzkxMjs8L3RleHQlM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
+  <style>
+    /* ============================================================
+       AI MEDIA STUDIO v1.0 - MAIN STYLESHEET
+       ============================================================ */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;vertical-align:baseline}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .3s ease,color .3s ease}
+    :root{
+      --bg:#0f0f23; --bg2:#1a1a38; --bg3:#252550; --bgHover:#2f2f5f;
+      --text:#f0f0f8; --text2:#b0b0c8; --textMuted:#7878a0;
+      --accent:#9b59b6; --accentHover:#8e44ad; --accentLight:#b07cc6;
+      --success:#2ecc71; --danger:#e74c3c; --warning:#f1c40f;
+      --info:#3498db; --orange:#e67e22;
+      --border:rgba(255,255,255,0.06); --borderStrong:rgba(255,255,255,0.1);
+      --shadow:0 2px 8px rgba(0,0,0,0.4); --shadowMd:0 4px 20px rgba(0,0,0,0.5); --shadowLg:0 8px 32px rgba(0,0,0,0.6);
+      --radius:8px; --radiusMd:12px; --radiusLg:16px; --spacing:8px;
+    }
+    body.light-theme{
+      --bg:#f5f5fa; --bg2:#ffffff; --bg3:#f0f0f5; --bgHover:#e8e8f0;
+      --text:#1a1a2e; --text2:#555570; --textMuted:#8888a0;
+      --border:rgba(0,0,0,0.08); --borderStrong:rgba(0,0,0,0.12);
+    }
+    ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:20px}
+    *{scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .hidden{display:none!important}
+    .flex{display:flex}.flex-center{display:flex;align-items:center;justify-content:center}.flex-between{display:flex;align-items:center;justify-content:space-between}.flex-wrap{flex-wrap:wrap}.gap-sm{gap:8px}.gap-md{gap:12px}.gap-lg{gap:16px}.w-full{width:100%}.text-center{text-align:center}.text-sm{font-size:.85rem}.text-xs{font-size:.75rem}.text-lg{font-size:1.1rem}.text-xl{font-size:1.3rem}.text-2xl{font-size:1.8rem}.font-bold{font-weight:700}.text-muted{color:var(--textMuted)}.text-success{color:var(--success)}.text-danger{color:var(--danger)}.text-warning{color:var(--warning)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:var(--radius);font-weight:600;cursor:pointer;transition:all .2s ease;font-size:.9rem;min-height:40px;background:var(--textMuted);color:#fff;border:none;font-family:inherit}
+    .btn:hover{transform:translateY(-1px);box-shadow:var(--shadowMd)}.btn:active{transform:translateY(0)}.btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accentHover)}
+    .btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#27ae60}
+    .btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#c0392b}
+    .btn-warning{background:var(--warning);color:#000}.btn-warning:hover{background:#f39c12}
+    .btn-info{background:var(--info);color:#fff}.btn-info:hover{background:#2980b9}
+    .btn-gray{background:var(--textMuted);color:#fff}.btn-gray:hover{background:#666}
+    .btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accentLight)}.btn-outline:hover{background:var(--accent);color:#fff}
+    .btn-sm{padding:6px 14px;font-size:.8rem;min-height:30px}.btn-lg{padding:14px 28px;font-size:1.05rem;min-height:48px}.btn-xl{padding:18px 36px;font-size:1.15rem;min-height:56px}.btn-block{width:100%}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+    .badge-success{background:var(--success);color:#fff}.badge-danger{background:var(--danger);color:#fff}.badge-warning{background:var(--warning);color:#000}.badge-purple{background:var(--accent);color:#fff}
+    input,textarea,select{width:100%;padding:10px 14px;border:1px solid var(--borderStrong);border-radius:var(--radius);font-size:.9rem;transition:all .2s ease;background:var(--bg3);color:var(--text);font-family:inherit}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(155,89,182,0.15)}input::placeholder,textarea::placeholder{color:var(--textMuted)}
+    textarea{resize:vertical;min-height:80px;font-family:'Courier New',monospace;font-size:.85rem;line-height:1.7}
+    select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b0b0c8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer}
+    .form-group{margin-bottom:16px}.form-label{display:block;margin-bottom:8px;font-weight:500;font-size:.85rem;color:var(--text2)}.form-hint{font-size:.75rem;color:var(--textMuted);margin-top:4px}
+    .form-error{color:var(--danger);font-size:.8rem;margin-top:4px;display:none}.form-error.show{display:block}
+    .form-success{color:var(--success);font-size:.8rem;margin-top:4px;display:none}.form-success.show{display:block}
+    .link-text{color:var(--accentLight);cursor:pointer;transition:color .2s}.link-text:hover{color:var(--accent);text-decoration:underline}
+    .toast-container{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;max-width:90%;pointer-events:none}
+    .toast{background:var(--bg2);color:var(--text);padding:12px 20px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadowLg);font-size:.9rem;opacity:0;transform:translateY(20px);transition:all .2s;pointer-events:auto;text-align:center;margin-bottom:8px;border-left:4px solid var(--accent)}.toast.show{opacity:1;transform:translateY(0)}.toast.toast-success{border-left-color:var(--success)}.toast.toast-error{border-left-color:var(--danger)}.toast.toast-warning{border-left-color:var(--warning)}
+    .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:998;padding:16px}
+    .modal-overlay.show{display:flex}
+    .modal-content{background:var(--bg2);border-radius:var(--radiusLg);max-width:600px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;animation:slideUp 0.3s ease;border:1px solid var(--border);box-shadow:var(--shadowLg)}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .modal-header h3{margin:0;font-size:1.2rem;font-weight:700}.modal-close{background:none;border:none;font-size:1.5rem;color:var(--text2);cursor:pointer;padding:4px;transition:all .2s;line-height:1}.modal-close:hover{color:var(--danger);transform:rotate(90deg)}
+    .modal-body{padding:8px 0}.modal-footer{display:flex;gap:12px;padding-top:20px;border-top:1px solid var(--border);margin-top:20px;justify-content:flex-end}
+    .container{max-width:1000px;margin:0 auto;padding:16px;min-height:100vh}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--bg2);border-radius:var(--radiusMd);border:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap;gap:8px}
+    .logo{font-size:1.2rem;font-weight:700;display:flex;align-items:center;gap:8px}.logo-icon{font-size:1.3rem}.logo-text{background:linear-gradient(135deg,var(--accentLight),#d7bde2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero{text-align:center;padding:32px 20px;background:var(--bg2);border-radius:var(--radiusLg);border:1px solid var(--border);margin-bottom:20px}.hero-icon{font-size:3rem;margin-bottom:12px}.hero h1{font-size:2rem;font-weight:800;margin-bottom:8px}.gradient-text{background:linear-gradient(135deg,var(--accentLight),#d7bde2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hero-description{font-size:1rem;color:var(--text2);max-width:600px;margin:0 auto 20px;line-height:1.6}
+    .whatsapp-banner{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;padding:16px 20px;border-radius:var(--radiusMd);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;cursor:pointer;transition:all .2s;border:2px solid transparent}.whatsapp-banner:hover{transform:translateY(-2px);box-shadow:var(--shadowMd)}
+    .features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+    .feature-card{background:var(--bg2);border-radius:var(--radiusMd);padding:20px;border:1px solid var(--border);text-align:center;transition:all .2s}.feature-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:var(--shadowMd)}.feature-icon{font-size:2rem;margin-bottom:8px}.feature-card h4{font-size:1rem;font-weight:600;margin-bottom:4px}.feature-card p{font-size:.85rem;color:var(--text2);margin:0;line-height:1.5}
+    .price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:24px}
+    .price-card{background:var(--bg2);border-radius:var(--radiusLg);padding:24px;border:2px solid var(--border);text-align:center;transition:all .2s;position:relative;cursor:pointer}.price-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:var(--shadowMd)}.price-card.featured{border-color:var(--accent);background:var(--bg3)}.featured-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:3px 16px;border-radius:20px;font-size:.7rem;font-weight:700;white-space:nowrap}.price-icon{font-size:2.5rem;margin-bottom:8px}.price-name{font-size:1.2rem;font-weight:700}.price-value{font-size:2rem;font-weight:800;color:var(--success);margin:8px 0}.price-duration{font-size:.85rem;color:var(--text2)}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+    .stat-card{background:var(--bg2);border-radius:var(--radius);padding:16px;border:1px solid var(--border);text-align:center}.stat-value{font-size:1.5rem;font-weight:700;color:var(--accentLight)}.stat-label{font-size:.78rem;color:var(--text2);margin-top:4px}
+    .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+    .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+    .menu-card{background:var(--bg2);border-radius:var(--radiusMd);padding:20px;border:1px solid var(--border);text-align:center;cursor:pointer;transition:all .2s}.menu-card:hover{border-color:var(--accent);transform:translateY(-3px)}.menu-card-icon{font-size:2.5rem;margin-bottom:8px}.menu-card h4{font-size:1rem;font-weight:600;margin:0}
+    .media-result{margin-top:16px;text-align:center}.media-result img,.media-result video{max-width:100%;border-radius:var(--radius);border:1px solid var(--border)}
+    .chat-messages{flex:1;overflow-y:auto;padding:12px;background:var(--bg3);border-radius:var(--radius);margin-bottom:12px;max-height:300px}
+    .chat-msg{margin-bottom:8px;padding:8px 12px;border-radius:8px;max-width:80%;word-wrap:break-word;font-size:.85rem;line-height:1.4}.chat-msg.user{background:var(--accent);color:#fff;margin-left:auto;text-align:right}.chat-msg.bot{background:var(--bgHover);color:var(--text);margin-right:auto}
+    @media(max-width:640px){.hero h1{font-size:1.5rem}.header{flex-direction:column;align-items:stretch}.features-grid,.price-grid,.menu-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+
+<body>
+<div id="connectionBadge" style="position:fixed;top:10px;right:10px;z-index:997;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;background:#2ecc71;color:#fff;opacity:0.85;">ONLINE</div>
+<div class="offline-banner" id="offlineBanner" style="background:var(--orange);color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:20px;display:none;align-items:center;justify-content:space-between;">
+  <span><strong>Mode Offline</strong> - Beberapa fitur AI membutuhkan internet.</span>
+  <button onclick="downloadForOffline()" class="btn btn-warning btn-sm">Download Offline</button>
+</div>
+<div class="expiry-warning" id="expiryWarning" style="background:var(--danger);color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:20px;display:none;align-items:center;justify-content:space-between;">
+  <span id="expiryWarningText">Premium akan segera berakhir!</span>
+  <button onclick="showActivationModal()" class="btn btn-warning btn-sm">Perpanjang Premium</button>
+</div>
+<div id="installBanner" style="display:none;background:linear-gradient(135deg,#9b59b6,#d7bde2);color:#fff;padding:12px 20px;border-radius:12px;margin-bottom:20px;cursor:pointer;" onclick="installApplication()">
+  <span><strong>Install AI Media Studio di perangkat Anda!</strong></span>
+  <span style="font-size:1.2rem;">Klik Disini</span>
+</div>
+
+<!-- ========== LANDING PAGE ========== -->
+<div class="container" id="landingPage">
+  <header class="header">
+    <div class="logo"><span class="logo-icon">🎨</span><span class="logo-text">AI Media Studio v1.0</span></div>
+    <div class="header-buttons flex gap-sm">
+      <button onclick="showLoginModal()" class="btn btn-outline btn-sm">Login</button>
+      <button onclick="showRegisterModal()" class="btn btn-primary btn-sm">Daftar</button>
+      <button onclick="toggleTheme()" id="themeButton1" class="btn btn-gray btn-sm">🌙 Dark Mode</button>
+      <button onclick="openApplication()" class="btn btn-success btn-sm">Buka Aplikasi</button>
+      <button onclick="downloadForOffline()" class="btn btn-info btn-sm">Download Offline</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-icon">🎨</div>
+    <h1 class="gradient-text">AI Media Studio</h1>
+    <p class="hero-description">Generate foto & video AI, edit media, dan chat dengan AI. Multi-user, sistem premium & gratis. Kreativitas tanpa batas!</p>
+    <div class="flex gap-md justify-center flex-wrap">
+      <button onclick="openApplication()" class="btn btn-primary btn-lg">Mulai Sekarang</button>
+      <button onclick="showLoginModal()" class="btn btn-outline btn-lg">Login</button>
+      <button onclick="installApplication()" class="btn btn-success btn-lg">Install Aplikasi</button>
+    </div>
+  </section>
+
+  <div class="whatsapp-banner" onclick="openWhatsApp()">
+    <div><span class="whatsapp-banner-icon">💬</span> <strong>Hubungi Admin untuk Aktivasi Premium:</strong><br><span id="whatsappNumberLanding">+6281220285226</span></div>
+    <div><span>Chat WhatsApp</span> <span>👉</span></div>
+  </div>
+
+  <h3 class="text-center text-xl font-bold mb-3">Fitur Unggulan</h3>
+  <div class="features-grid">
+    <div class="feature-card"><div class="feature-icon">🖼️</div><h4>Generate Foto AI</h4><p>Text-to-Image dengan AI canggih, tanpa batas.</p></div>
+    <div class="feature-card"><div class="feature-icon">🎬</div><h4>Generate Video AI</h4><p>Text-to-Video dari koleksi stok premium.</p></div>
+    <div class="feature-card"><div class="feature-icon">✂️</div><h4>Edit Media</h4><p>Rotasi, crop, filter foto. Trim video ringan.</p></div>
+    <div class="feature-card"><div class="feature-icon">💬</div><h4>AI Chat</h4><p>Asisten AI untuk bantu prompt & kreativitas.</p></div>
+    <div class="feature-card"><div class="feature-icon">📁</div><h4>Koleksi</h4><p>Simpan & kelola hasil generasi Anda.</p></div>
+    <div class="feature-card"><div class="feature-icon">👥</div><h4>Multi-User</h4><p>Akun terpisah dengan sistem free & premium.</p></div>
+  </div>
+
+  <h3 class="text-center text-xl font-bold mb-3">Paket Harga</h3>
+  <div class="price-grid" id="landingPriceGrid">
+    <div class="price-card featured" onclick="showLoginModal()">
+      <div class="featured-badge">GRATIS</div>
+      <div class="price-icon">🆓</div>
+      <div class="price-name">Free</div>
+      <div class="price-value">Rp 0</div>
+      <div class="price-duration">Selamanya</div>
+      <p class="text-sm text-muted mt-2">Generate foto unlimited, video 10/hari, edit foto</p>
+    </div>
+    <div class="price-card" onclick="showLoginModal()">
+      <div class="price-icon">💎</div>
+      <div class="price-name">Premium</div>
+      <div class="price-value">Rp 50.000</div>
+      <div class="price-duration">per bulan</div>
+      <p class="text-sm text-muted mt-2">Semua fitur unlimited, edit video, koleksi tak terbatas</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== APPLICATION PAGE ========== -->
+<div class="container hidden" id="applicationPage">
+  <header class="header">
+    <div class="logo"><span class="logo-icon">🎨</span><span class="logo-text">AI Media Studio</span></div>
+    <div class="flex gap-sm flex-wrap">
+      <button onclick="toggleTheme()" id="themeButton2" class="btn btn-gray btn-sm">🌙</button>
+      <button onclick="showProfileModal()" id="profileButton" class="btn btn-outline btn-sm hidden">Profil</button>
+      <button onclick="showSuperAdminPanel()" id="adminButton" class="btn btn-warning btn-sm hidden">Panel Admin</button>
+      <div class="user-badge" id="userBadge" style="display:none;background:var(--bg3);border-radius:20px;padding:4px 12px;"><span class="user-avatar" id="userAvatar" style="width:24px;height:24px;border-radius:50%;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;color:#fff;margin-right:6px;">U</span><span id="userNameDisplay">User</span></div>
+      <button onclick="handleLogout()" id="logoutButton" class="btn btn-danger btn-sm hidden">Logout</button>
+      <button onclick="goToLandingPage()" class="btn btn-gray btn-sm">Halaman Utama</button>
+    </div>
+  </header>
+
+  <div class="whatsapp-banner" onclick="openWhatsApp()">
+    <div><span class="whatsapp-banner-icon">💬</span> <strong>Bantuan & Aktivasi:</strong> <span id="whatsappNumberApp">+6281220285226</span></div>
+    <div>Chat WhatsApp 👉</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid" id="dashboardStats">
+    <div class="stat-card"><div class="stat-value" id="statTotalGenerations">0</div><div class="stat-label">Total Generasi</div></div>
+    <div class="stat-card"><div class="stat-value" id="statStorage">0 KB</div><div class="stat-label">Penyimpanan</div></div>
+    <div class="stat-card" style="border-color:var(--accent);"><div class="stat-value" id="statPremiumStatus">Free</div><div class="stat-label">Status Akun</div></div>
+  </div>
+
+  <!-- MENU UTAMA -->
+  <h3 class="text-lg font-bold mb-3">Menu AI Media</h3>
+  <div class="menu-grid" id="mainMenu">
+    <div class="menu-card" onclick="showGenerateImageModal()"><div class="menu-card-icon">🖼️</div><h4>Generate Foto</h4></div>
+    <div class="menu-card" onclick="showGenerateVideoModal()"><div class="menu-card-icon">🎬</div><h4>Generate Video</h4></div>
+    <div class="menu-card" onclick="showEditImageModal()"><div class="menu-card-icon">✂️</div><h4>Edit Foto</h4></div>
+    <div class="menu-card" onclick="showEditVideoModal()"><div class="menu-card-icon">🎞️</div><h4>Edit Video</h4></div>
+    <div class="menu-card" onclick="showCollectionModal()"><div class="menu-card-icon">📁</div><h4>Koleksi</h4></div>
+    <div class="menu-card" onclick="showChatAIModal()"><div class="menu-card-icon">💬</div><h4>AI Chat</h4></div>
+  </div>
+  <button onclick="showActivationModal()" class="btn btn-warning w-full mt-3" id="activationToolbarButton" style="display:none;">🔑 Upgrade ke Premium</button>
+</div>
+
+<!-- ========== MODAL: LOGIN ========== -->
+<div class="modal-overlay" id="loginModal"><div class="modal-content" style="max-width:420px;">
+  <div class="modal-header"><h3>Login</h3><button class="modal-close" onclick="closeModal('loginModal')">✕</button></div>
+  <div class="modal-body">
+    <div class="form-group"><input type="text" id="loginUsername" placeholder="Username atau Email"></div>
+    <div class="form-group"><input type="password" id="loginPassword" placeholder="Password"></div>
+    <button onclick="handleLogin()" class="btn btn-success btn-block">Masuk</button>
+    <div class="form-error" id="loginError"></div>
+    <div class="flex-between mt-3 text-sm"><span class="link-text" onclick="closeModal('loginModal');showRegisterModal()">Daftar Baru</span><span class="link-text" onclick="closeModal('loginModal');openModal('forgotPasswordModal')">Lupa Password?</span></div>
+  </div>
+</div></div>
+
+<!-- REGISTER MODAL -->
+<div class="modal-overlay" id="registerModal"><div class="modal-content" style="max-width:420px;">
+  <div class="modal-header"><h3>Daftar Akun</h3><button class="modal-close" onclick="closeModal('registerModal')">✕</button></div>
+  <div class="modal-body">
+    <input type="text" id="registerNama" placeholder="Nama Lengkap" class="mb-2">
+    <input type="email" id="registerEmail" placeholder="Email" class="mb-2">
+    <input type="text" id="registerHp" placeholder="No HP (08xxx)" class="mb-2">
+    <input type="text" id="registerUsername" placeholder="Username" class="mb-2">
+    <input type="password" id="registerPassword" placeholder="Password (min 6)" class="mb-2">
+    <input type="password" id="registerPasswordConfirm" placeholder="Konfirmasi Password" class="mb-2">
+    <button onclick="handleRegister()" class="btn btn-primary btn-block">Daftar</button>
+    <div class="form-error" id="registerError"></div><div class="form-success" id="registerSuccess"></div>
+  </div>
+</div></div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="modal-overlay" id="forgotPasswordModal"><div class="modal-content" style="max-width:420px;">
+  <div class="modal-header"><h3>Lupa Password</h3><button class="modal-close" onclick="closeModal('forgotPasswordModal')">✕</button></div>
+  <div class="modal-body">
+    <input type="text" id="forgotNama" placeholder="Nama Lengkap" class="mb-2">
+    <input type="email" id="forgotEmail" placeholder="Email" class="mb-2">
+    <input type="text" id="forgotHp" placeholder="No HP" class="mb-2">
+    <button onclick="handleForgotPassword()" class="btn btn-warning btn-block">Kirim Reset via WhatsApp</button>
+    <div class="form-error" id="forgotError"></div><div class="form-success" id="forgotSuccess"></div>
+  </div>
+</div></div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profileModal"><div class="modal-content" style="max-width:450px;">
+  <div class="modal-header"><h3>Profil</h3><button class="modal-close" onclick="closeModal('profileModal')">✕</button></div>
+  <div class="modal-body">
+    <div id="profileAvatarBig" style="width:60px;height:60px;border-radius:50%;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;margin-bottom:12px;">U</div>
+    <h4 id="profileName">User</h4><p id="profileRole" class="text-sm text-muted">User Biasa</p>
+    <input type="text" id="editProfileNama" placeholder="Nama" class="mb-2">
+    <input type="email" id="editProfileEmail" placeholder="Email" class="mb-2">
+    <input type="text" id="editProfileHp" placeholder="No HP" class="mb-2">
+    <button onclick="saveProfile()" class="btn btn-success btn-block">Simpan</button>
+    <div class="form-error" id="profileError"></div><div class="form-success" id="profileSuccess"></div>
+    <hr style="border-color:var(--border);margin:16px 0;">
+    <button onclick="deleteAccount()" id="deleteAccountButton" class="btn btn-danger btn-block">🗑 Hapus Akun</button>
+  </div>
+</div></div>
+
+<!-- SUPER ADMIN MODAL (mirip sebelumnya, disesuaikan) -->
+<div class="modal-overlay" id="superAdminModal"><div class="modal-content" style="max-width:750px;">
+  <div class="modal-header"><h3>Panel Super Admin</h3><button class="modal-close" onclick="closeModal('superAdminModal')">✕</button></div>
+  <div class="modal-body">
+    <div class="admin-tabs flex gap-sm mb-4">
+      <button class="btn btn-sm btn-outline active" onclick="switchAdminTab('codes')">Kode Aktivasi</button>
+      <button class="btn btn-sm btn-outline" onclick="switchAdminTab('users')">User</button>
+      <button class="btn btn-sm btn-outline" onclick="switchAdminTab('packages')">Paket</button>
+      <button class="btn btn-sm btn-outline" onclick="switchAdminTab('settings')">Pengaturan</button>
+    </div>
+    <div id="adminTabContent"></div>
+  </div>
+</div></div>
+
+<!-- GENERATE IMAGE MODAL -->
+<div class="modal-overlay" id="generateImageModal"><div class="modal-content" style="max-width:600px;">
+  <div class="modal-header"><h3>🖼️ Generate Foto AI</h3><button class="modal-close" onclick="closeModal('generateImageModal')">✕</button></div>
+  <div class="modal-body">
+    <textarea id="imagePrompt" rows="3" placeholder="Deskripsikan gambar yang ingin dibuat..."></textarea>
+    <button onclick="generateImage()" class="btn btn-primary btn-block mt-3">Generate Gambar</button>
+    <div class="form-error" id="imageError"></div>
+    <div class="media-result hidden" id="imageResult">
+      <img id="generatedImage" crossorigin="anonymous">
+      <div class="flex gap-sm mt-3"><button onclick="downloadMedia('image')" class="btn btn-success btn-sm">Download</button><button onclick="saveToCollection('image')" class="btn btn-info btn-sm">Simpan ke Koleksi</button></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- GENERATE VIDEO MODAL -->
+<div class="modal-overlay" id="generateVideoModal"><div class="modal-content" style="max-width:600px;">
+  <div class="modal-header"><h3>🎬 Generate Video AI</h3><button class="modal-close" onclick="closeModal('generateVideoModal')">✕</button></div>
+  <div class="modal-body">
+    <textarea id="videoPrompt" rows="3" placeholder="Deskripsikan video yang ingin dibuat..."></textarea>
+    <button onclick="generateVideo()" class="btn btn-primary btn-block mt-3">Generate Video</button>
+    <div class="form-error" id="videoError"></div>
+    <div class="media-result hidden" id="videoResult">
+      <video id="generatedVideo" controls crossorigin="anonymous"></video>
+      <div class="flex gap-sm mt-3"><button onclick="downloadMedia('video')" class="btn btn-success btn-sm">Download</button><button onclick="saveToCollection('video')" class="btn btn-info btn-sm">Simpan ke Koleksi</button></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- EDIT IMAGE MODAL -->
+<div class="modal-overlay" id="editImageModal"><div class="modal-content" style="max-width:650px;">
+  <div class="modal-header"><h3>✂️ Edit Foto</h3><button class="modal-close" onclick="closeModal('editImageModal')">✕</button></div>
+  <div class="modal-body">
+    <input type="file" id="editImageInput" accept="image/*" onchange="loadImageForEdit()">
+    <div class="flex gap-sm mt-3 flex-wrap">
+      <button onclick="applyFilter('grayscale')" class="btn btn-sm btn-gray">Grayscale</button>
+      <button onclick="applyFilter('sepia')" class="btn btn-sm btn-gray">Sepia</button>
+      <button onclick="applyFilter('invert')" class="btn btn-sm btn-gray">Invert</button>
+      <button onclick="applyFilter('none')" class="btn btn-sm btn-gray">Normal</button>
+      <button onclick="rotateImage(90)" class="btn btn-sm btn-info">Rotasi 90°</button>
+    </div>
+    <div class="media-result mt-3" id="editCanvasContainer" style="display:none;">
+      <canvas id="editCanvas" style="max-width:100%;border:1px solid var(--border);border-radius:8px;"></canvas>
+      <button onclick="downloadEditedImage()" class="btn btn-success btn-sm mt-2">Download Hasil Edit</button>
+    </div>
+  </div>
+</div></div>
+
+<!-- EDIT VIDEO MODAL (Premium only) -->
+<div class="modal-overlay" id="editVideoModal"><div class="modal-content" style="max-width:650px;">
+  <div class="modal-header"><h3>🎞️ Edit Video (Premium)</h3><button class="modal-close" onclick="closeModal('editVideoModal')">✕</button></div>
+  <div class="modal-body">
+    <div id="editVideoPremiumNotice" class="text-center text-muted">Fitur ini hanya untuk pengguna Premium. <a class="link-text" onclick="showActivationModal()">Upgrade sekarang</a></div>
+    <div id="editVideoContent" class="hidden">
+      <input type="file" id="editVideoInput" accept="video/*" onchange="loadVideoForEdit()">
+      <video id="editVideoPreview" controls style="max-width:100%;border-radius:8px;" class="mt-3"></video>
+    </div>
+  </div>
+</div></div>
+
+<!-- COLLECTION MODAL -->
+<div class="modal-overlay" id="collectionModal"><div class="modal-content" style="max-width:650px;">
+  <div class="modal-header"><h3>📁 Koleksi Saya</h3><button class="modal-close" onclick="closeModal('collectionModal')">✕</button></div>
+  <div class="modal-body" id="collectionList" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
+</div></div>
+
+<!-- AI CHAT MODAL -->
+<div class="modal-overlay" id="chatAIModal"><div class="modal-content" style="max-width:500px;">
+  <div class="modal-header"><h3>💬 AI Chat Assistant</h3><button class="modal-close" onclick="closeModal('chatAIModal')">✕</button></div>
+  <div class="modal-body">
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="flex gap-sm"><input type="text" id="chatInput" placeholder="Ketik pesan..."><button onclick="sendChatMessage()" class="btn btn-primary btn-sm">Kirim</button></div>
+  </div>
+</div></div>
+
+<!-- ACTIVATION MODAL -->
+<div class="modal-overlay" id="activationModal"><div class="modal-content" style="max-width:420px;">
+  <div class="modal-header"><h3>Aktivasi Premium</h3><button class="modal-close" onclick="closeModal('activationModal')">✕</button></div>
+  <div class="modal-body">
+    <input type="text" id="activationCodeInputMain" placeholder="Masukkan kode aktivasi">
+    <button onclick="activatePremiumFromModal()" class="btn btn-success btn-block mt-3">Aktifkan</button>
+    <div class="form-error" id="activationModalError"></div><div class="form-success" id="activationModalSuccess"></div>
+  </div>
+</div></div>
+
+<div id="toastContainer" class="toast-container"></div>
+</body>
+
+<script>
+// ===== SERVICE WORKER =====
+if('serviceWorker' in navigator){
+  var swBlob = new Blob(["var CACHE='aistudio-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));"],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+}
+
+// ===== ENCRYPT =====
+function encodePw(pw){return btoa(pw)}
+function decodePw(h){return atob(h)}
+
+// ===== DEFAULT DATA =====
+var SUPER_ADMIN = {id:'sa',username:'superadmin',password:encodePw('admin123'),nama:'Super Admin',email:'admin@aistudio.com',hp:'081220285226',role:'superadmin',premium:true,premiumExpiry:null,locked:false};
+var DEF_WHATSAPP = '081220285226';
+var DEF_PACKAGES = [
+  {id:'free',name:'Free',price:0,days:36500,label:'Selamanya'},
+  {id:'premium1',name:'Premium Bulanan',price:50000,days:30,label:'1 Bulan'},
+  {id:'premium3',name:'Premium 3 Bulan',price:120000,days:90,label:'3 Bulan'}
+];
+
+// ===== LOCAL STORAGE =====
+function gs(k,d){try{var v=localStorage.getItem('ai_'+k);return v?JSON.parse(v):d}catch(e){return d}}
+function ss(k,v){localStorage.setItem('ai_'+k,JSON.stringify(v))}
+function rs(k){localStorage.removeItem('ai_'+k)}
+function getAllUsers(){return gs('users',[])}
+function saveAllUsers(u){ss('users',u)}
+function getSession(){return gs('session',null)}
+function saveSession(s){ss('session',s)}
+function clearSession(){rs('session')}
+function getPackages(){return gs('packages',DEF_PACKAGES)}
+function savePackages(p){ss('packages',p)}
+function getWA(){return gs('whatsapp',DEF_WHATSAPP)}
+function saveWA(n){ss('whatsapp',n)}
+function getCodes(){return gs('codes',{})}
+function saveCodes(c){ss('codes',c)}
+function getCollections(){return gs('collections',{})}
+function saveCollections(c){ss('collections',c)}
+
+// ===== WHATSAPP =====
+function formatWA(raw){var n=raw.replace(/[^0-9]/g,'');if(n.startsWith('0'))n='62'+n.substring(1);if(!n.startsWith('62'))n='62'+n;return '+'+n}
+function updateWA(){var f=formatWA(getWA());['whatsappNumberLanding','whatsappNumberApp'].forEach(id=>{var el=document.getElementById(id);if(el)el.textContent=f})}
+function openWhatsApp(msg){var link=getWA().replace(/[^0-9]/g,'');window.open('https://wa.me/'+link+(msg?'?text='+encodeURIComponent(msg):''),'_blank')}
+
+// ===== TOAST =====
+function showToast(msg,type){
+  var c=document.getElementById('toastContainer');var t=document.createElement('div');
+  t.className='toast toast-'+(type||'info');t.textContent=msg;c.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},3000);
+}
+
+// ===== MODAL =====
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show');clearModalErrors()}
+function clearModalErrors(){document.querySelectorAll('.form-error,.form-success').forEach(el=>{el.textContent='';el.classList.remove('show')})}
+
+// ===== THEME =====
+function toggleTheme(){document.body.classList.toggle('light-theme');var is=document.body.classList.contains('light-theme');var t=is?'☀️ Light':'🌙 Dark';document.querySelectorAll('#themeButton1,#themeButton2').forEach(b=>b.textContent=t);localStorage.setItem('ai_theme',is?'light':'dark')}
+(function(){if(localStorage.getItem('ai_theme')==='light'){document.body.classList.add('light-theme');document.querySelectorAll('#themeButton1,#themeButton2').forEach(b=>b.textContent='☀️ Light')}})()
+
+// ===== NAVIGATION =====
+function openApplication(){var s=getSession();if(!s)return showLoginModal();document.getElementById('landingPage').classList.add('hidden');document.getElementById('applicationPage').classList.remove('hidden');updateHeaderUser();updateStats()}
+function goToLandingPage(){document.getElementById('applicationPage').classList.add('hidden');document.getElementById('landingPage').classList.remove('hidden')}
+function showLoginModal(){openModal('loginModal')}
+function showRegisterModal(){openModal('registerModal')}
+function showActivationModal(){if(!getSession())return showLoginModal();openModal('activationModal')}
+
+// ===== AUTH =====
+function handleLogin(){
+  var u=document.getElementById('loginUsername').value.trim(),p=document.getElementById('loginPassword').value;
+  var err=document.getElementById('loginError');err.classList.remove('show');
+  if(!u||!p){err.textContent='Isi semua field!';err.classList.add('show');return}
+  if(u===SUPER_ADMIN.username && p===decodePw(SUPER_ADMIN.password)){saveSession(SUPER_ADMIN);closeModal('loginModal');openApplication();return}
+  var users=getAllUsers();var user=users.find(x=>(x.username===u||x.email===u)&&p===decodePw(x.password));
+  if(!user){err.textContent='Username/password salah!';err.classList.add('show');return}
+  if(user.locked){err.textContent='Akun terkunci!';err.classList.add('show');return}
+  saveSession(user);closeModal('loginModal');openApplication()
+}
+function handleRegister(){
+  var n=document.getElementById('registerNama').value.trim(),e=document.getElementById('registerEmail').value.trim(),
+      hp=document.getElementById('registerHp').value.trim(),un=document.getElementById('registerUsername').value.trim(),
+      pw=document.getElementById('registerPassword').value,cp=document.getElementById('registerPasswordConfirm').value;
+  var err=document.getElementById('registerError'),suc=document.getElementById('registerSuccess');
+  err.classList.remove('show');suc.classList.remove('show');
+  if(!n||!e||!hp||!un||!pw||!cp){err.textContent='Semua field wajib!';err.classList.add('show');return}
+  if(pw!==cp){err.textContent='Password tidak cocok!';err.classList.add('show');return}
+  if(pw.length<6){err.textContent='Password minimal 6 karakter!';err.classList.add('show');return}
+  var users=getAllUsers();
+  if(users.find(x=>x.username===un)){err.textContent='Username sudah dipakai!';err.classList.add('show');return}
+  if(users.find(x=>x.email===e)){err.textContent='Email sudah dipakai!';err.classList.add('show');return}
+  var nu={id:Date.now().toString(),nama:n,email:e,hp:hp,username:un,password:encodePw(pw),role:'user',premium:false,premiumExpiry:null,locked:false,createdAt:new Date().toISOString()};
+  users.push(nu);saveAllUsers(users);suc.textContent='Pendaftaran berhasil! Silakan login.';suc.classList.add('show');
+  setTimeout(()=>{closeModal('registerModal');showLoginModal()},2000);
+}
+function handleLogout(){clearSession();goToLandingPage();updateHeaderUser();showToast('Logout berhasil','info')}
+
+// ===== PREMIUM =====
+function activatePremiumFromModal(){
+  var code=document.getElementById('activationCodeInputMain').value.trim();
+  activatePremium(code,'activationModalError','activationModalSuccess');
+}
+function activatePremium(code,errId,sucId){
+  var err=document.getElementById(errId),suc=document.getElementById(sucId);
+  err.classList.remove('show');suc.classList.remove('show');
+  if(!code){err.textContent='Masukkan kode!';err.classList.add('show');return}
+  var s=getSession();if(!s){err.textContent='Login dulu!';err.classList.add('show');return}
+  var codes=getCodes();var cd=codes[code];
+  if(!cd||cd.used){err.textContent='Kode tidak valid/sudah dipakai!';err.classList.add('show');return}
+  var users=getAllUsers();var idx=users.findIndex(x=>x.id===s.id);
+  if(idx===-1){err.textContent='User tidak ditemukan!';err.classList.add('show');return}
+  var pkgs=getPackages();var pkg=pkgs.find(p=>p.id===cd.packageId);
+  if(!pkg){err.textContent='Paket tidak valid!';err.classList.add('show');return}
+  var now=new Date(),exp=new Date(now.getTime()+pkg.days*86400000);
+  users[idx].premium=true;users[idx].premiumExpiry=exp.toISOString();saveAllUsers(users);
+  cd.used=true;cd.usedBy=s.username;cd.usedAt=now.toISOString();codes[code]=cd;saveCodes(codes);
+  var ns=Object.assign({},users[idx]);saveSession(ns);
+  suc.textContent='Aktivasi sukses! Premium hingga '+exp.toLocaleDateString();suc.classList.add('show');
+  updateHeaderUser();updateStats();
+  setTimeout(()=>{if(document.getElementById('activationModal').classList.contains('show'))closeModal('activationModal')},2000);
+}
+
+// ===== PROFILE =====
+function showProfileModal(){openModal('profileModal');loadProfile()}
+function loadProfile(){
+  var s=getSession();if(!s)return;
+  document.getElementById('profileAvatarBig').textContent=s.nama.charAt(0).toUpperCase();
+  document.getElementById('profileName').textContent=s.nama;
+  document.getElementById('profileRole').textContent=s.role==='superadmin'?'Super Admin':(s.premium?'User Premium':'User Free');
+  document.getElementById('editProfileNama').value=s.nama||'';
+  document.getElementById('editProfileEmail').value=s.email||'';
+  document.getElementById('editProfileHp').value=s.hp||'';
+  var del=document.getElementById('deleteAccountButton');if(del)del.style.display=s.role==='superadmin'?'none':'block';
+}
+function saveProfile(){
+  var s=getSession();if(!s)return;
+  var n=document.getElementById('editProfileNama').value.trim(),e=document.getElementById('editProfileEmail').value.trim(),hp=document.getElementById('editProfileHp').value.trim();
+  var err=document.getElementById('profileError'),suc=document.getElementById('profileSuccess');
+  err.classList.remove('show');suc.classList.remove('show');
+  if(!n||!e||!hp){err.textContent='Semua field wajib!';err.classList.add('show');return}
+  s.nama=n;s.email=e;s.hp=hp;saveSession(s);
+  var users=getAllUsers();var idx=users.findIndex(x=>x.id===s.id);
+  if(idx!==-1){users[idx].nama=n;users[idx].email=e;users[idx].hp=hp;saveAllUsers(users)}
+  suc.textContent='Profil tersimpan!';suc.classList.add('show');updateHeaderUser();
+  setTimeout(()=>closeModal('profileModal'),1500);
+}
+function deleteAccount(){
+  var s=getSession();if(!s||s.role==='superadmin')return;
+  if(confirm('Hapus akun Anda? Semua data akan hilang.')){
+    var users=getAllUsers().filter(x=>x.id!==s.id);saveAllUsers(users);
+    var cols=getCollections();delete cols[s.id];saveCollections(cols);
+    clearSession();goToLandingPage();updateHeaderUser();showToast('Akun dihapus','warning');
+    closeModal('profileModal');
+  }
+}
+
+// ===== HEADER =====
+function updateHeaderUser(){
+  var s=getSession();
+  ['profileButton','logoutButton'].forEach(id=>document.getElementById(id).classList.toggle('hidden',!s));
+  document.getElementById('adminButton').classList.toggle('hidden',!(s&&s.role==='superadmin'));
+  var badge=document.getElementById('userBadge');if(s){badge.style.display='flex';document.getElementById('userAvatar').textContent=s.nama.charAt(0).toUpperCase();document.getElementById('userNameDisplay').textContent=s.nama}else{badge.style.display='none'}
+  var act=document.getElementById('activationToolbarButton');if(act)act.style.display=(s&&!s.premium&&s.role!=='superadmin')?'block':'none';
+}
+
+// ===== STATS =====
+function updateStats(){
+  var s=getSession();if(!s)return;
+  var cols=getCollections()[s.id]||[];var size=0;
+  cols.forEach(c=>{if(c.data)size+=new Blob([c.data]).size});
+  document.getElementById('statTotalGenerations').textContent=cols.length;
+  document.getElementById('statStorage').textContent=(size/1024).toFixed(1)+' KB';
+  document.getElementById('statPremiumStatus').textContent=(s.premium||s.role==='superadmin')?'Premium':'Free';
+}
+
+// ===== INSTALL =====
+var deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').style.display='flex'});
+function installApplication(){
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{if(r.outcome==='accepted')showToast('Terinstall!','success');deferredPrompt=null})}
+  else if(window.matchMedia('(display-mode: standalone)').matches)showToast('Sudah terinstall','warning');
+  else alert('Buka menu browser lalu pilih "Tambahkan ke Layar Utama".')
+}
+function downloadForOffline(){var html=document.documentElement.outerHTML;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+html],{type:'text/html'}));a.download='AI_Media_Studio_Offline.html';a.click()}
+
+// ===== SUPER ADMIN (disederhanakan) =====
+function showSuperAdminPanel(){if(!getSession()||getSession().role!=='superadmin')return;openModal('superAdminModal');switchAdminTab('codes')}
+function switchAdminTab(tab){
+  var cont=document.getElementById('adminTabContent');cont.innerHTML='';
+  if(tab==='codes'){
+    cont.innerHTML=`<h4>Buat Kode Aktivasi</h4><input id="adminActUser" placeholder="Username/email" class="mb-2"><select id="adminActPackage" class="mb-2">${getPackages().map(p=>`<option value="${p.id}">${p.name} - Rp ${p.price} (${p.label})</option>`).join('')}</select><button onclick="adminCreateCode()" class="btn btn-success btn-block">Buat Kode</button><div id="adminCodeResult"></div><h4 class="mt-4">Kode Aktif</h4><div id="activeCodesList"></div>`;
+    renderActiveCodes();
+  }else if(tab==='users'){
+    var users=getAllUsers();cont.innerHTML='<table class="admin-table"><tr><th>Nama</th><th>Username</th><th>Premium</th><th>Terkunci</th><th>Aksi</th></tr>'+users.map(u=>`<tr><td>${u.nama}</td><td>${u.username}</td><td>${u.premium?'Ya':'Tidak'}</td><td>${u.locked?'Ya':'Tidak'}</td><td><button class="btn btn-sm btn-warning" onclick="toggleLockUser('${u.id}')">${u.locked?'Buka':'Kunci'}</button> <button class="btn btn-sm btn-danger" onclick="deleteUserAdmin('${u.id}')">Hapus</button></td></tr>`).join('')+'</table>';
+  }else if(tab==='packages'){
+    cont.innerHTML='<h4>Edit Paket</h4><div id="packageEditList"></div>';renderPackageEdit();
+  }else if(tab==='settings'){
+    cont.innerHTML=`<input id="adminWA" placeholder="Nomor WA (08xxx)" value="${getWA()}" class="mb-2"><button onclick="saveAdminWA()" class="btn btn-success btn-block">Simpan Nomor WA</button>
+      <hr><input type="password" id="adminNewPass" placeholder="Password Baru Super Admin" class="mb-2"><button onclick="changeAdminPass()" class="btn btn-warning btn-block">Ganti Password</button>
+      <input id="adminNewName" placeholder="Nama Super Admin" value="${SUPER_ADMIN.nama}" class="mb-2 mt-3"><button onclick="changeAdminName()" class="btn btn-info btn-block">Ganti Nama</button>
+      <hr><button onclick="resetAllData()" class="btn btn-danger btn-block">Reset Semua Data</button>`;
+  }
+}
+function adminCreateCode(){var u=document.getElementById('adminActUser').value.trim(),pkg=document.getElementById('adminActPackage').value;var res=document.getElementById('adminCodeResult');if(!u||!pkg){res.innerHTML='<p class="form-error show">Lengkapi!</p>';return}var users=getAllUsers();var t=users.find(x=>x.username===u||x.email===u);if(!t){res.innerHTML='<p class="form-error show">User tidak ditemukan!</p>';return}var code='AI-'+Date.now().toString(36).toUpperCase();var codes=getCodes();codes[code]={packageId:pkg,used:false,createdAt:new Date().toISOString()};saveCodes(codes);res.innerHTML='<p class="form-success show">Kode: <strong>'+code+'</strong></p>';renderActiveCodes()}
+function renderActiveCodes(){var codes=getCodes();var html='';Object.keys(codes).forEach(c=>{var d=codes[c];html+=`<div>${c} - ${d.packageId} ${d.used?'<span class="text-danger">Terpakai</span>':'<span class="text-success">Aktif</span>'}</div>`});document.getElementById('activeCodesList').innerHTML=html||'Belum ada kode.'}
+function toggleLockUser(id){var users=getAllUsers();var u=users.find(x=>x.id===id);if(u){u.locked=!u.locked;saveAllUsers(users);showToast(u.locked?'User dikunci':'User dibuka','warning');switchAdminTab('users')}}
+function deleteUserAdmin(id){if(confirm('Hapus user?')){var users=getAllUsers().filter(x=>x.id!==id);saveAllUsers(users);showToast('User dihapus','warning');switchAdminTab('users')}}
+function renderPackageEdit(){var pkgs=getPackages();var html='';pkgs.forEach(p=>{html+=`<div class="flex-between"><span>${p.name} - Rp ${p.price} (${p.label})</span><button class="btn btn-sm btn-warning" onclick="editPackage('${p.id}')">Edit</button></div>`});document.getElementById('packageEditList').innerHTML=html}
+function saveAdminWA(){var v=document.getElementById('adminWA').value.trim();if(v){saveWA(v);updateWA();showToast('Nomor WA disimpan','success')}}
+function changeAdminPass(){var p=document.getElementById('adminNewPass').value.trim();if(p){SUPER_ADMIN.password=encodePw(p);showToast('Password diubah','success')}}
+function changeAdminName(){var n=document.getElementById('adminNewName').value.trim();if(n){SUPER_ADMIN.nama=n;var s=getSession();if(s&&s.role==='superadmin'){s.nama=n;saveSession(s)}showToast('Nama diubah','success')}}
+function resetAllData(){if(confirm('RESET SEMUA DATA? Tidak bisa dibatalkan.')){localStorage.clear();saveAllUsers([SUPER_ADMIN]);saveCollections({});saveCodes({});updateWA();showToast('Data direset','warning')}}
+
+// ===== INIT =====
+(function(){
+  var users=getAllUsers();if(!users.find(u=>u.role==='superadmin'))users.push(SUPER_ADMIN);saveAllUsers(users);
+  updateWA();updateHeaderUser();
+})();
+</script>
+
+<script>
+// ===== GENERATE IMAGE (Pollinations AI) =====
+function showGenerateImageModal(){openModal('generateImageModal')}
+async function generateImage(){
+  var prompt=document.getElementById('imagePrompt').value.trim();
+  var err=document.getElementById('imageError');err.classList.remove('show');
+  if(!prompt){err.textContent='Masukkan deskripsi gambar!';err.classList.add('show');return}
+  var url='https://image.pollinations.ai/prompt/'+encodeURIComponent(prompt)+'?width=512&height=512&nologo=true';
+  try{
+    var img=document.getElementById('generatedImage');img.src=url;img.onload=()=>{
+      document.getElementById('imageResult').classList.remove('hidden');
+    }
+  }catch(e){err.textContent='Gagal generate gambar.';err.classList.add('show')}
+}
+
+// ===== GENERATE VIDEO (Coverr API) =====
+function showGenerateVideoModal(){
+  var s=getSession();if(!s)return;
+  if(!s.premium&&s.role!=='superadmin'){
+    var cols=getCollections()[s.id]||[];var today=new Date().toDateString();
+    var count=cols.filter(c=>c.type==='video'&&new Date(c.createdAt).toDateString()===today).length;
+    if(count>=10){showToast('Limit video gratis 10/hari. Upgrade ke Premium.','warning');return}
+  }
+  openModal('generateVideoModal')
+}
+async function generateVideo(){
+  var prompt=document.getElementById('videoPrompt').value.trim();
+  var err=document.getElementById('videoError');err.classList.remove('show');
+  if(!prompt){err.textContent='Masukkan deskripsi video!';err.classList.add('show');return}
+  try{
+    var res=await fetch('https://api.coverr.co/videos?query='+encodeURIComponent(prompt)+'&page=1');
+    var data=await res.json();
+    if(data.hits&&data.hits.length>0){
+      var videoUrl=data.hits[0].urls.mp4||data.hits[0].urls.preview;
+      var vid=document.getElementById('generatedVideo');vid.src=videoUrl;vid.style.display='block';
+      document.getElementById('videoResult').classList.remove('hidden');
+    }else{err.textContent='Tidak ditemukan video.';err.classList.add('show')}
+  }catch(e){err.textContent='Gagal generate video.';err.classList.add('show')}
+}
+
+// ===== EDIT IMAGE =====
+var editImage=null;
+function showEditImageModal(){openModal('editImageModal')}
+function loadImageForEdit(){
+  var file=document.getElementById('editImageInput').files[0];if(!file)return;
+  var reader=new FileReader();reader.onload=function(e){
+    var img=new Image();img.onload=function(){
+      editImage=img;var canvas=document.getElementById('editCanvas');
+      canvas.width=img.width;canvas.height=img.height;
+      var ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
+      document.getElementById('editCanvasContainer').style.display='block';
+    };img.src=e.target.result;
+  };reader.readAsDataURL(file)
+}
+function applyFilter(filter){
+  if(!editImage)return;var canvas=document.getElementById('editCanvas');var ctx=canvas.getContext('2d');
+  ctx.filter=filter==='none'?'none':filter+'('+(filter==='grayscale'?'1':filter==='sepia'?'1':filter==='invert'?'1':'')+')';
+  ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(editImage,0,0);
+}
+function rotateImage(deg){
+  if(!editImage)return;var canvas=document.getElementById('editCanvas');var ctx=canvas.getContext('2d');
+  var w=canvas.width,h=canvas.height;canvas.width=h;canvas.height=w;
+  ctx.save();ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(deg*Math.PI/180);ctx.drawImage(editImage,-w/2,-h/2,w,h);ctx.restore();
+}
+function downloadEditedImage(){
+  var canvas=document.getElementById('editCanvas');var link=document.createElement('a');link.download='edited_image.png';
+  link.href=canvas.toDataURL();link.click()
+}
+
+// ===== EDIT VIDEO (Premium only) =====
+function showEditVideoModal(){
+  var s=getSession();if(!s||(!s.premium&&s.role!=='superadmin')){showToast('Fitur Premium. Silakan upgrade.','warning');return}
+  openModal('editVideoModal');document.getElementById('editVideoPremiumNotice').classList.add('hidden');document.getElementById('editVideoContent').classList.remove('hidden')
+}
+function loadVideoForEdit(){
+  var file=document.getElementById('editVideoInput').files[0];if(!file)return;
+  var url=URL.createObjectURL(file);var vid=document.getElementById('editVideoPreview');vid.src=url;
+}
+
+// ===== COLLECTION =====
+function showCollectionModal(){openModal('collectionModal');renderCollection()}
+function saveToCollection(type){
+  var s=getSession();if(!s)return;
+  var url='';
+  if(type==='image'){var img=document.getElementById('generatedImage');url=img.src}
+  else if(type==='video'){var vid=document.getElementById('generatedVideo');url=vid.src}
+  if(!url)return;
+  var cols=getCollections();var userCols=cols[s.id]||[];
+  userCols.push({type:type,url:url,createdAt:new Date().toISOString()});cols[s.id]=userCols;saveCollections(cols);
+  showToast('Disimpan ke koleksi!','success');updateStats()
+}
+function renderCollection(){
+  var s=getSession();if(!s)return;var cols=(getCollections()[s.id]||[]).reverse();
+  var cont=document.getElementById('collectionList');cont.innerHTML='';
+  cols.forEach((c,i)=>{
+    var el='';if(c.type==='image')el=`<img src="${c.url}" style="width:150px;height:150px;object-fit:cover;border-radius:8px;" onclick="window.open('${c.url}')">`;
+    else el=`<video src="${c.url}" style="width:150px;height:150px;border-radius:8px;" controls></video>`;
+    cont.innerHTML+=`<div style="position:relative">${el}<button class="btn btn-sm btn-danger" style="position:absolute;top:4px;right:4px;padding:2px 6px;" onclick="deleteCollectionItem(${i})">X</button></div>`;
+  })
+  if(cols.length===0)cont.innerHTML='<p class="text-muted">Koleksi kosong.</p>';
+}
+function deleteCollectionItem(index){
+  var s=getSession();if(!s)return;var cols=getCollections();var arr=cols[s.id]||[];
+  arr.splice(arr.length-1-index,1);cols[s.id]=arr;saveCollections(cols);renderCollection();updateStats()
+}
+
+// ===== AI CHAT (Akuari GPT) =====
+function showChatAIModal(){openModal('chatAIModal');document.getElementById('chatMessages').innerHTML=''}
+async function sendChatMessage(){
+  var input=document.getElementById('chatInput');var text=input.value.trim();if(!text)return;
+  var msgs=document.getElementById('chatMessages');msgs.innerHTML+=`<div class="chat-msg user"><strong>Anda:</strong> ${text}</div>`;
+  input.value='';msgs.scrollTop=msgs.scrollHeight;
+  try{
+    var res=await fetch('https://api.akuari.my.id/ai/gpt4?prompt='+encodeURIComponent(text));
+    var data=await res.json();var reply=data.result||data.respon||'Maaf, tidak ada respons.';
+    msgs.innerHTML+=`<div class="chat-msg bot"><strong>AI:</strong> ${reply}</div>`;msgs.scrollTop=msgs.scrollHeight;
+  }catch(e){msgs.innerHTML+=`<div class="chat-msg bot"><strong>AI:</strong> Gagal terhubung.</div>`}
+}
+
+// ===== DOWNLOAD MEDIA =====
+function downloadMedia(type){
+  var url=type==='image'?document.getElementById('generatedImage').src:document.getElementById('generatedVideo').src;
+  if(!url)return;var a=document.createElement('a');a.href=url;a.download='media_'+Date.now()+'.'+(type==='image'?'png':'mp4');a.click()
+}
+
+// ===== FORGOT PASSWORD =====
+function handleForgotPassword(){
+  var n=document.getElementById('forgotNama').value.trim(),e=document.getElementById('forgotEmail').value.trim(),hp=document.getElementById('forgotHp').value.trim();
+  var err=document.getElementById('forgotError'),suc=document.getElementById('forgotSuccess');
+  err.classList.remove('show');suc.classList.remove('show');
+  if(!n||!e||!hp){err.textContent='Lengkapi data!';err.classList.add('show');return}
+  suc.textContent='Link reset akan dikirim via WhatsApp Admin.';suc.classList.add('show');
+  setTimeout(()=>openWhatsApp('Halo admin, saya lupa password. Nama: '+n),2000)
+}
+
+// ===== EDIT PACKAGE MODAL (disediakan) =====
+function editPackage(id){
+  var pkg=getPackages().find(p=>p.id===id);if(!pkg)return;
+  var newName=prompt('Nama Paket',pkg.name);if(newName===null)return;
+  var newPrice=prompt('Harga (Rp)',pkg.price);if(newPrice===null)return;
+  var newDays=prompt('Durasi (hari)',pkg.days);if(newDays===null)return;
+  var newLabel=prompt('Label',pkg.label);if(newLabel===null)return;
+  pkg.name=newName;pkg.price=parseInt(newPrice);pkg.days=parseInt(newDays);pkg.label=newLabel;
+  var pkgs=getPackages();var idx=pkgs.findIndex(p=>p.id===id);if(idx!==-1){pkgs[idx]=pkg;savePackages(pkgs)}
+  showToast('Paket diperbarui','success');switchAdminTab('packages')
+}
+
+// ===== ONLINE/OFFLINE =====
+function updateOnlineStatus(){
+  var badge=document.getElementById('connectionBadge'),banner=document.getElementById('offlineBanner');
+  if(navigator.onLine){badge.textContent='ONLINE';badge.style.background='#2ecc71';banner.style.display='none'}
+  else{badge.textContent='OFFLINE';badge.style.background='#e74c3c';banner.style.display='flex'}
+}
+window.addEventListener('online',updateOnlineStatus);window.addEventListener('offline',updateOnlineStatus);updateOnlineStatus();
+</script>
+</html>
