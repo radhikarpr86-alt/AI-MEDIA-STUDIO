@@ -3,732 +3,1491 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#0f0f23">
+  <meta name="theme-color" content="#0a0a1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="description" content="AI Media Studio - Generate foto & video dengan AI, edit media, koleksi, dan chat AI. Multi-user, gratis & premium.">
-  <title>AI Media Studio v1.0</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230f0f23'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-size='60' fill='%23ffffff'%3E🎨%3C/text%3E%3C/svg%3E">
-  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkFJIE1lZGlhIFN0dWRpbyIsCiAgInNob3J0X25hbWUiOiAiQUkgTWVkaWEiLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjBmMjMiLAogICJ0aGVtZV9jb2xvciI6ICIjMGYwZjIzIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nJTIzMGYwZjIzJy8lM0UlM0N0ZXh0IHg9JzUwJyB5PSc2OCcgdGV4dC1hbmNob3I9J21pZGRsZScgZm9udC1zaXplPSc2MCcgZmlsbD0nJTIzZmZmZmZmJyUzRSZwIzEyNzkxMjs8L3RleHQlM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
+  <title>AI Media Studio Pro v1.0</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230a0a1a'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-size='60' fill='%23ffffff'%3E🎨%3C/text%3E%3C/svg%3E">
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkFJIE1lZGlhIFN0dWRpbyBQcm8iLAogICJzaG9ydF9uYW1lIjogIk1lZGlhIFN0dWRpbyIsCiAgInN0YXJ0X3VybCI6ICIuLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzBhMGExYSIsCiAgInRoZW1lX2NvbG9yIjogIiMwYTBhMWEiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDEwMCAxMDAnJTNFJTNDcmVjdCB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgcng9JzIwJyBmaWxsPSclMjMwYTBhMWEnLyUzRSUzQ3RleHQgeD0nNTAnIHk9JzY4JyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmb250LXNpemU9JzYwJyBmaWxsPSclMjNmZmZmZmYnJTNFJiMxMjc5MTI7PC90ZXh0JTNFJTNDL3N2ZyUzRSIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0KICBdCn0=">
   <style>
     /* ============================================================
-       AI MEDIA STUDIO v1.0 - MAIN STYLESHEET
+       AI MEDIA STUDIO PRO v1.0 - MAIN STYLESHEET (LENGKAP)
        ============================================================ */
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;vertical-align:baseline}
-    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .3s ease,color .3s ease}
-    :root{
-      --bg:#0f0f23; --bg2:#1a1a38; --bg3:#252550; --bgHover:#2f2f5f;
-      --text:#f0f0f8; --text2:#b0b0c8; --textMuted:#7878a0;
-      --accent:#9b59b6; --accentHover:#8e44ad; --accentLight:#b07cc6;
-      --success:#2ecc71; --danger:#e74c3c; --warning:#f1c40f;
-      --info:#3498db; --orange:#e67e22;
-      --border:rgba(255,255,255,0.06); --borderStrong:rgba(255,255,255,0.1);
-      --shadow:0 2px 8px rgba(0,0,0,0.4); --shadowMd:0 4px 20px rgba(0,0,0,0.5); --shadowLg:0 8px 32px rgba(0,0,0,0.6);
-      --radius:8px; --radiusMd:12px; --radiusLg:16px; --spacing:8px;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border: 0; font: inherit; vertical-align: baseline; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; min-height: 100dvh; overflow-x: hidden; transition: background 0.3s ease, color 0.3s ease; }
+    :root {
+      --bg-primary: #0a0a1a; --bg-secondary: #12122a; --bg-tertiary: #1a1a35; --bg-hover: #222240;
+      --text-primary: #e8e8f0; --text-secondary: #a0a0b8; --text-muted: #6a6a80;
+      --accent-primary: #7c3aed; --accent-hover: #6d28d9; --accent-light: #8b5cf6;
+      --color-success: #10b981; --color-success-hover: #059669; --color-danger: #ef4444; --color-danger-hover: #dc2626;
+      --color-warning: #f59e0b; --color-warning-hover: #d97706; --color-info: #3b82f6; --color-info-hover: #2563eb;
+      --color-orange: #f97316; --color-pink: #ec4899; --color-cyan: #06b6d4;
+      --border-color: rgba(255, 255, 255, 0.06); --border-color-strong: rgba(255, 255, 255, 0.1);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4); --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5); --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-full: 9999px;
+      --spacing-xs: 4px; --spacing-sm: 8px; --spacing-md: 12px; --spacing-lg: 16px; --spacing-xl: 20px; --spacing-2xl: 24px; --spacing-3xl: 32px; --spacing-4xl: 40px;
+      --transition-base: 200ms ease; --transition-slow: 300ms ease; --z-modal: 998; --z-toast: 9999;
     }
-    body.light-theme{
-      --bg:#f5f5fa; --bg2:#ffffff; --bg3:#f0f0f5; --bgHover:#e8e8f0;
-      --text:#1a1a2e; --text2:#555570; --textMuted:#8888a0;
-      --border:rgba(0,0,0,0.08); --borderStrong:rgba(0,0,0,0.12);
+    body.light-theme {
+      --bg-primary: #f5f5f8; --bg-secondary: #ffffff; --bg-tertiary: #f0f0f5; --bg-hover: #e5e5ea;
+      --text-primary: #1e293b; --text-secondary: #64748b; --text-muted: #94a3b8;
+      --border-color: rgba(0, 0, 0, 0.08); --border-color-strong: rgba(0, 0, 0, 0.12);
     }
-    ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:20px}
-    *{scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .hidden{display:none!important}
-    .flex{display:flex}.flex-center{display:flex;align-items:center;justify-content:center}.flex-between{display:flex;align-items:center;justify-content:space-between}.flex-wrap{flex-wrap:wrap}.gap-sm{gap:8px}.gap-md{gap:12px}.gap-lg{gap:16px}.w-full{width:100%}.text-center{text-align:center}.text-sm{font-size:.85rem}.text-xs{font-size:.75rem}.text-lg{font-size:1.1rem}.text-xl{font-size:1.3rem}.text-2xl{font-size:1.8rem}.font-bold{font-weight:700}.text-muted{color:var(--textMuted)}.text-success{color:var(--success)}.text-danger{color:var(--danger)}.text-warning{color:var(--warning)}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:var(--radius);font-weight:600;cursor:pointer;transition:all .2s ease;font-size:.9rem;min-height:40px;background:var(--textMuted);color:#fff;border:none;font-family:inherit}
-    .btn:hover{transform:translateY(-1px);box-shadow:var(--shadowMd)}.btn:active{transform:translateY(0)}.btn:disabled{opacity:.5;cursor:not-allowed}
-    .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accentHover)}
-    .btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#27ae60}
-    .btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#c0392b}
-    .btn-warning{background:var(--warning);color:#000}.btn-warning:hover{background:#f39c12}
-    .btn-info{background:var(--info);color:#fff}.btn-info:hover{background:#2980b9}
-    .btn-gray{background:var(--textMuted);color:#fff}.btn-gray:hover{background:#666}
-    .btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accentLight)}.btn-outline:hover{background:var(--accent);color:#fff}
-    .btn-sm{padding:6px 14px;font-size:.8rem;min-height:30px}.btn-lg{padding:14px 28px;font-size:1.05rem;min-height:48px}.btn-xl{padding:18px 36px;font-size:1.15rem;min-height:56px}.btn-block{width:100%}
-    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-    .badge-success{background:var(--success);color:#fff}.badge-danger{background:var(--danger);color:#fff}.badge-warning{background:var(--warning);color:#000}.badge-purple{background:var(--accent);color:#fff}
-    input,textarea,select{width:100%;padding:10px 14px;border:1px solid var(--borderStrong);border-radius:var(--radius);font-size:.9rem;transition:all .2s ease;background:var(--bg3);color:var(--text);font-family:inherit}
-    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(155,89,182,0.15)}input::placeholder,textarea::placeholder{color:var(--textMuted)}
-    textarea{resize:vertical;min-height:80px;font-family:'Courier New',monospace;font-size:.85rem;line-height:1.7}
-    select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b0b0c8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer}
-    .form-group{margin-bottom:16px}.form-label{display:block;margin-bottom:8px;font-weight:500;font-size:.85rem;color:var(--text2)}.form-hint{font-size:.75rem;color:var(--textMuted);margin-top:4px}
-    .form-error{color:var(--danger);font-size:.8rem;margin-top:4px;display:none}.form-error.show{display:block}
-    .form-success{color:var(--success);font-size:.8rem;margin-top:4px;display:none}.form-success.show{display:block}
-    .link-text{color:var(--accentLight);cursor:pointer;transition:color .2s}.link-text:hover{color:var(--accent);text-decoration:underline}
-    .toast-container{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;max-width:90%;pointer-events:none}
-    .toast{background:var(--bg2);color:var(--text);padding:12px 20px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadowLg);font-size:.9rem;opacity:0;transform:translateY(20px);transition:all .2s;pointer-events:auto;text-align:center;margin-bottom:8px;border-left:4px solid var(--accent)}.toast.show{opacity:1;transform:translateY(0)}.toast.toast-success{border-left-color:var(--success)}.toast.toast-error{border-left-color:var(--danger)}.toast.toast-warning{border-left-color:var(--warning)}
-    .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:998;padding:16px}
-    .modal-overlay.show{display:flex}
-    .modal-content{background:var(--bg2);border-radius:var(--radiusLg);max-width:600px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;animation:slideUp 0.3s ease;border:1px solid var(--border);box-shadow:var(--shadowLg)}
-    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
-    .modal-header h3{margin:0;font-size:1.2rem;font-weight:700}.modal-close{background:none;border:none;font-size:1.5rem;color:var(--text2);cursor:pointer;padding:4px;transition:all .2s;line-height:1}.modal-close:hover{color:var(--danger);transform:rotate(90deg)}
-    .modal-body{padding:8px 0}.modal-footer{display:flex;gap:12px;padding-top:20px;border-top:1px solid var(--border);margin-top:20px;justify-content:flex-end}
-    .container{max-width:1000px;margin:0 auto;padding:16px;min-height:100vh}
-    .header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--bg2);border-radius:var(--radiusMd);border:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap;gap:8px}
-    .logo{font-size:1.2rem;font-weight:700;display:flex;align-items:center;gap:8px}.logo-icon{font-size:1.3rem}.logo-text{background:linear-gradient(135deg,var(--accentLight),#d7bde2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .hero{text-align:center;padding:32px 20px;background:var(--bg2);border-radius:var(--radiusLg);border:1px solid var(--border);margin-bottom:20px}.hero-icon{font-size:3rem;margin-bottom:12px}.hero h1{font-size:2rem;font-weight:800;margin-bottom:8px}.gradient-text{background:linear-gradient(135deg,var(--accentLight),#d7bde2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hero-description{font-size:1rem;color:var(--text2);max-width:600px;margin:0 auto 20px;line-height:1.6}
-    .whatsapp-banner{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;padding:16px 20px;border-radius:var(--radiusMd);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;cursor:pointer;transition:all .2s;border:2px solid transparent}.whatsapp-banner:hover{transform:translateY(-2px);box-shadow:var(--shadowMd)}
-    .features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
-    .feature-card{background:var(--bg2);border-radius:var(--radiusMd);padding:20px;border:1px solid var(--border);text-align:center;transition:all .2s}.feature-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:var(--shadowMd)}.feature-icon{font-size:2rem;margin-bottom:8px}.feature-card h4{font-size:1rem;font-weight:600;margin-bottom:4px}.feature-card p{font-size:.85rem;color:var(--text2);margin:0;line-height:1.5}
-    .price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:24px}
-    .price-card{background:var(--bg2);border-radius:var(--radiusLg);padding:24px;border:2px solid var(--border);text-align:center;transition:all .2s;position:relative;cursor:pointer}.price-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:var(--shadowMd)}.price-card.featured{border-color:var(--accent);background:var(--bg3)}.featured-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:3px 16px;border-radius:20px;font-size:.7rem;font-weight:700;white-space:nowrap}.price-icon{font-size:2.5rem;margin-bottom:8px}.price-name{font-size:1.2rem;font-weight:700}.price-value{font-size:2rem;font-weight:800;color:var(--success);margin:8px 0}.price-duration{font-size:.85rem;color:var(--text2)}
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:20px}
-    .stat-card{background:var(--bg2);border-radius:var(--radius);padding:16px;border:1px solid var(--border);text-align:center}.stat-value{font-size:1.5rem;font-weight:700;color:var(--accentLight)}.stat-label{font-size:.78rem;color:var(--text2);margin-top:4px}
-    .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-    .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:24px}
-    .menu-card{background:var(--bg2);border-radius:var(--radiusMd);padding:20px;border:1px solid var(--border);text-align:center;cursor:pointer;transition:all .2s}.menu-card:hover{border-color:var(--accent);transform:translateY(-3px)}.menu-card-icon{font-size:2.5rem;margin-bottom:8px}.menu-card h4{font-size:1rem;font-weight:600;margin:0}
-    .media-result{margin-top:16px;text-align:center}.media-result img,.media-result video{max-width:100%;border-radius:var(--radius);border:1px solid var(--border)}
-    .chat-messages{flex:1;overflow-y:auto;padding:12px;background:var(--bg3);border-radius:var(--radius);margin-bottom:12px;max-height:300px}
-    .chat-msg{margin-bottom:8px;padding:8px 12px;border-radius:8px;max-width:80%;word-wrap:break-word;font-size:.85rem;line-height:1.4}.chat-msg.user{background:var(--accent);color:#fff;margin-left:auto;text-align:right}.chat-msg.bot{background:var(--bgHover);color:var(--text);margin-right:auto}
-    @media(max-width:640px){.hero h1{font-size:1.5rem}.header{flex-direction:column;align-items:stretch}.features-grid,.price-grid,.menu-grid{grid-template-columns:1fr}}
+    ::-webkit-scrollbar { width: 4px; height: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: var(--radius-full); }
+    * { scrollbar-width: thin; scrollbar-color: var(--accent-primary) transparent; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .hidden { display: none !important; }
+    .flex { display: flex; } .flex-center { display: flex; align-items: center; justify-content: center; } .flex-between { display: flex; align-items: center; justify-content: space-between; } .flex-col { flex-direction: column; } .flex-wrap { flex-wrap: wrap; }
+    .gap-xs { gap: var(--spacing-xs); } .gap-sm { gap: var(--spacing-sm); } .gap-md { gap: var(--spacing-md); } .gap-lg { gap: var(--spacing-lg); } .gap-xl { gap: var(--spacing-xl); }
+    .w-full { width: 100%; } .text-center { text-align: center; } .text-sm { font-size: 0.85rem; } .text-xs { font-size: 0.75rem; } .text-lg { font-size: 1.1rem; } .text-xl { font-size: 1.3rem; } .text-2xl { font-size: 1.8rem; }
+    .font-bold { font-weight: 700; } .font-semibold { font-weight: 600; } .text-muted { color: var(--text-muted); } .text-secondary { color: var(--text-secondary); } .text-accent { color: var(--accent-light); }
+    .text-success { color: var(--color-success); } .text-danger { color: var(--color-danger); } .text-warning { color: var(--color-warning); }
+    .bg-secondary { background: var(--bg-secondary); } .bg-tertiary { background: var(--bg-tertiary); }
+    .rounded-sm { border-radius: var(--radius-sm); } .rounded-md { border-radius: var(--radius-md); } .rounded-lg { border-radius: var(--radius-lg); } .rounded-full { border-radius: var(--radius-full); }
+    .shadow { box-shadow: var(--shadow-sm); } .shadow-md { box-shadow: var(--shadow-md); } .border { border: 1px solid var(--border-color); } .cursor-pointer { cursor: pointer; }
+    .overflow-hidden { overflow: hidden; } .overflow-auto { overflow-y: auto; } .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* ---------- BUTTONS ---------- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 20px; border: none; border-radius: var(--radius-sm); font-weight: 600;
+      cursor: pointer; transition: all var(--transition-base); font-size: 0.9rem; min-height: 40px; text-decoration: none; line-height: 1.2; font-family: inherit;
+      background: var(--text-muted); color: #ffffff;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); } .btn:active { transform: translateY(0); } .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    .btn-primary { background: var(--accent-primary); color: #ffffff; } .btn-primary:hover { background: var(--accent-hover); }
+    .btn-success { background: var(--color-success); color: #ffffff; } .btn-success:hover { background: var(--color-success-hover); }
+    .btn-danger { background: var(--color-danger); color: #ffffff; } .btn-danger:hover { background: var(--color-danger-hover); }
+    .btn-warning { background: var(--color-warning); color: #000000; } .btn-warning:hover { background: var(--color-warning-hover); }
+    .btn-blue { background: var(--color-info); color: #ffffff; } .btn-blue:hover { background: var(--color-info-hover); }
+    .btn-gray { background: var(--text-muted); color: #ffffff; } .btn-gray:hover { background: #7a7a8a; }
+    .btn-orange { background: var(--color-orange); color: #ffffff; } .btn-orange:hover { background: #e0650f; }
+    .btn-outline { background: transparent; border: 2px solid var(--accent-primary); color: var(--accent-light); } .btn-outline:hover { background: var(--accent-primary); color: #ffffff; }
+    .btn-sm { padding: 6px 14px; font-size: 0.8rem; min-height: 30px; } .btn-lg { padding: 14px 28px; font-size: 1.05rem; min-height: 48px; } .btn-xl { padding: 18px 36px; font-size: 1.15rem; min-height: 56px; } .btn-block { width: 100%; display: flex; }
+    /* ---------- BADGES ---------- */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge-success { background: var(--color-success); color: #ffffff; } .badge-danger { background: var(--color-danger); color: #ffffff; } .badge-warning { background: var(--color-warning); color: #000000; } .badge-purple { background: var(--accent-primary); color: #ffffff; }
+    /* ---------- FORMS ---------- */
+    input, textarea, select {
+      width: 100%; padding: 10px 14px; border: 1px solid var(--border-color-strong); border-radius: var(--radius-sm); font-size: 0.9rem; transition: all var(--transition-base);
+      background: var(--bg-tertiary); color: var(--text-primary); font-family: inherit;
+    }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15); }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
+    textarea { resize: vertical; min-height: 80px; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.7; }
+    select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0a0b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+    .form-group { margin-bottom: var(--spacing-lg); } .form-label { display: block; margin-bottom: var(--spacing-sm); font-weight: 500; font-size: 0.85rem; color: var(--text-secondary); }
+    .form-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: var(--spacing-xs); } .form-error { color: var(--color-danger); font-size: 0.8rem; margin-top: var(--spacing-xs); display: none; } .form-error.show { display: block; }
+    .form-success { color: var(--color-success); font-size: 0.8rem; margin-top: var(--spacing-xs); display: none; } .form-success.show { display: block; }
+    .link-text { color: var(--accent-light); cursor: pointer; transition: color var(--transition-base); } .link-text:hover { color: var(--accent-primary); text-decoration: underline; }
+    /* ---------- TOAST ---------- */
+    .toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: var(--z-toast); max-width: 90%; pointer-events: none; }
+    .toast { background: var(--bg-secondary); color: var(--text-primary); padding: 12px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); font-size: 0.9rem; opacity: 0; transform: translateY(20px); transition: all var(--transition-base); pointer-events: auto; text-align: center; margin-bottom: 8px; border-left: 4px solid var(--accent-primary); } .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.toast-success { border-left-color: var(--color-success); } .toast.toast-error { border-left-color: var(--color-danger); } .toast.toast-warning { border-left-color: var(--color-warning); }
+    /* ---------- MODAL ---------- */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: var(--z-modal); padding: var(--spacing-lg); }
+    .modal-overlay.show { display: flex; }
+    .modal-content { background: var(--bg-secondary); border-radius: var(--radius-lg); max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; padding: var(--spacing-2xl); animation: slideUp 0.3s ease; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); }
+    .modal-content.wide { max-width: 750px; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-xl); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-color); } .modal-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; color: var(--text-secondary); cursor: pointer; padding: 4px; transition: all var(--transition-base); line-height: 1; } .modal-close:hover { color: var(--color-danger); transform: rotate(90deg); }
+    .modal-body { padding: var(--spacing-sm) 0; } .modal-footer { display: flex; gap: var(--spacing-md); padding-top: var(--spacing-xl); border-top: 1px solid var(--border-color); margin-top: var(--spacing-xl); justify-content: flex-end; }
+    /* ---------- LAYOUT ---------- */
+    .container { max-width: 1000px; margin: 0 auto; padding: var(--spacing-lg); min-height: 100vh; }
+    /* ---------- HEADER ---------- */
+    .header { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-xl); background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: var(--spacing-xl); flex-wrap: wrap; gap: var(--spacing-sm); }
+    .logo { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: var(--spacing-sm); } .logo-icon { font-size: 1.3rem; }
+    .logo-text { background: linear-gradient(135deg, var(--accent-light), #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-buttons { display: flex; gap: var(--spacing-sm); align-items: center; flex-wrap: wrap; }
+    .user-badge { display: flex; align-items: center; gap: var(--spacing-sm); padding: 4px 12px 4px 8px; background: var(--bg-tertiary); border-radius: var(--radius-full); font-size: 0.85rem; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #ffffff; font-weight: 600; }
+    .user-name { font-size: 0.85rem; font-weight: 500; }
+    /* ---------- HERO ---------- */
+    .hero { text-align: center; padding: var(--spacing-3xl) var(--spacing-xl); background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: var(--spacing-xl); }
+    .hero-icon { font-size: 3rem; margin-bottom: var(--spacing-md); } .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: var(--spacing-sm); }
+    .gradient-text { background: linear-gradient(135deg, var(--accent-light), #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-description { font-size: 1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto var(--spacing-xl); line-height: 1.6; }
+    .hero-buttons { display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap; }
+    /* ---------- WHATSAPP BANNER ---------- */
+    .whatsapp-banner { background: linear-gradient(135deg, #25D366, #128C7E); color: #ffffff; padding: var(--spacing-lg) var(--spacing-xl); border-radius: var(--radius-md); margin-bottom: var(--spacing-xl); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--spacing-md); cursor: pointer; transition: all var(--transition-base); border: 2px solid transparent; }
+    .whatsapp-banner:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: rgba(255, 255, 255, 0.3); }
+    /* ---------- SECTION TITLE ---------- */
+    .section-title { text-align: center; font-size: 1.3rem; font-weight: 700; margin-bottom: var(--spacing-lg); margin-top: var(--spacing-sm); }
+    /* ---------- FEATURES ---------- */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-2xl); }
+    .feature-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: var(--spacing-xl); border: 1px solid var(--border-color); text-align: center; transition: all var(--transition-base); }
+    .feature-card:hover { border-color: var(--accent-primary); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .feature-icon { font-size: 2rem; margin-bottom: var(--spacing-sm); } .feature-card h4 { font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-xs); } .feature-card p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; line-height: 1.5; }
+    /* ---------- PRICE GRID ---------- */
+    .price-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-2xl); }
+    .price-card { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: var(--spacing-2xl); border: 2px solid var(--border-color); text-align: center; transition: all var(--transition-base); position: relative; cursor: pointer; }
+    .price-card:hover { border-color: var(--accent-primary); transform: translateY(-4px); box-shadow: var(--shadow-md); } .price-card.featured { border-color: var(--accent-primary); background: var(--bg-tertiary); }
+    .price-card.featured .featured-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent-primary); color: #ffffff; padding: 3px 16px; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
+    .price-icon { font-size: 2.5rem; margin-bottom: var(--spacing-sm); } .price-name { font-size: 1.2rem; font-weight: 700; } .price-value { font-size: 2rem; font-weight: 800; color: var(--color-success); margin: var(--spacing-sm) 0; } .price-duration { font-size: 0.85rem; color: var(--text-secondary); }
+    /* ---------- STATS ---------- */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
+    .stat-card { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: var(--spacing-lg); border: 1px solid var(--border-color); text-align: center; } .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--accent-light); } .stat-label { font-size: 0.78rem; color: var(--text-secondary); margin-top: var(--spacing-xs); }
+    /* ---------- TOOLBAR ---------- */
+    .toolbar { display: flex; gap: var(--spacing-md); flex-wrap: wrap; margin-bottom: var(--spacing-xl); }
+    /* ---------- MEDIA GRID ---------- */
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
+    .media-card { background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color); overflow: hidden; transition: all var(--transition-base); cursor: pointer; }
+    .media-card:hover { border-color: var(--accent-primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .media-card img, .media-card video { width: 100%; height: 180px; object-fit: cover; }
+    .media-card-body { padding: var(--spacing-sm); }
+    /* ---------- CANVAS PREVIEW ---------- */
+    .canvas-container { position: relative; max-width: 100%; margin: var(--spacing-md) 0; }
+    .canvas-container canvas { max-width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+    .filter-controls { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; margin-top: var(--spacing-sm); }
+    /* ---------- CHAT STYLES ---------- */
+    .chat-container { display: flex; flex-direction: column; height: 50vh; max-height: 400px; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: var(--spacing-md); background: var(--bg-tertiary); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+    .chat-msg { margin-bottom: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); max-width: 80%; word-wrap: break-word; font-size: 0.85rem; line-height: 1.4; position: relative; }
+    .chat-msg.user { background: var(--accent-primary); color: #ffffff; margin-left: auto; text-align: right; } .chat-msg.admin { background: var(--bg-hover); color: var(--text-primary); margin-right: auto; }
+    .chat-delete-btn { position: absolute; top: 4px; right: 4px; background: var(--color-danger); color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: none; align-items: center; justify-content: center; }
+    .chat-msg:hover .chat-delete-btn { display: flex; }
+    .chat-input-row { display: flex; gap: var(--spacing-sm); } .chat-input-row input { flex: 1; }
+    /* ---------- ADMIN TABS ---------- */
+    .admin-tabs { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; margin-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-color); padding-bottom: var(--spacing-md); }
+    .admin-tab { padding: 8px 16px; border: 2px solid var(--accent-primary); background: transparent; color: var(--accent-light); border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all var(--transition-base); } .admin-tab:hover { background: var(--accent-primary); color: #ffffff; } .admin-tab.active { background: var(--accent-primary); color: #ffffff; }
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; } .admin-table th, .admin-table td { padding: 8px 10px; border: 1px solid var(--border-color); text-align: left; vertical-align: middle; } .admin-table th { background: var(--bg-hover); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; } .admin-table tr:hover { background: var(--bg-tertiary); }
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.5rem; } .hero { padding: var(--spacing-2xl) var(--spacing-md); } .price-grid { grid-template-columns: 1fr; } .features-grid { grid-template-columns: 1fr; }
+      .header { flex-direction: column; align-items: stretch; } .header-buttons { justify-content: center; } .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .modal-content { padding: var(--spacing-lg); } .hero-buttons { flex-direction: column; } .hero-buttons .btn { width: 100%; }
+    }
   </style>
 </head>
-
 <body>
-<div id="connectionBadge" style="position:fixed;top:10px;right:10px;z-index:997;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;background:#2ecc71;color:#fff;opacity:0.85;">ONLINE</div>
-<div class="offline-banner" id="offlineBanner" style="background:var(--orange);color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:20px;display:none;align-items:center;justify-content:space-between;">
-  <span><strong>Mode Offline</strong> - Beberapa fitur AI membutuhkan internet.</span>
-  <button onclick="downloadForOffline()" class="btn btn-warning btn-sm">Download Offline</button>
-</div>
-<div class="expiry-warning" id="expiryWarning" style="background:var(--danger);color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:20px;display:none;align-items:center;justify-content:space-between;">
-  <span id="expiryWarningText">Premium akan segera berakhir!</span>
-  <button onclick="showActivationModal()" class="btn btn-warning btn-sm">Perpanjang Premium</button>
-</div>
-<div id="installBanner" style="display:none;background:linear-gradient(135deg,#9b59b6,#d7bde2);color:#fff;padding:12px 20px;border-radius:12px;margin-bottom:20px;cursor:pointer;" onclick="installApplication()">
-  <span><strong>Install AI Media Studio di perangkat Anda!</strong></span>
-  <span style="font-size:1.2rem;">Klik Disini</span>
-</div>
+<div id="toastContainer" class="toast-container"></div>
 
-<!-- ========== LANDING PAGE ========== -->
+<!-- ==================== LANDING PAGE ==================== -->
 <div class="container" id="landingPage">
   <header class="header">
-    <div class="logo"><span class="logo-icon">🎨</span><span class="logo-text">AI Media Studio v1.0</span></div>
-    <div class="header-buttons flex gap-sm">
-      <button onclick="showLoginModal()" class="btn btn-outline btn-sm">Login</button>
-      <button onclick="showRegisterModal()" class="btn btn-primary btn-sm">Daftar</button>
-      <button onclick="toggleTheme()" id="themeButton1" class="btn btn-gray btn-sm">🌙 Dark Mode</button>
-      <button onclick="openApplication()" class="btn btn-success btn-sm">Buka Aplikasi</button>
-      <button onclick="downloadForOffline()" class="btn btn-info btn-sm">Download Offline</button>
+    <div class="logo"><span class="logo-icon">🎨</span><span class="logo-text">AI Media Studio Pro v1.0</span></div>
+    <div class="header-buttons">
+      <button class="btn btn-sm" onclick="toggleTheme()">🌓 Tema</button>
+      <button class="btn btn-outline btn-sm" onclick="showLoginModal()">Login</button>
+      <button class="btn btn-primary btn-sm" onclick="showRegisterModal()">Daftar</button>
+      <button class="btn btn-success btn-sm hidden" id="installButton" onclick="installPWA()">📲 Install</button>
     </div>
   </header>
 
   <section class="hero">
     <div class="hero-icon">🎨</div>
-    <h1 class="gradient-text">AI Media Studio</h1>
-    <p class="hero-description">Generate foto & video AI, edit media, dan chat dengan AI. Multi-user, sistem premium & gratis. Kreativitas tanpa batas!</p>
-    <div class="flex gap-md justify-center flex-wrap">
-      <button onclick="openApplication()" class="btn btn-primary btn-lg">Mulai Sekarang</button>
-      <button onclick="showLoginModal()" class="btn btn-outline btn-lg">Login</button>
-      <button onclick="installApplication()" class="btn btn-success btn-lg">Install Aplikasi</button>
+    <h1 class="gradient-text">AI Media Studio Pro</h1>
+    <p class="hero-description">Edit foto & video langsung dari browser Anda. Upload dari kamera atau galeri, edit dengan filter keren, dan simpan koleksi Anda. Multi-user, aktivasi premium, chat internal, backup & restore data.</p>
+    <div class="hero-buttons">
+      <button class="btn btn-primary btn-lg" onclick="showLoginModal()">🔐 Mulai Sekarang</button>
+      <button class="btn btn-outline btn-lg" onclick="showRegisterModal()">📝 Daftar Akun</button>
     </div>
   </section>
 
-  <div class="whatsapp-banner" onclick="openWhatsApp()">
-    <div><span class="whatsapp-banner-icon">💬</span> <strong>Hubungi Admin untuk Aktivasi Premium:</strong><br><span id="whatsappNumberLanding">+6281220285226</span></div>
-    <div><span>Chat WhatsApp</span> <span>👉</span></div>
+  <div class="whatsapp-banner" id="contactBanner" onclick="openGuestChat()">
+    <div><span>💬</span> <strong>Hubungi Super Admin</strong><br><small>Chat langsung untuk bantuan</small></div>
+    <div><span>📱 <span id="whatsappNumberLanding">+6281220285226</span></span> <span>👉</span></div>
   </div>
 
-  <h3 class="text-center text-xl font-bold mb-3">Fitur Unggulan</h3>
+  <h3 class="section-title">Fitur Unggulan</h3>
   <div class="features-grid">
-    <div class="feature-card"><div class="feature-icon">🖼️</div><h4>Generate Foto AI</h4><p>Text-to-Image dengan AI canggih, tanpa batas.</p></div>
-    <div class="feature-card"><div class="feature-icon">🎬</div><h4>Generate Video AI</h4><p>Text-to-Video dari koleksi stok premium.</p></div>
-    <div class="feature-card"><div class="feature-icon">✂️</div><h4>Edit Media</h4><p>Rotasi, crop, filter foto. Trim video ringan.</p></div>
-    <div class="feature-card"><div class="feature-icon">💬</div><h4>AI Chat</h4><p>Asisten AI untuk bantu prompt & kreativitas.</p></div>
-    <div class="feature-card"><div class="feature-icon">📁</div><h4>Koleksi</h4><p>Simpan & kelola hasil generasi Anda.</p></div>
-    <div class="feature-card"><div class="feature-icon">👥</div><h4>Multi-User</h4><p>Akun terpisah dengan sistem free & premium.</p></div>
+    <div class="feature-card"><div class="feature-icon">📷</div><h4>Upload Foto</h4><p>Dari kamera atau galeri, langsung edit.</p></div>
+    <div class="feature-card"><div class="feature-icon">🎬</div><h4>Upload Video</h4><p>Dari kamera atau galeri, trim & efek.</p></div>
+    <div class="feature-card"><div class="feature-icon">✂️</div><h4>Edit Foto</h4><p>Filter, rotate, crop, brightness.</p></div>
+    <div class="feature-card"><div class="feature-icon">🎞️</div><h4>Edit Video</h4><p>Trim, slow motion, efek grayscale.</p></div>
+    <div class="feature-card"><div class="feature-icon">📁</div><h4>Koleksi</h4><p>Simpan & kelola hasil editan Anda.</p></div>
+    <div class="feature-card"><div class="feature-icon">👥</div><h4>Multi User</h4><p>Akun terpisah dengan sistem premium.</p></div>
   </div>
 
-  <h3 class="text-center text-xl font-bold mb-3">Paket Harga</h3>
-  <div class="price-grid" id="landingPriceGrid">
-    <div class="price-card featured" onclick="showLoginModal()">
-      <div class="featured-badge">GRATIS</div>
-      <div class="price-icon">🆓</div>
-      <div class="price-name">Free</div>
-      <div class="price-value">Rp 0</div>
-      <div class="price-duration">Selamanya</div>
-      <p class="text-sm text-muted mt-2">Generate foto unlimited, video 10/hari, edit foto</p>
-    </div>
-    <div class="price-card" onclick="showLoginModal()">
-      <div class="price-icon">💎</div>
-      <div class="price-name">Premium</div>
-      <div class="price-value">Rp 50.000</div>
-      <div class="price-duration">per bulan</div>
-      <p class="text-sm text-muted mt-2">Semua fitur unlimited, edit video, koleksi tak terbatas</p>
-    </div>
-  </div>
+  <h3 class="section-title">Paket Aktivasi Premium</h3>
+  <div class="price-grid" id="landingPriceGrid"></div>
+  <div class="text-center mb-3"><button class="btn btn-primary" onclick="showRegisterModal()">Daftar & Coba Premium</button></div>
 </div>
 
-<!-- ========== APPLICATION PAGE ========== -->
-<div class="container hidden" id="applicationPage">
+<!-- ==================== DASHBOARD ==================== -->
+<div class="container hidden" id="dashboardPage">
   <header class="header">
-    <div class="logo"><span class="logo-icon">🎨</span><span class="logo-text">AI Media Studio</span></div>
-    <div class="flex gap-sm flex-wrap">
-      <button onclick="toggleTheme()" id="themeButton2" class="btn btn-gray btn-sm">🌙</button>
-      <button onclick="showProfileModal()" id="profileButton" class="btn btn-outline btn-sm hidden">Profil</button>
-      <button onclick="showSuperAdminPanel()" id="adminButton" class="btn btn-warning btn-sm hidden">Panel Admin</button>
-      <div class="user-badge" id="userBadge" style="display:none;background:var(--bg3);border-radius:20px;padding:4px 12px;"><span class="user-avatar" id="userAvatar" style="width:24px;height:24px;border-radius:50%;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;color:#fff;margin-right:6px;">U</span><span id="userNameDisplay">User</span></div>
-      <button onclick="handleLogout()" id="logoutButton" class="btn btn-danger btn-sm hidden">Logout</button>
-      <button onclick="goToLandingPage()" class="btn btn-gray btn-sm">Halaman Utama</button>
+    <div class="logo"><span class="logo-icon">🎨</span><span class="logo-text">AI Media Studio Pro</span></div>
+    <div class="header-buttons">
+      <button class="btn btn-sm" onclick="toggleTheme()">🌓 Tema</button>
+      <button class="btn btn-sm btn-primary hidden" id="profileButton" onclick="showProfileModal()">👤 Profil</button>
+      <button class="btn btn-sm btn-warning hidden" id="adminButton" onclick="showSuperAdminPanel()">👑 Admin</button>
+      <div class="user-badge hidden" id="userBadge"><span class="user-avatar" id="userAvatar">U</span><span class="user-name" id="userNameDisplay">User</span></div>
+      <button class="btn btn-sm btn-danger hidden" id="logoutButton" onclick="handleLogout()">Logout</button>
+      <button class="btn btn-sm btn-info hidden" id="downloadHTMLButton" onclick="downloadOfflinePage()">⬇ Download HTML</button>
+      <button class="btn btn-sm btn-success hidden" id="installButton2" onclick="installPWA()">📲 Install</button>
     </div>
   </header>
 
-  <div class="whatsapp-banner" onclick="openWhatsApp()">
-    <div><span class="whatsapp-banner-icon">💬</span> <strong>Bantuan & Aktivasi:</strong> <span id="whatsappNumberApp">+6281220285226</span></div>
-    <div>Chat WhatsApp 👉</div>
+  <div class="stats-grid" id="dashboardStats"></div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <button class="btn btn-success" onclick="showUploadPhotoModal()">📷 Upload Foto</button>
+    <button class="btn btn-primary" onclick="showUploadVideoModal()">🎬 Upload Video</button>
+    <button class="btn btn-warning" onclick="showEditPhotoModal()">✂️ Edit Foto</button>
+    <button class="btn btn-blue" onclick="showEditVideoModal()">🎞️ Edit Video</button>
+    <button class="btn btn-info" onclick="showCollectionModal()">📁 Koleksi</button>
+    <button class="btn btn-orange" onclick="showUserChatModal()">💬 Chat</button>
+    <button class="btn btn-success hidden" id="backupJSONButton" onclick="backupAllData()">💾 Backup JSON</button>
+    <label class="btn btn-warning hidden" id="restoreJSONButton" style="cursor:pointer;">📤 Restore JSON<input type="file" accept=".json" onchange="restoreAllData(this)" hidden></label>
+    <button class="btn btn-primary" id="mergeButton" onclick="showMergeModal()">🧩 Gabung & Copy <span class="badge badge-purple">Premium</span></button>
+    <button class="btn btn-warning hidden" id="activationButton" onclick="showActivationModal()">🔑 Aktivasi Premium</button>
   </div>
 
-  <!-- STATS -->
-  <div class="stats-grid" id="dashboardStats">
-    <div class="stat-card"><div class="stat-value" id="statTotalGenerations">0</div><div class="stat-label">Total Generasi</div></div>
-    <div class="stat-card"><div class="stat-value" id="statStorage">0 KB</div><div class="stat-label">Penyimpanan</div></div>
-    <div class="stat-card" style="border-color:var(--accent);"><div class="stat-value" id="statPremiumStatus">Free</div><div class="stat-label">Status Akun</div></div>
-  </div>
-
-  <!-- MENU UTAMA -->
-  <h3 class="text-lg font-bold mb-3">Menu AI Media</h3>
-  <div class="menu-grid" id="mainMenu">
-    <div class="menu-card" onclick="showGenerateImageModal()"><div class="menu-card-icon">🖼️</div><h4>Generate Foto</h4></div>
-    <div class="menu-card" onclick="showGenerateVideoModal()"><div class="menu-card-icon">🎬</div><h4>Generate Video</h4></div>
-    <div class="menu-card" onclick="showEditImageModal()"><div class="menu-card-icon">✂️</div><h4>Edit Foto</h4></div>
-    <div class="menu-card" onclick="showEditVideoModal()"><div class="menu-card-icon">🎞️</div><h4>Edit Video</h4></div>
-    <div class="menu-card" onclick="showCollectionModal()"><div class="menu-card-icon">📁</div><h4>Koleksi</h4></div>
-    <div class="menu-card" onclick="showChatAIModal()"><div class="menu-card-icon">💬</div><h4>AI Chat</h4></div>
-  </div>
-  <button onclick="showActivationModal()" class="btn btn-warning w-full mt-3" id="activationToolbarButton" style="display:none;">🔑 Upgrade ke Premium</button>
+  <div id="mediaContainer"></div>
+  <div id="emptyState" class="empty-state"><div class="empty-state-icon">🎨</div><h3>Belum Ada Media</h3><p>Upload foto atau video untuk memulai.</p></div>
 </div>
 
-<!-- ========== MODAL: LOGIN ========== -->
-<div class="modal-overlay" id="loginModal"><div class="modal-content" style="max-width:420px;">
-  <div class="modal-header"><h3>Login</h3><button class="modal-close" onclick="closeModal('loginModal')">✕</button></div>
+<!-- ==================== MODAL UPLOAD FOTO ==================== -->
+<div class="modal-overlay" id="uploadPhotoModal"><div class="modal-content">
+  <div class="modal-header"><h3>📷 Upload Foto</h3><button class="modal-close" onclick="closeModal('uploadPhotoModal')">✕</button></div>
   <div class="modal-body">
-    <div class="form-group"><input type="text" id="loginUsername" placeholder="Username atau Email"></div>
-    <div class="form-group"><input type="password" id="loginPassword" placeholder="Password"></div>
-    <button onclick="handleLogin()" class="btn btn-success btn-block">Masuk</button>
-    <div class="form-error" id="loginError"></div>
-    <div class="flex-between mt-3 text-sm"><span class="link-text" onclick="closeModal('loginModal');showRegisterModal()">Daftar Baru</span><span class="link-text" onclick="closeModal('loginModal');openModal('forgotPasswordModal')">Lupa Password?</span></div>
+    <label class="btn btn-primary btn-block mb-2" style="cursor:pointer;">📷 Dari Kamera<input type="file" accept="image/*" capture="environment" onchange="uploadPhotoFromCamera(this)" hidden></label>
+    <label class="btn btn-info btn-block" style="cursor:pointer;">🖼️ Dari Galeri<input type="file" accept="image/*" onchange="uploadPhotoFromGallery(this)" hidden></label>
+    <img id="photoPreview" style="max-width:100%; margin-top:12px; border-radius:8px; display:none;">
+  </div>
+  <div class="modal-footer"><button class="btn btn-gray" onclick="closeModal('uploadPhotoModal')">Tutup</button><button class="btn btn-success" onclick="savePhotoToCollection()">💾 Simpan ke Koleksi</button></div>
+</div></div>
+
+<!-- ==================== MODAL UPLOAD VIDEO ==================== -->
+<div class="modal-overlay" id="uploadVideoModal"><div class="modal-content">
+  <div class="modal-header"><h3>🎬 Upload Video</h3><button class="modal-close" onclick="closeModal('uploadVideoModal')">✕</button></div>
+  <div class="modal-body">
+    <label class="btn btn-primary btn-block mb-2" style="cursor:pointer;">🎥 Dari Kamera<input type="file" accept="video/*" capture="environment" onchange="uploadVideoFromCamera(this)" hidden></label>
+    <label class="btn btn-info btn-block" style="cursor:pointer;">📂 Dari Galeri<input type="file" accept="video/*" onchange="uploadVideoFromGallery(this)" hidden></label>
+    <video id="videoPreview" controls style="max-width:100%; margin-top:12px; border-radius:8px; display:none;"></video>
+  </div>
+  <div class="modal-footer"><button class="btn btn-gray" onclick="closeModal('uploadVideoModal')">Tutup</button><button class="btn btn-success" onclick="saveVideoToCollection()">💾 Simpan ke Koleksi</button></div>
+</div></div>
+
+<!-- ==================== MODAL EDIT FOTO ==================== -->
+<div class="modal-overlay" id="editPhotoModal"><div class="modal-content wide">
+  <div class="modal-header"><h3>✂️ Edit Foto</h3><button class="modal-close" onclick="closeModal('editPhotoModal')">✕</button></div>
+  <div class="modal-body">
+    <label class="btn btn-primary btn-block mb-2" style="cursor:pointer;">Pilih Foto dari Koleksi<input type="file" accept="image/*" onchange="loadPhotoToEdit(this)" hidden></label>
+    <div class="canvas-container" id="photoEditContainer" style="display:none;">
+      <canvas id="photoCanvas"></canvas>
+      <div class="filter-controls">
+        <button class="btn btn-sm btn-gray" onclick="applyPhotoFilter('none')">Normal</button>
+        <button class="btn btn-sm btn-gray" onclick="applyPhotoFilter('grayscale')">Grayscale</button>
+        <button class="btn btn-sm btn-gray" onclick="applyPhotoFilter('sepia')">Sepia</button>
+        <button class="btn btn-sm btn-gray" onclick="applyPhotoFilter('invert')">Invert</button>
+        <button class="btn btn-sm btn-info" onclick="rotatePhoto(90)">Rotasi 90°</button>
+        <button class="btn btn-sm btn-info" onclick="rotatePhoto(-90)">Rotasi -90°</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-gray" onclick="closeModal('editPhotoModal')">Tutup</button><button class="btn btn-success" onclick="downloadEditedPhoto()">⬇ Download Hasil Edit</button></div>
+</div></div>
+
+<!-- ==================== MODAL EDIT VIDEO ==================== -->
+<div class="modal-overlay" id="editVideoModal"><div class="modal-content wide">
+  <div class="modal-header"><h3>🎞️ Edit Video</h3><button class="modal-close" onclick="closeModal('editVideoModal')">✕</button></div>
+  <div class="modal-body">
+    <label class="btn btn-primary btn-block mb-2" style="cursor:pointer;">Pilih Video dari Koleksi<input type="file" accept="video/*" onchange="loadVideoToEdit(this)" hidden></label>
+    <video id="editVideoPlayer" controls style="max-width:100%; border-radius:8px; display:none;"></video>
+    <div class="flex gap-sm mt-2" id="videoEditControls" style="display:none;">
+      <button class="btn btn-sm btn-warning" onclick="applyVideoSlowMotion()">🐢 Slow Motion (0.5x)</button>
+      <button class="btn btn-sm btn-gray" onclick="applyVideoGrayscale()">🎞️ Grayscale</button>
+      <button class="btn btn-sm btn-danger" onclick="resetVideoEffects()">🔄 Reset</button>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-gray" onclick="closeModal('editVideoModal')">Tutup</button></div>
+</div></div>
+
+<!-- ==================== MODAL KOLEKSI ==================== -->
+<div class="modal-overlay" id="collectionModal"><div class="modal-content wide">
+  <div class="modal-header"><h3>📁 Koleksi Saya</h3><button class="modal-close" onclick="closeModal('collectionModal')">✕</button></div>
+  <div class="modal-body"><div class="media-grid" id="collectionGrid"></div></div>
+</div></div>
+
+<!-- ==================== MODAL CHAT USER ==================== -->
+<div class="modal-overlay" id="userChatModal"><div class="modal-content wide">
+  <div class="modal-header"><h3>💬 Chat</h3><div class="flex gap-sm"><button class="btn btn-sm btn-danger" onclick="clearAllUserChats()">🗑 Hapus Semua</button><button class="modal-close" onclick="closeModal('userChatModal')">✕</button></div></div>
+  <div class="modal-body">
+    <div class="flex gap-sm mb-3" style="border-bottom:1px solid var(--border-color);padding-bottom:8px;">
+      <button class="btn btn-sm btn-primary active" id="tabChatAdminBtn" onclick="switchUserChatTab('admin')">👑 Chat Admin</button>
+      <button class="btn btn-sm btn-outline" id="tabChatUsersBtn" onclick="switchUserChatTab('users')">👥 Chat Sesama User</button>
+    </div>
+    <div id="userChatTabAdmin"><div class="chat-box" id="userChatMessages"></div><div class="flex"><input type="text" id="userChatInput" placeholder="Ketik pesan ke Admin..."><button class="btn btn-primary" onclick="sendUserChatToAdmin()">Kirim</button></div></div>
+    <div id="userChatTabUsers" class="hidden">
+      <div class="flex gap-sm mb-2"><select id="userChatSelectUser" onchange="loadUserToUserChat()"><option value="">-- Pilih User --</option></select><button class="btn btn-sm" onclick="loadUserToUserChat()">Muat Chat</button></div>
+      <div class="chat-box" id="userToUserChatMessages"></div><div class="flex"><input type="text" id="userToUserChatInput" placeholder="Ketik pesan..."><button class="btn btn-primary" onclick="sendUserToUserChat()">Kirim</button></div>
+    </div>
   </div>
 </div></div>
 
-<!-- REGISTER MODAL -->
-<div class="modal-overlay" id="registerModal"><div class="modal-content" style="max-width:420px;">
-  <div class="modal-header"><h3>Daftar Akun</h3><button class="modal-close" onclick="closeModal('registerModal')">✕</button></div>
+<!-- ==================== MODAL SUPER ADMIN ==================== -->
+<div class="modal-overlay" id="superAdminModal"><div class="modal-content wide">
+  <div class="modal-header"><h3>👑 Panel Super Admin</h3><button class="modal-close" onclick="closeModal('superAdminModal')">✕</button></div>
   <div class="modal-body">
-    <input type="text" id="registerNama" placeholder="Nama Lengkap" class="mb-2">
-    <input type="email" id="registerEmail" placeholder="Email" class="mb-2">
-    <input type="text" id="registerHp" placeholder="No HP (08xxx)" class="mb-2">
-    <input type="text" id="registerUsername" placeholder="Username" class="mb-2">
-    <input type="password" id="registerPassword" placeholder="Password (min 6)" class="mb-2">
-    <input type="password" id="registerPasswordConfirm" placeholder="Konfirmasi Password" class="mb-2">
-    <button onclick="handleRegister()" class="btn btn-primary btn-block">Daftar</button>
-    <div class="form-error" id="registerError"></div><div class="form-success" id="registerSuccess"></div>
-  </div>
-</div></div>
-
-<!-- FORGOT PASSWORD MODAL -->
-<div class="modal-overlay" id="forgotPasswordModal"><div class="modal-content" style="max-width:420px;">
-  <div class="modal-header"><h3>Lupa Password</h3><button class="modal-close" onclick="closeModal('forgotPasswordModal')">✕</button></div>
-  <div class="modal-body">
-    <input type="text" id="forgotNama" placeholder="Nama Lengkap" class="mb-2">
-    <input type="email" id="forgotEmail" placeholder="Email" class="mb-2">
-    <input type="text" id="forgotHp" placeholder="No HP" class="mb-2">
-    <button onclick="handleForgotPassword()" class="btn btn-warning btn-block">Kirim Reset via WhatsApp</button>
-    <div class="form-error" id="forgotError"></div><div class="form-success" id="forgotSuccess"></div>
-  </div>
-</div></div>
-
-<!-- PROFILE MODAL -->
-<div class="modal-overlay" id="profileModal"><div class="modal-content" style="max-width:450px;">
-  <div class="modal-header"><h3>Profil</h3><button class="modal-close" onclick="closeModal('profileModal')">✕</button></div>
-  <div class="modal-body">
-    <div id="profileAvatarBig" style="width:60px;height:60px;border-radius:50%;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;margin-bottom:12px;">U</div>
-    <h4 id="profileName">User</h4><p id="profileRole" class="text-sm text-muted">User Biasa</p>
-    <input type="text" id="editProfileNama" placeholder="Nama" class="mb-2">
-    <input type="email" id="editProfileEmail" placeholder="Email" class="mb-2">
-    <input type="text" id="editProfileHp" placeholder="No HP" class="mb-2">
-    <button onclick="saveProfile()" class="btn btn-success btn-block">Simpan</button>
-    <div class="form-error" id="profileError"></div><div class="form-success" id="profileSuccess"></div>
-    <hr style="border-color:var(--border);margin:16px 0;">
-    <button onclick="deleteAccount()" id="deleteAccountButton" class="btn btn-danger btn-block">🗑 Hapus Akun</button>
-  </div>
-</div></div>
-
-<!-- SUPER ADMIN MODAL (mirip sebelumnya, disesuaikan) -->
-<div class="modal-overlay" id="superAdminModal"><div class="modal-content" style="max-width:750px;">
-  <div class="modal-header"><h3>Panel Super Admin</h3><button class="modal-close" onclick="closeModal('superAdminModal')">✕</button></div>
-  <div class="modal-body">
-    <div class="admin-tabs flex gap-sm mb-4">
-      <button class="btn btn-sm btn-outline active" onclick="switchAdminTab('codes')">Kode Aktivasi</button>
-      <button class="btn btn-sm btn-outline" onclick="switchAdminTab('users')">User</button>
-      <button class="btn btn-sm btn-outline" onclick="switchAdminTab('packages')">Paket</button>
-      <button class="btn btn-sm btn-outline" onclick="switchAdminTab('settings')">Pengaturan</button>
+    <div class="admin-tabs">
+      <div class="admin-tab active" onclick="switchAdminTab('codes')">Kode</div>
+      <div class="admin-tab" onclick="switchAdminTab('users')">User</div>
+      <div class="admin-tab" onclick="switchAdminTab('packages')">Paket</div>
+      <div class="admin-tab" onclick="switchAdminTab('chat')">💬 Chat</div>
+      <div class="admin-tab" onclick="switchAdminTab('masschat')">📢 Chat Massal</div>
+      <div class="admin-tab" onclick="switchAdminTab('settings')">Setelan</div>
+      <div class="admin-tab" onclick="switchAdminTab('backup')">💾 Backup</div>
+      <div class="admin-tab" onclick="switchAdminTab('restart')">🔄 Restart</div>
     </div>
     <div id="adminTabContent"></div>
   </div>
 </div></div>
 
-<!-- GENERATE IMAGE MODAL -->
-<div class="modal-overlay" id="generateImageModal"><div class="modal-content" style="max-width:600px;">
-  <div class="modal-header"><h3>🖼️ Generate Foto AI</h3><button class="modal-close" onclick="closeModal('generateImageModal')">✕</button></div>
+<!-- ==================== SEMUA MODAL LAINNYA ==================== -->
+<!-- Login Modal -->
+<div class="modal-overlay" id="loginModal"><div class="modal-content" style="max-width:420px;">
+  <div class="modal-header"><h3>🔐 Login</h3><button class="modal-close" onclick="closeModal('loginModal')">✕</button></div>
+  <div class="modal-body"><input type="text" id="loginUsername" placeholder="Username atau Email" class="mb-2"><input type="password" id="loginPassword" placeholder="Password" class="mb-2"><button class="btn btn-success btn-block" onclick="handleLogin()">Masuk</button><div class="form-error" id="loginError"></div><div class="flex-between mt-2 text-sm"><span class="link-text" onclick="closeModal('loginModal');showRegisterModal()">Daftar</span><span class="link-text" onclick="closeModal('loginModal');openModal('forgotPasswordModal')">Lupa Password?</span></div></div>
+</div></div>
+
+<!-- Register Modal -->
+<div class="modal-overlay" id="registerModal"><div class="modal-content" style="max-width:420px;">
+  <div class="modal-header"><h3>📝 Daftar Akun Baru</h3><button class="modal-close" onclick="closeModal('registerModal')">✕</button></div>
+  <div class="modal-body"><input type="text" id="registerNama" placeholder="Nama Lengkap" class="mb-2"><input type="email" id="registerEmail" placeholder="Email" class="mb-2"><input type="text" id="registerHp" placeholder="No HP (08xxx)" class="mb-2"><input type="text" id="registerUsername" placeholder="Username" class="mb-2"><input type="password" id="registerPassword" placeholder="Password (min 6)" class="mb-2"><input type="password" id="registerPasswordConfirm" placeholder="Konfirmasi Password" class="mb-2"><button class="btn btn-primary btn-block" onclick="handleRegister()">Daftar</button><div class="form-error" id="registerError"></div><div class="form-success" id="registerSuccess"></div></div>
+</div></div>
+
+<!-- Profile Modal -->
+<div class="modal-overlay" id="profileModal"><div class="modal-content" style="max-width:450px;">
+  <div class="modal-header"><h3>👤 Profil Saya</h3><button class="modal-close" onclick="closeModal('profileModal')">✕</button></div>
   <div class="modal-body">
-    <textarea id="imagePrompt" rows="3" placeholder="Deskripsikan gambar yang ingin dibuat..."></textarea>
-    <button onclick="generateImage()" class="btn btn-primary btn-block mt-3">Generate Gambar</button>
-    <div class="form-error" id="imageError"></div>
-    <div class="media-result hidden" id="imageResult">
-      <img id="generatedImage" crossorigin="anonymous">
-      <div class="flex gap-sm mt-3"><button onclick="downloadMedia('image')" class="btn btn-success btn-sm">Download</button><button onclick="saveToCollection('image')" class="btn btn-info btn-sm">Simpan ke Koleksi</button></div>
-    </div>
+    <div class="flex gap-md mb-3"><div id="profileAvatarBig" style="width:60px;height:60px;border-radius:50%;background:var(--accent-primary);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;">U</div><div><h4 id="profileName">User</h4><p id="profileRole" style="color:var(--text-secondary);">User Biasa</p></div></div>
+    <input type="text" id="editProfileNama" placeholder="Nama Lengkap" class="mb-2"><input type="email" id="editProfileEmail" placeholder="Email" class="mb-2"><input type="text" id="editProfileHp" placeholder="No HP" class="mb-2"><button class="btn btn-success btn-block" onclick="saveProfile()">Simpan Profil</button><div class="form-error" id="profileError"></div><div class="form-success" id="profileSuccess"></div><hr style="border-color:var(--border-color);margin:16px 0;"><button class="btn btn-danger btn-block" id="deleteAccountButton" onclick="deleteAccount()">🗑 Hapus Akun Saya</button>
   </div>
 </div></div>
 
-<!-- GENERATE VIDEO MODAL -->
-<div class="modal-overlay" id="generateVideoModal"><div class="modal-content" style="max-width:600px;">
-  <div class="modal-header"><h3>🎬 Generate Video AI</h3><button class="modal-close" onclick="closeModal('generateVideoModal')">✕</button></div>
-  <div class="modal-body">
-    <textarea id="videoPrompt" rows="3" placeholder="Deskripsikan video yang ingin dibuat..."></textarea>
-    <button onclick="generateVideo()" class="btn btn-primary btn-block mt-3">Generate Video</button>
-    <div class="form-error" id="videoError"></div>
-    <div class="media-result hidden" id="videoResult">
-      <video id="generatedVideo" controls crossorigin="anonymous"></video>
-      <div class="flex gap-sm mt-3"><button onclick="downloadMedia('video')" class="btn btn-success btn-sm">Download</button><button onclick="saveToCollection('video')" class="btn btn-info btn-sm">Simpan ke Koleksi</button></div>
-    </div>
-  </div>
-</div></div>
-
-<!-- EDIT IMAGE MODAL -->
-<div class="modal-overlay" id="editImageModal"><div class="modal-content" style="max-width:650px;">
-  <div class="modal-header"><h3>✂️ Edit Foto</h3><button class="modal-close" onclick="closeModal('editImageModal')">✕</button></div>
-  <div class="modal-body">
-    <input type="file" id="editImageInput" accept="image/*" onchange="loadImageForEdit()">
-    <div class="flex gap-sm mt-3 flex-wrap">
-      <button onclick="applyFilter('grayscale')" class="btn btn-sm btn-gray">Grayscale</button>
-      <button onclick="applyFilter('sepia')" class="btn btn-sm btn-gray">Sepia</button>
-      <button onclick="applyFilter('invert')" class="btn btn-sm btn-gray">Invert</button>
-      <button onclick="applyFilter('none')" class="btn btn-sm btn-gray">Normal</button>
-      <button onclick="rotateImage(90)" class="btn btn-sm btn-info">Rotasi 90°</button>
-    </div>
-    <div class="media-result mt-3" id="editCanvasContainer" style="display:none;">
-      <canvas id="editCanvas" style="max-width:100%;border:1px solid var(--border);border-radius:8px;"></canvas>
-      <button onclick="downloadEditedImage()" class="btn btn-success btn-sm mt-2">Download Hasil Edit</button>
-    </div>
-  </div>
-</div></div>
-
-<!-- EDIT VIDEO MODAL (Premium only) -->
-<div class="modal-overlay" id="editVideoModal"><div class="modal-content" style="max-width:650px;">
-  <div class="modal-header"><h3>🎞️ Edit Video (Premium)</h3><button class="modal-close" onclick="closeModal('editVideoModal')">✕</button></div>
-  <div class="modal-body">
-    <div id="editVideoPremiumNotice" class="text-center text-muted">Fitur ini hanya untuk pengguna Premium. <a class="link-text" onclick="showActivationModal()">Upgrade sekarang</a></div>
-    <div id="editVideoContent" class="hidden">
-      <input type="file" id="editVideoInput" accept="video/*" onchange="loadVideoForEdit()">
-      <video id="editVideoPreview" controls style="max-width:100%;border-radius:8px;" class="mt-3"></video>
-    </div>
-  </div>
-</div></div>
-
-<!-- COLLECTION MODAL -->
-<div class="modal-overlay" id="collectionModal"><div class="modal-content" style="max-width:650px;">
-  <div class="modal-header"><h3>📁 Koleksi Saya</h3><button class="modal-close" onclick="closeModal('collectionModal')">✕</button></div>
-  <div class="modal-body" id="collectionList" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
-</div></div>
-
-<!-- AI CHAT MODAL -->
-<div class="modal-overlay" id="chatAIModal"><div class="modal-content" style="max-width:500px;">
-  <div class="modal-header"><h3>💬 AI Chat Assistant</h3><button class="modal-close" onclick="closeModal('chatAIModal')">✕</button></div>
-  <div class="modal-body">
-    <div class="chat-messages" id="chatMessages"></div>
-    <div class="flex gap-sm"><input type="text" id="chatInput" placeholder="Ketik pesan..."><button onclick="sendChatMessage()" class="btn btn-primary btn-sm">Kirim</button></div>
-  </div>
-</div></div>
-
-<!-- ACTIVATION MODAL -->
+<!-- Activation Modal -->
 <div class="modal-overlay" id="activationModal"><div class="modal-content" style="max-width:420px;">
-  <div class="modal-header"><h3>Aktivasi Premium</h3><button class="modal-close" onclick="closeModal('activationModal')">✕</button></div>
-  <div class="modal-body">
-    <input type="text" id="activationCodeInputMain" placeholder="Masukkan kode aktivasi">
-    <button onclick="activatePremiumFromModal()" class="btn btn-success btn-block mt-3">Aktifkan</button>
-    <div class="form-error" id="activationModalError"></div><div class="form-success" id="activationModalSuccess"></div>
-  </div>
+  <div class="modal-header"><h3>🔑 Aktivasi Premium</h3><button class="modal-close" onclick="closeModal('activationModal')">✕</button></div>
+  <div class="modal-body"><input type="text" id="activationCodeInputMain" placeholder="Kode Aktivasi" class="mb-2"><button class="btn btn-success btn-block" onclick="activatePremiumFromModal()">Aktifkan</button><div class="form-error" id="activationModalError"></div><div class="form-success" id="activationModalSuccess"></div></div>
 </div></div>
 
-<div id="toastContainer" class="toast-container"></div>
-</body>
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal"><div class="modal-content" style="max-width:380px;">
+  <div class="modal-header"><h3 id="confirmTitle">Konfirmasi</h3><button class="modal-close" onclick="closeModal('confirmModal')">✕</button></div>
+  <div class="modal-body"><p id="confirmMessage"></p></div>
+  <div class="modal-footer"><button class="btn btn-gray" onclick="closeModal('confirmModal')">Batal</button><button class="btn btn-danger" onclick="executeConfirmAction()">Ya</button></div>
+</div></div>
 
+<!-- Edit Package Modal -->
+<div class="modal-overlay" id="editPackageModal"><div class="modal-content">
+  <div class="modal-header"><h3 id="editPackageTitle">Edit Paket</h3><button class="modal-close" onclick="closeModal('editPackageModal')">✕</button></div>
+  <div class="modal-body"><input type="hidden" id="editPackageId"><input type="text" id="editPackageName" placeholder="Nama" class="mb-2"><input type="number" id="editPackagePrice" placeholder="Harga" class="mb-2"><input type="number" id="editPackageDays" placeholder="Hari" class="mb-2"><input type="text" id="editPackageLabel" placeholder="Label" class="mb-2"></div>
+  <div class="modal-footer"><button class="btn btn-gray" onclick="closeModal('editPackageModal')">Batal</button><button class="btn btn-success" onclick="savePackageChanges()">Simpan</button></div>
+</div></div>
+
+<!-- Guest Chat Modal -->
+<div class="modal-overlay" id="guestChatModal"><div class="modal-content">
+  <div class="modal-header"><h3>💬 Hubungi Super Admin</h3><button class="modal-close" onclick="closeModal('guestChatModal')">✕</button></div>
+  <div class="modal-body"><div class="chat-box" id="guestChatMessages"></div><div class="flex"><input type="text" id="guestChatInput" placeholder="Ketik..."><button class="btn btn-primary" onclick="sendGuestChat()">Kirim</button></div></div>
+</div></div>
+
+<!-- Forgot Password Modal -->
+<div class="modal-overlay" id="forgotPasswordModal"><div class="modal-content">
+  <div class="modal-header"><h3>Lupa Password</h3><button class="modal-close" onclick="closeModal('forgotPasswordModal')">✕</button></div>
+  <div class="modal-body"><input type="text" id="forgotNama" placeholder="Nama" class="mb-2"><input type="email" id="forgotEmail" placeholder="Email" class="mb-2"><input type="text" id="forgotHp" placeholder="No HP" class="mb-2"><button class="btn btn-warning btn-block" onclick="handleForgotPassword()">Reset via Chat</button></div>
+</div></div>
+
+<!-- AWAL SCRIPT -->
 <script>
-// ===== SERVICE WORKER =====
-if('serviceWorker' in navigator){
-  var swBlob = new Blob(["var CACHE='aistudio-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));"],{type:'application/javascript'});
-  navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
-}
 
-// ===== ENCRYPT =====
-function encodePw(pw){return btoa(pw)}
-function decodePw(h){return atob(h)}
+// ================================================================
+// AI MEDIA STUDIO PRO v1.0 – CORE JAVASCRIPT (BLOK 2)
+// ================================================================
 
-// ===== DEFAULT DATA =====
-var SUPER_ADMIN = {id:'sa',username:'superadmin',password:encodePw('admin123'),nama:'Super Admin',email:'admin@aistudio.com',hp:'081220285226',role:'superadmin',premium:true,premiumExpiry:null,locked:false};
-var DEF_WHATSAPP = '081220285226';
-var DEF_PACKAGES = [
-  {id:'free',name:'Free',price:0,days:36500,label:'Selamanya'},
-  {id:'premium1',name:'Premium Bulanan',price:50000,days:30,label:'1 Bulan'},
-  {id:'premium3',name:'Premium 3 Bulan',price:120000,days:90,label:'3 Bulan'}
+// ---------- ENKRIPSI & DATA DEFAULT ----------
+function encodePassword(password) { return btoa(password); }
+function decodePassword(hash) { return atob(hash); }
+
+const SUPER_ADMIN = {
+  id: 'sa', username: 'superadmin', password: encodePassword('admin123'),
+  nama: 'Super Admin', email: 'admin@mediastudio.com', hp: '081220285226',
+  role: 'superadmin', premium: true, premiumExpiry: null, locked: false
+};
+let whatsappNumber = localStorage.getItem('media_wa') || '081220285226';
+const DEFAULT_PACKAGES = [
+  { id: '1bulan', name: 'Basic', price: 25000, days: 30, label: '1 Bulan' },
+  { id: '3bulan', name: 'Premium', price: 50000, days: 90, label: '3 Bulan' },
+  { id: '6bulan', name: 'Enterprise', price: 75000, days: 180, label: '6 Bulan' }
 ];
 
-// ===== LOCAL STORAGE =====
-function gs(k,d){try{var v=localStorage.getItem('ai_'+k);return v?JSON.parse(v):d}catch(e){return d}}
-function ss(k,v){localStorage.setItem('ai_'+k,JSON.stringify(v))}
-function rs(k){localStorage.removeItem('ai_'+k)}
-function getAllUsers(){return gs('users',[])}
-function saveAllUsers(u){ss('users',u)}
-function getSession(){return gs('session',null)}
-function saveSession(s){ss('session',s)}
-function clearSession(){rs('session')}
-function getPackages(){return gs('packages',DEF_PACKAGES)}
-function savePackages(p){ss('packages',p)}
-function getWA(){return gs('whatsapp',DEF_WHATSAPP)}
-function saveWA(n){ss('whatsapp',n)}
-function getCodes(){return gs('codes',{})}
-function saveCodes(c){ss('codes',c)}
-function getCollections(){return gs('collections',{})}
-function saveCollections(c){ss('collections',c)}
+// ---------- LOCAL STORAGE HELPERS ----------
+function getStorageItem(key, defaultValue) {
+  try { const value = localStorage.getItem('media_' + key); return value ? JSON.parse(value) : defaultValue; }
+  catch (e) { return defaultValue; }
+}
+function setStorageItem(key, value) { localStorage.setItem('media_' + key, JSON.stringify(value)); }
+function removeStorageItem(key) { localStorage.removeItem('media_' + key); }
 
-// ===== WHATSAPP =====
-function formatWA(raw){var n=raw.replace(/[^0-9]/g,'');if(n.startsWith('0'))n='62'+n.substring(1);if(!n.startsWith('62'))n='62'+n;return '+'+n}
-function updateWA(){var f=formatWA(getWA());['whatsappNumberLanding','whatsappNumberApp'].forEach(id=>{var el=document.getElementById(id);if(el)el.textContent=f})}
-function openWhatsApp(msg){var link=getWA().replace(/[^0-9]/g,'');window.open('https://wa.me/'+link+(msg?'?text='+encodeURIComponent(msg):''),'_blank')}
+function getAllUsers() { return getStorageItem('users', []); }
+function saveAllUsers(users) { setStorageItem('users', users); }
+function getAllMedia() { return getStorageItem('media', {}); }
+function saveAllMedia(media) { setStorageItem('media', media); }
+function getSession() { return getStorageItem('session', null); }
+function saveSession(session) { setStorageItem('session', session); }
+function clearSession() { removeStorageItem('session'); }
+function getValidCodes() { return getStorageItem('validCodes', {}); }
+function saveValidCodes(codes) { setStorageItem('validCodes', codes); }
+function getChatMessages() { return getStorageItem('chatMessages', []); }
+function saveChatMessages(msgs) { setStorageItem('chatMessages', msgs); }
+function getPackages() { return getStorageItem('packages', DEFAULT_PACKAGES); }
+function savePackages(pkg) { setStorageItem('packages', pkg); }
+function getSecurityLogs() { return getStorageItem('securityLogs', []); }
+function saveSecurityLogs(logs) { setStorageItem('securityLogs', logs); }
 
-// ===== TOAST =====
-function showToast(msg,type){
-  var c=document.getElementById('toastContainer');var t=document.createElement('div');
-  t.className='toast toast-'+(type||'info');t.textContent=msg;c.appendChild(t);
-  requestAnimationFrame(()=>t.classList.add('show'));
-  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},3000);
+// ---------- UI HELPERS ----------
+function updateWhatsappDisplay() {
+  const n = whatsappNumber;
+  const formatted = n.startsWith('0') ? '+62' + n.substring(1) : (n.startsWith('62') ? '+' + n : '+62' + n);
+  const landingEl = document.getElementById('whatsappNumberLanding');
+  if (landingEl) landingEl.textContent = formatted;
+}
+function showToast(message, type) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-' + (type || 'info');
+  toast.textContent = message;
+  container.appendChild(toast);
+  requestAnimationFrame(function() { toast.classList.add('show'); });
+  setTimeout(function() { toast.classList.remove('show'); setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300); }, 3000);
+}
+function openModal(id) { const modal = document.getElementById(id); if (modal) modal.classList.add('show'); }
+function closeModal(id) { const modal = document.getElementById(id); if (modal) modal.classList.remove('show'); clearModalErrors(); }
+function clearModalErrors() { document.querySelectorAll('.form-error, .form-success').forEach(function(el) { el.textContent = ''; el.classList.remove('show'); }); }
+
+function toggleTheme() {
+  document.body.classList.toggle('light-theme');
+  localStorage.setItem('media_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+}
+(function() { if (localStorage.getItem('media_theme') === 'light') document.body.classList.add('light-theme'); })();
+
+function updateUI() {
+  const s = getSession();
+  document.getElementById('landingPage').classList.toggle('hidden', !!s);
+  document.getElementById('dashboardPage').classList.toggle('hidden', !s);
+  if (!s) return;
+  document.getElementById('profileButton').classList.remove('hidden');
+  document.getElementById('adminButton').classList.toggle('hidden', s.role !== 'superadmin');
+  document.getElementById('logoutButton').classList.remove('hidden');
+  const badge = document.getElementById('userBadge'); badge.classList.remove('hidden');
+  document.getElementById('userAvatar').textContent = s.nama.charAt(0).toUpperCase();
+  document.getElementById('userNameDisplay').textContent = s.nama;
+  document.getElementById('mergeButton').classList.toggle('hidden', !(s.premium || s.role === 'superadmin'));
+  document.getElementById('activationButton').classList.toggle('hidden', s.premium || s.role === 'superadmin');
+  document.getElementById('premiumBanner')?.classList.toggle('hidden', s.premium || s.role === 'superadmin');
+  document.getElementById('contactBanner').classList.toggle('hidden', s.role === 'superadmin');
+  const isSuperAdmin = (s.role === 'superadmin');
+  document.getElementById('downloadHTMLButton').classList.toggle('hidden', !isSuperAdmin);
+  document.getElementById('backupJSONButton').classList.toggle('hidden', !isSuperAdmin);
+  document.getElementById('restoreJSONButton').classList.toggle('hidden', !isSuperAdmin);
+  refreshMediaUI(); updateStats();
 }
 
-// ===== MODAL =====
-function openModal(id){document.getElementById(id).classList.add('show')}
-function closeModal(id){document.getElementById(id).classList.remove('show');clearModalErrors()}
-function clearModalErrors(){document.querySelectorAll('.form-error,.form-success').forEach(el=>{el.textContent='';el.classList.remove('show')})}
+// ---------- AUTH ----------
+function showLoginModal() { openModal('loginModal'); }
+function showRegisterModal() { openModal('registerModal'); }
+function showProfileModal() { openModal('profileModal'); loadProfile(); }
+function showActivationModal() { openModal('activationModal'); }
 
-// ===== THEME =====
-function toggleTheme(){document.body.classList.toggle('light-theme');var is=document.body.classList.contains('light-theme');var t=is?'☀️ Light':'🌙 Dark';document.querySelectorAll('#themeButton1,#themeButton2').forEach(b=>b.textContent=t);localStorage.setItem('ai_theme',is?'light':'dark')}
-(function(){if(localStorage.getItem('ai_theme')==='light'){document.body.classList.add('light-theme');document.querySelectorAll('#themeButton1,#themeButton2').forEach(b=>b.textContent='☀️ Light')}})()
-
-// ===== NAVIGATION =====
-function openApplication(){var s=getSession();if(!s)return showLoginModal();document.getElementById('landingPage').classList.add('hidden');document.getElementById('applicationPage').classList.remove('hidden');updateHeaderUser();updateStats()}
-function goToLandingPage(){document.getElementById('applicationPage').classList.add('hidden');document.getElementById('landingPage').classList.remove('hidden')}
-function showLoginModal(){openModal('loginModal')}
-function showRegisterModal(){openModal('registerModal')}
-function showActivationModal(){if(!getSession())return showLoginModal();openModal('activationModal')}
-
-// ===== AUTH =====
-function handleLogin(){
-  var u=document.getElementById('loginUsername').value.trim(),p=document.getElementById('loginPassword').value;
-  var err=document.getElementById('loginError');err.classList.remove('show');
-  if(!u||!p){err.textContent='Isi semua field!';err.classList.add('show');return}
-  if(u===SUPER_ADMIN.username && p===decodePw(SUPER_ADMIN.password)){saveSession(SUPER_ADMIN);closeModal('loginModal');openApplication();return}
-  var users=getAllUsers();var user=users.find(x=>(x.username===u||x.email===u)&&p===decodePw(x.password));
-  if(!user){err.textContent='Username/password salah!';err.classList.add('show');return}
-  if(user.locked){err.textContent='Akun terkunci!';err.classList.add('show');return}
-  saveSession(user);closeModal('loginModal');openApplication()
-}
-function handleRegister(){
-  var n=document.getElementById('registerNama').value.trim(),e=document.getElementById('registerEmail').value.trim(),
-      hp=document.getElementById('registerHp').value.trim(),un=document.getElementById('registerUsername').value.trim(),
-      pw=document.getElementById('registerPassword').value,cp=document.getElementById('registerPasswordConfirm').value;
-  var err=document.getElementById('registerError'),suc=document.getElementById('registerSuccess');
-  err.classList.remove('show');suc.classList.remove('show');
-  if(!n||!e||!hp||!un||!pw||!cp){err.textContent='Semua field wajib!';err.classList.add('show');return}
-  if(pw!==cp){err.textContent='Password tidak cocok!';err.classList.add('show');return}
-  if(pw.length<6){err.textContent='Password minimal 6 karakter!';err.classList.add('show');return}
-  var users=getAllUsers();
-  if(users.find(x=>x.username===un)){err.textContent='Username sudah dipakai!';err.classList.add('show');return}
-  if(users.find(x=>x.email===e)){err.textContent='Email sudah dipakai!';err.classList.add('show');return}
-  var nu={id:Date.now().toString(),nama:n,email:e,hp:hp,username:un,password:encodePw(pw),role:'user',premium:false,premiumExpiry:null,locked:false,createdAt:new Date().toISOString()};
-  users.push(nu);saveAllUsers(users);suc.textContent='Pendaftaran berhasil! Silakan login.';suc.classList.add('show');
-  setTimeout(()=>{closeModal('registerModal');showLoginModal()},2000);
-}
-function handleLogout(){clearSession();goToLandingPage();updateHeaderUser();showToast('Logout berhasil','info')}
-
-// ===== PREMIUM =====
-function activatePremiumFromModal(){
-  var code=document.getElementById('activationCodeInputMain').value.trim();
-  activatePremium(code,'activationModalError','activationModalSuccess');
-}
-function activatePremium(code,errId,sucId){
-  var err=document.getElementById(errId),suc=document.getElementById(sucId);
-  err.classList.remove('show');suc.classList.remove('show');
-  if(!code){err.textContent='Masukkan kode!';err.classList.add('show');return}
-  var s=getSession();if(!s){err.textContent='Login dulu!';err.classList.add('show');return}
-  var codes=getCodes();var cd=codes[code];
-  if(!cd||cd.used){err.textContent='Kode tidak valid/sudah dipakai!';err.classList.add('show');return}
-  var users=getAllUsers();var idx=users.findIndex(x=>x.id===s.id);
-  if(idx===-1){err.textContent='User tidak ditemukan!';err.classList.add('show');return}
-  var pkgs=getPackages();var pkg=pkgs.find(p=>p.id===cd.packageId);
-  if(!pkg){err.textContent='Paket tidak valid!';err.classList.add('show');return}
-  var now=new Date(),exp=new Date(now.getTime()+pkg.days*86400000);
-  users[idx].premium=true;users[idx].premiumExpiry=exp.toISOString();saveAllUsers(users);
-  cd.used=true;cd.usedBy=s.username;cd.usedAt=now.toISOString();codes[code]=cd;saveCodes(codes);
-  var ns=Object.assign({},users[idx]);saveSession(ns);
-  suc.textContent='Aktivasi sukses! Premium hingga '+exp.toLocaleDateString();suc.classList.add('show');
-  updateHeaderUser();updateStats();
-  setTimeout(()=>{if(document.getElementById('activationModal').classList.contains('show'))closeModal('activationModal')},2000);
-}
-
-// ===== PROFILE =====
-function showProfileModal(){openModal('profileModal');loadProfile()}
-function loadProfile(){
-  var s=getSession();if(!s)return;
-  document.getElementById('profileAvatarBig').textContent=s.nama.charAt(0).toUpperCase();
-  document.getElementById('profileName').textContent=s.nama;
-  document.getElementById('profileRole').textContent=s.role==='superadmin'?'Super Admin':(s.premium?'User Premium':'User Free');
-  document.getElementById('editProfileNama').value=s.nama||'';
-  document.getElementById('editProfileEmail').value=s.email||'';
-  document.getElementById('editProfileHp').value=s.hp||'';
-  var del=document.getElementById('deleteAccountButton');if(del)del.style.display=s.role==='superadmin'?'none':'block';
-}
-function saveProfile(){
-  var s=getSession();if(!s)return;
-  var n=document.getElementById('editProfileNama').value.trim(),e=document.getElementById('editProfileEmail').value.trim(),hp=document.getElementById('editProfileHp').value.trim();
-  var err=document.getElementById('profileError'),suc=document.getElementById('profileSuccess');
-  err.classList.remove('show');suc.classList.remove('show');
-  if(!n||!e||!hp){err.textContent='Semua field wajib!';err.classList.add('show');return}
-  s.nama=n;s.email=e;s.hp=hp;saveSession(s);
-  var users=getAllUsers();var idx=users.findIndex(x=>x.id===s.id);
-  if(idx!==-1){users[idx].nama=n;users[idx].email=e;users[idx].hp=hp;saveAllUsers(users)}
-  suc.textContent='Profil tersimpan!';suc.classList.add('show');updateHeaderUser();
-  setTimeout(()=>closeModal('profileModal'),1500);
-}
-function deleteAccount(){
-  var s=getSession();if(!s||s.role==='superadmin')return;
-  if(confirm('Hapus akun Anda? Semua data akan hilang.')){
-    var users=getAllUsers().filter(x=>x.id!==s.id);saveAllUsers(users);
-    var cols=getCollections();delete cols[s.id];saveCollections(cols);
-    clearSession();goToLandingPage();updateHeaderUser();showToast('Akun dihapus','warning');
-    closeModal('profileModal');
+function handleLogin() {
+  const u = document.getElementById('loginUsername').value.trim();
+  const p = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginError');
+  if (!err) return;
+  err.textContent = '';
+  if (!u || !p) { err.textContent = 'Isi semua field!'; return; }
+  if (u === SUPER_ADMIN.username && p === decodePassword(SUPER_ADMIN.password)) {
+    saveSession(SUPER_ADMIN); closeModal('loginModal'); updateUI(); showToast('Login Super Admin!', 'success'); return;
   }
+  const user = getAllUsers().find(function(x) { return (x.username === u || x.email === u) && p === decodePassword(x.password); });
+  if (!user) { err.textContent = 'Username/password salah!'; return; }
+  if (user.locked) { err.textContent = 'Akun terkunci!'; return; }
+  saveSession(user); closeModal('loginModal'); updateUI(); showToast('Login berhasil!', 'success');
 }
 
-// ===== HEADER =====
-function updateHeaderUser(){
-  var s=getSession();
-  ['profileButton','logoutButton'].forEach(id=>document.getElementById(id).classList.toggle('hidden',!s));
-  document.getElementById('adminButton').classList.toggle('hidden',!(s&&s.role==='superadmin'));
-  var badge=document.getElementById('userBadge');if(s){badge.style.display='flex';document.getElementById('userAvatar').textContent=s.nama.charAt(0).toUpperCase();document.getElementById('userNameDisplay').textContent=s.nama}else{badge.style.display='none'}
-  var act=document.getElementById('activationToolbarButton');if(act)act.style.display=(s&&!s.premium&&s.role!=='superadmin')?'block':'none';
+function handleRegister() {
+  const n = document.getElementById('registerNama').value.trim();
+  const e = document.getElementById('registerEmail').value.trim();
+  const hp = document.getElementById('registerHp').value.trim();
+  const un = document.getElementById('registerUsername').value.trim();
+  const pw = document.getElementById('registerPassword').value;
+  const cp = document.getElementById('registerPasswordConfirm').value;
+  const err = document.getElementById('registerError');
+  const suc = document.getElementById('registerSuccess');
+  if (err) err.textContent = ''; if (suc) suc.textContent = '';
+  if (!n || !e || !hp || !un || !pw || !cp) { if (err) err.textContent = 'Semua field wajib!'; return; }
+  if (pw !== cp) { if (err) err.textContent = 'Password tidak cocok!'; return; }
+  if (pw.length < 6) { if (err) err.textContent = 'Password min 6 karakter!'; return; }
+  const users = getAllUsers();
+  if (users.find(function(x) { return x.username === un; })) { if (err) err.textContent = 'Username sudah dipakai!'; return; }
+  if (users.find(function(x) { return x.email === e; })) { if (err) err.textContent = 'Email sudah dipakai!'; return; }
+  const nu = { id: Date.now().toString(), nama: n, email: e, hp: hp, username: un, password: encodePassword(pw), role: 'user', premium: false, premiumExpiry: null, locked: false, createdAt: new Date().toISOString() };
+  users.push(nu); saveAllUsers(users);
+  if (suc) suc.textContent = 'Pendaftaran berhasil! Silakan login.';
+  setTimeout(function() { closeModal('registerModal'); showLoginModal(); }, 2000);
 }
 
-// ===== STATS =====
-function updateStats(){
-  var s=getSession();if(!s)return;
-  var cols=getCollections()[s.id]||[];var size=0;
-  cols.forEach(c=>{if(c.data)size+=new Blob([c.data]).size});
-  document.getElementById('statTotalGenerations').textContent=cols.length;
-  document.getElementById('statStorage').textContent=(size/1024).toFixed(1)+' KB';
-  document.getElementById('statPremiumStatus').textContent=(s.premium||s.role==='superadmin')?'Premium':'Free';
+function handleLogout() { clearSession(); updateUI(); showToast('Logout', 'info'); }
+
+// ---------- PREMIUM ----------
+function activatePremiumFromModal() {
+  const code = document.getElementById('activationCodeInputMain').value.trim();
+  activatePremium(code, 'activationModalError', 'activationModalSuccess');
+}
+function activatePremium(code, errId, sucId) {
+  const err = document.getElementById(errId);
+  const suc = document.getElementById(sucId);
+  if (err) { err.textContent = ''; err.classList.remove('show'); }
+  if (suc) { suc.textContent = ''; suc.classList.remove('show'); }
+  if (!code) { if (err) { err.textContent = 'Masukkan kode!'; err.classList.add('show'); } return; }
+  const s = getSession(); if (!s) { if (err) { err.textContent = 'Login dulu!'; err.classList.add('show'); } return; }
+  const codes = getValidCodes(); const cd = codes[code];
+  if (!cd || cd.used) { if (err) { err.textContent = 'Kode tidak valid!'; err.classList.add('show'); } return; }
+  const users = getAllUsers(); const idx = users.findIndex(function(x) { return x.id === s.id; });
+  if (idx === -1) { if (err) { err.textContent = 'User tidak ditemukan!'; err.classList.add('show'); } return; }
+  const pkg = getPackages().find(function(p) { return p.id === cd.packageId; }) || getPackages()[0];
+  const exp = new Date(Date.now() + pkg.days * 86400000);
+  users[idx].premium = true; users[idx].premiumExpiry = exp.toISOString(); saveAllUsers(users);
+  cd.used = true; cd.usedBy = s.username; cd.usedAt = new Date().toISOString(); codes[code] = cd; saveValidCodes(codes);
+  saveSession(Object.assign({}, users[idx]));
+  if (suc) { suc.textContent = 'Premium aktif hingga ' + exp.toLocaleDateString(); suc.classList.add('show'); }
+  updateUI();
+  setTimeout(function() { if (document.getElementById('activationModal').classList.contains('show')) closeModal('activationModal'); }, 2000);
 }
 
-// ===== INSTALL =====
-var deferredPrompt;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').style.display='flex'});
-function installApplication(){
-  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{if(r.outcome==='accepted')showToast('Terinstall!','success');deferredPrompt=null})}
-  else if(window.matchMedia('(display-mode: standalone)').matches)showToast('Sudah terinstall','warning');
-  else alert('Buka menu browser lalu pilih "Tambahkan ke Layar Utama".')
+// ---------- PROFIL ----------
+function loadProfile() {
+  const s = getSession(); if (!s) return;
+  document.getElementById('profileAvatarBig').textContent = s.nama.charAt(0).toUpperCase();
+  document.getElementById('profileName').textContent = s.nama;
+  document.getElementById('profileRole').textContent = s.role === 'superadmin' ? 'Super Admin' : (s.premium ? 'User Premium' : 'User Biasa');
+  document.getElementById('editProfileNama').value = s.nama || '';
+  document.getElementById('editProfileEmail').value = s.email || '';
+  document.getElementById('editProfileHp').value = s.hp || '';
+  document.getElementById('deleteAccountButton').style.display = s.role === 'superadmin' ? 'none' : 'block';
 }
-function downloadForOffline(){var html=document.documentElement.outerHTML;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+html],{type:'text/html'}));a.download='AI_Media_Studio_Offline.html';a.click()}
-
-// ===== SUPER ADMIN (disederhanakan) =====
-function showSuperAdminPanel(){if(!getSession()||getSession().role!=='superadmin')return;openModal('superAdminModal');switchAdminTab('codes')}
-function switchAdminTab(tab){
-  var cont=document.getElementById('adminTabContent');cont.innerHTML='';
-  if(tab==='codes'){
-    cont.innerHTML=`<h4>Buat Kode Aktivasi</h4><input id="adminActUser" placeholder="Username/email" class="mb-2"><select id="adminActPackage" class="mb-2">${getPackages().map(p=>`<option value="${p.id}">${p.name} - Rp ${p.price} (${p.label})</option>`).join('')}</select><button onclick="adminCreateCode()" class="btn btn-success btn-block">Buat Kode</button><div id="adminCodeResult"></div><h4 class="mt-4">Kode Aktif</h4><div id="activeCodesList"></div>`;
-    renderActiveCodes();
-  }else if(tab==='users'){
-    var users=getAllUsers();cont.innerHTML='<table class="admin-table"><tr><th>Nama</th><th>Username</th><th>Premium</th><th>Terkunci</th><th>Aksi</th></tr>'+users.map(u=>`<tr><td>${u.nama}</td><td>${u.username}</td><td>${u.premium?'Ya':'Tidak'}</td><td>${u.locked?'Ya':'Tidak'}</td><td><button class="btn btn-sm btn-warning" onclick="toggleLockUser('${u.id}')">${u.locked?'Buka':'Kunci'}</button> <button class="btn btn-sm btn-danger" onclick="deleteUserAdmin('${u.id}')">Hapus</button></td></tr>`).join('')+'</table>';
-  }else if(tab==='packages'){
-    cont.innerHTML='<h4>Edit Paket</h4><div id="packageEditList"></div>';renderPackageEdit();
-  }else if(tab==='settings'){
-    cont.innerHTML=`<input id="adminWA" placeholder="Nomor WA (08xxx)" value="${getWA()}" class="mb-2"><button onclick="saveAdminWA()" class="btn btn-success btn-block">Simpan Nomor WA</button>
-      <hr><input type="password" id="adminNewPass" placeholder="Password Baru Super Admin" class="mb-2"><button onclick="changeAdminPass()" class="btn btn-warning btn-block">Ganti Password</button>
-      <input id="adminNewName" placeholder="Nama Super Admin" value="${SUPER_ADMIN.nama}" class="mb-2 mt-3"><button onclick="changeAdminName()" class="btn btn-info btn-block">Ganti Nama</button>
-      <hr><button onclick="resetAllData()" class="btn btn-danger btn-block">Reset Semua Data</button>`;
-  }
+function saveProfile() {
+  const s = getSession(); if (!s) return;
+  const n = document.getElementById('editProfileNama').value.trim();
+  const e = document.getElementById('editProfileEmail').value.trim();
+  const hp = document.getElementById('editProfileHp').value.trim();
+  const err = document.getElementById('profileError');
+  const suc = document.getElementById('profileSuccess');
+  if (err) { err.textContent = ''; err.classList.remove('show'); }
+  if (suc) { suc.textContent = ''; suc.classList.remove('show'); }
+  if (!n || !e || !hp) { if (err) { err.textContent = 'Semua field wajib!'; err.classList.add('show'); } return; }
+  s.nama = n; s.email = e; s.hp = hp; saveSession(s);
+  const users = getAllUsers(); const idx = users.findIndex(function(x) { return x.id === s.id; });
+  if (idx !== -1) { users[idx].nama = n; users[idx].email = e; users[idx].hp = hp; saveAllUsers(users); }
+  if (suc) { suc.textContent = 'Profil tersimpan!'; suc.classList.add('show'); }
+  document.getElementById('userNameDisplay').textContent = n;
+  document.getElementById('profileName').textContent = n;
+  setTimeout(function() { closeModal('profileModal'); }, 1500);
 }
-function adminCreateCode(){var u=document.getElementById('adminActUser').value.trim(),pkg=document.getElementById('adminActPackage').value;var res=document.getElementById('adminCodeResult');if(!u||!pkg){res.innerHTML='<p class="form-error show">Lengkapi!</p>';return}var users=getAllUsers();var t=users.find(x=>x.username===u||x.email===u);if(!t){res.innerHTML='<p class="form-error show">User tidak ditemukan!</p>';return}var code='AI-'+Date.now().toString(36).toUpperCase();var codes=getCodes();codes[code]={packageId:pkg,used:false,createdAt:new Date().toISOString()};saveCodes(codes);res.innerHTML='<p class="form-success show">Kode: <strong>'+code+'</strong></p>';renderActiveCodes()}
-function renderActiveCodes(){var codes=getCodes();var html='';Object.keys(codes).forEach(c=>{var d=codes[c];html+=`<div>${c} - ${d.packageId} ${d.used?'<span class="text-danger">Terpakai</span>':'<span class="text-success">Aktif</span>'}</div>`});document.getElementById('activeCodesList').innerHTML=html||'Belum ada kode.'}
-function toggleLockUser(id){var users=getAllUsers();var u=users.find(x=>x.id===id);if(u){u.locked=!u.locked;saveAllUsers(users);showToast(u.locked?'User dikunci':'User dibuka','warning');switchAdminTab('users')}}
-function deleteUserAdmin(id){if(confirm('Hapus user?')){var users=getAllUsers().filter(x=>x.id!==id);saveAllUsers(users);showToast('User dihapus','warning');switchAdminTab('users')}}
-function renderPackageEdit(){var pkgs=getPackages();var html='';pkgs.forEach(p=>{html+=`<div class="flex-between"><span>${p.name} - Rp ${p.price} (${p.label})</span><button class="btn btn-sm btn-warning" onclick="editPackage('${p.id}')">Edit</button></div>`});document.getElementById('packageEditList').innerHTML=html}
-function saveAdminWA(){var v=document.getElementById('adminWA').value.trim();if(v){saveWA(v);updateWA();showToast('Nomor WA disimpan','success')}}
-function changeAdminPass(){var p=document.getElementById('adminNewPass').value.trim();if(p){SUPER_ADMIN.password=encodePw(p);showToast('Password diubah','success')}}
-function changeAdminName(){var n=document.getElementById('adminNewName').value.trim();if(n){SUPER_ADMIN.nama=n;var s=getSession();if(s&&s.role==='superadmin'){s.nama=n;saveSession(s)}showToast('Nama diubah','success')}}
-function resetAllData(){if(confirm('RESET SEMUA DATA? Tidak bisa dibatalkan.')){localStorage.clear();saveAllUsers([SUPER_ADMIN]);saveCollections({});saveCodes({});updateWA();showToast('Data direset','warning')}}
+function deleteAccount() {
+  const s = getSession(); if (!s || s.role === 'superadmin') return;
+  showConfirm('Hapus Akun?', 'Semua data Anda akan dihapus permanen.', function() {
+    const users = getAllUsers().filter(function(x) { return x.id !== s.id; }); saveAllUsers(users);
+    const media = getAllMedia(); delete media[s.id]; saveAllMedia(media);
+    clearSession(); closeModal('profileModal'); updateUI(); showToast('Akun dihapus', 'warning');
+  });
+}
 
-// ===== INIT =====
-(function(){
-  var users=getAllUsers();if(!users.find(u=>u.role==='superadmin'))users.push(SUPER_ADMIN);saveAllUsers(users);
-  updateWA();updateHeaderUser();
-})();
-</script>
+// ---------- CONFIRM DIALOG ----------
+var confirmCallback = null;
+function showConfirm(title, msg, cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMessage').textContent = msg;
+  confirmCallback = cb; openModal('confirmModal');
+}
+function executeConfirmAction() { if (confirmCallback) { confirmCallback(); confirmCallback = null; } closeModal('confirmModal'); }
 
-<script>
-// ===== GENERATE IMAGE (Pollinations AI) =====
-function showGenerateImageModal(){openModal('generateImageModal')}
-async function generateImage(){
-  var prompt=document.getElementById('imagePrompt').value.trim();
-  var err=document.getElementById('imageError');err.classList.remove('show');
-  if(!prompt){err.textContent='Masukkan deskripsi gambar!';err.classList.add('show');return}
-  var url='https://image.pollinations.ai/prompt/'+encodeURIComponent(prompt)+'?width=512&height=512&nologo=true';
-  try{
-    var img=document.getElementById('generatedImage');img.src=url;img.onload=()=>{
-      document.getElementById('imageResult').classList.remove('hidden');
+// ---------- MEDIA COLLECTION ----------
+var tempPhotoData = null;
+var tempVideoData = null;
+
+function showUploadPhotoModal() { openModal('uploadPhotoModal'); tempPhotoData = null; document.getElementById('photoPreview').style.display = 'none'; }
+function showUploadVideoModal() { openModal('uploadVideoModal'); tempVideoData = null; document.getElementById('videoPreview').style.display = 'none'; }
+function showCollectionModal() { openModal('collectionModal'); renderCollection(); }
+
+function uploadPhotoFromCamera(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    tempPhotoData = e.target.result;
+    document.getElementById('photoPreview').src = tempPhotoData;
+    document.getElementById('photoPreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+function uploadPhotoFromGallery(input) { uploadPhotoFromCamera(input); }
+
+function uploadVideoFromCamera(input) {
+  const file = input.files[0]; if (!file) return;
+  const url = URL.createObjectURL(file);
+  tempVideoData = url;
+  document.getElementById('videoPreview').src = url;
+  document.getElementById('videoPreview').style.display = 'block';
+}
+function uploadVideoFromGallery(input) { uploadVideoFromCamera(input); }
+
+function savePhotoToCollection() {
+  if (!tempPhotoData) { showToast('Upload foto terlebih dahulu!', 'error'); return; }
+  const s = getSession(); if (!s) return;
+  const allMedia = getAllMedia();
+  const userMedia = allMedia[s.id] || [];
+  userMedia.push({ id: Date.now().toString(), type: 'photo', data: tempPhotoData, name: 'Foto_' + new Date().toLocaleString(), createdAt: new Date().toISOString() });
+  allMedia[s.id] = userMedia;
+  saveAllMedia(allMedia);
+  closeModal('uploadPhotoModal');
+  refreshMediaUI();
+  updateStats();
+  showToast('Foto disimpan ke koleksi!', 'success');
+}
+
+function saveVideoToCollection() {
+  if (!tempVideoData) { showToast('Upload video terlebih dahulu!', 'error'); return; }
+  const s = getSession(); if (!s) return;
+  const allMedia = getAllMedia();
+  const userMedia = allMedia[s.id] || [];
+  userMedia.push({ id: Date.now().toString(), type: 'video', data: tempVideoData, name: 'Video_' + new Date().toLocaleString(), createdAt: new Date().toISOString() });
+  allMedia[s.id] = userMedia;
+  saveAllMedia(allMedia);
+  closeModal('uploadVideoModal');
+  refreshMediaUI();
+  updateStats();
+  showToast('Video disimpan ke koleksi!', 'success');
+}
+
+function refreshMediaUI() {
+  const s = getSession();
+  const userMedia = s ? (getAllMedia()[s.id] || []) : [];
+  const container = document.getElementById('mediaContainer');
+  const empty = document.getElementById('emptyState');
+  if (!container) return;
+  if (userMedia.length === 0) { container.innerHTML = ''; if (empty) empty.classList.remove('hidden'); return; }
+  if (empty) empty.classList.add('hidden');
+  container.innerHTML = '<div class="media-grid">' + userMedia.map(function(item) {
+    if (item.type === 'photo') {
+      return '<div class="media-card" onclick="viewMedia(\'' + item.id + '\')"><img src="' + item.data + '" alt="' + item.name + '"><div class="media-card-body"><strong>📷 ' + item.name + '</strong><br><small class="text-muted">' + new Date(item.createdAt).toLocaleString() + '</small></div></div>';
+    } else {
+      return '<div class="media-card" onclick="viewMedia(\'' + item.id + '\')"><video src="' + item.data + '" muted></video><div class="media-card-body"><strong>🎬 ' + item.name + '</strong><br><small class="text-muted">' + new Date(item.createdAt).toLocaleString() + '</small></div></div>';
     }
-  }catch(e){err.textContent='Gagal generate gambar.';err.classList.add('show')}
+  }).join('') + '</div>';
 }
 
-// ===== GENERATE VIDEO (Coverr API) =====
-function showGenerateVideoModal(){
-  var s=getSession();if(!s)return;
-  if(!s.premium&&s.role!=='superadmin'){
-    var cols=getCollections()[s.id]||[];var today=new Date().toDateString();
-    var count=cols.filter(c=>c.type==='video'&&new Date(c.createdAt).toDateString()===today).length;
-    if(count>=10){showToast('Limit video gratis 10/hari. Upgrade ke Premium.','warning');return}
+function viewMedia(mediaId) {
+  const s = getSession(); if (!s) return;
+  const userMedia = getAllMedia()[s.id] || [];
+  const item = userMedia.find(function(m) { return m.id === mediaId; });
+  if (!item) return;
+  if (item.type === 'photo') {
+    tempPhotoData = item.data;
+    document.getElementById('photoPreview').src = item.data;
+    document.getElementById('photoPreview').style.display = 'block';
+    openModal('uploadPhotoModal');
+  } else {
+    tempVideoData = item.data;
+    document.getElementById('videoPreview').src = item.data;
+    document.getElementById('videoPreview').style.display = 'block';
+    openModal('uploadVideoModal');
   }
-  openModal('generateVideoModal')
-}
-async function generateVideo(){
-  var prompt=document.getElementById('videoPrompt').value.trim();
-  var err=document.getElementById('videoError');err.classList.remove('show');
-  if(!prompt){err.textContent='Masukkan deskripsi video!';err.classList.add('show');return}
-  try{
-    var res=await fetch('https://api.coverr.co/videos?query='+encodeURIComponent(prompt)+'&page=1');
-    var data=await res.json();
-    if(data.hits&&data.hits.length>0){
-      var videoUrl=data.hits[0].urls.mp4||data.hits[0].urls.preview;
-      var vid=document.getElementById('generatedVideo');vid.src=videoUrl;vid.style.display='block';
-      document.getElementById('videoResult').classList.remove('hidden');
-    }else{err.textContent='Tidak ditemukan video.';err.classList.add('show')}
-  }catch(e){err.textContent='Gagal generate video.';err.classList.add('show')}
 }
 
-// ===== EDIT IMAGE =====
-var editImage=null;
-function showEditImageModal(){openModal('editImageModal')}
-function loadImageForEdit(){
-  var file=document.getElementById('editImageInput').files[0];if(!file)return;
-  var reader=new FileReader();reader.onload=function(e){
-    var img=new Image();img.onload=function(){
-      editImage=img;var canvas=document.getElementById('editCanvas');
-      canvas.width=img.width;canvas.height=img.height;
-      var ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
-      document.getElementById('editCanvasContainer').style.display='block';
-    };img.src=e.target.result;
-  };reader.readAsDataURL(file)
-}
-function applyFilter(filter){
-  if(!editImage)return;var canvas=document.getElementById('editCanvas');var ctx=canvas.getContext('2d');
-  ctx.filter=filter==='none'?'none':filter+'('+(filter==='grayscale'?'1':filter==='sepia'?'1':filter==='invert'?'1':'')+')';
-  ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(editImage,0,0);
-}
-function rotateImage(deg){
-  if(!editImage)return;var canvas=document.getElementById('editCanvas');var ctx=canvas.getContext('2d');
-  var w=canvas.width,h=canvas.height;canvas.width=h;canvas.height=w;
-  ctx.save();ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(deg*Math.PI/180);ctx.drawImage(editImage,-w/2,-h/2,w,h);ctx.restore();
-}
-function downloadEditedImage(){
-  var canvas=document.getElementById('editCanvas');var link=document.createElement('a');link.download='edited_image.png';
-  link.href=canvas.toDataURL();link.click()
+function renderCollection() {
+  const s = getSession(); if (!s) return;
+  const userMedia = getAllMedia()[s.id] || [];
+  const grid = document.getElementById('collectionGrid');
+  if (!grid) return;
+  if (userMedia.length === 0) { grid.innerHTML = '<p class="text-muted text-center">Koleksi kosong.</p>'; return; }
+  grid.innerHTML = userMedia.map(function(item, index) {
+    if (item.type === 'photo') {
+      return '<div class="media-card" style="position:relative;"><img src="' + item.data + '" alt="' + item.name + '" onclick="viewMedia(\'' + item.id + '\')"><button class="btn btn-sm btn-danger" style="position:absolute;top:4px;right:4px;" onclick="event.stopPropagation(); deleteMediaItem(' + index + ')">×</button><div class="media-card-body"><strong>📷 ' + item.name + '</strong></div></div>';
+    } else {
+      return '<div class="media-card" style="position:relative;"><video src="' + item.data + '" muted onclick="viewMedia(\'' + item.id + '\')"></video><button class="btn btn-sm btn-danger" style="position:absolute;top:4px;right:4px;" onclick="event.stopPropagation(); deleteMediaItem(' + index + ')">×</button><div class="media-card-body"><strong>🎬 ' + item.name + '</strong></div></div>';
+    }
+  }).join('');
 }
 
-// ===== EDIT VIDEO (Premium only) =====
-function showEditVideoModal(){
-  var s=getSession();if(!s||(!s.premium&&s.role!=='superadmin')){showToast('Fitur Premium. Silakan upgrade.','warning');return}
-  openModal('editVideoModal');document.getElementById('editVideoPremiumNotice').classList.add('hidden');document.getElementById('editVideoContent').classList.remove('hidden')
-}
-function loadVideoForEdit(){
-  var file=document.getElementById('editVideoInput').files[0];if(!file)return;
-  var url=URL.createObjectURL(file);var vid=document.getElementById('editVideoPreview');vid.src=url;
-}
-
-// ===== COLLECTION =====
-function showCollectionModal(){openModal('collectionModal');renderCollection()}
-function saveToCollection(type){
-  var s=getSession();if(!s)return;
-  var url='';
-  if(type==='image'){var img=document.getElementById('generatedImage');url=img.src}
-  else if(type==='video'){var vid=document.getElementById('generatedVideo');url=vid.src}
-  if(!url)return;
-  var cols=getCollections();var userCols=cols[s.id]||[];
-  userCols.push({type:type,url:url,createdAt:new Date().toISOString()});cols[s.id]=userCols;saveCollections(cols);
-  showToast('Disimpan ke koleksi!','success');updateStats()
-}
-function renderCollection(){
-  var s=getSession();if(!s)return;var cols=(getCollections()[s.id]||[]).reverse();
-  var cont=document.getElementById('collectionList');cont.innerHTML='';
-  cols.forEach((c,i)=>{
-    var el='';if(c.type==='image')el=`<img src="${c.url}" style="width:150px;height:150px;object-fit:cover;border-radius:8px;" onclick="window.open('${c.url}')">`;
-    else el=`<video src="${c.url}" style="width:150px;height:150px;border-radius:8px;" controls></video>`;
-    cont.innerHTML+=`<div style="position:relative">${el}<button class="btn btn-sm btn-danger" style="position:absolute;top:4px;right:4px;padding:2px 6px;" onclick="deleteCollectionItem(${i})">X</button></div>`;
-  })
-  if(cols.length===0)cont.innerHTML='<p class="text-muted">Koleksi kosong.</p>';
-}
-function deleteCollectionItem(index){
-  var s=getSession();if(!s)return;var cols=getCollections();var arr=cols[s.id]||[];
-  arr.splice(arr.length-1-index,1);cols[s.id]=arr;saveCollections(cols);renderCollection();updateStats()
+function deleteMediaItem(index) {
+  if (confirm('Hapus media ini?')) {
+    const s = getSession(); if (!s) return;
+    const allMedia = getAllMedia();
+    const userMedia = allMedia[s.id] || [];
+    userMedia.splice(index, 1);
+    allMedia[s.id] = userMedia;
+    saveAllMedia(allMedia);
+    renderCollection();
+    refreshMediaUI();
+    updateStats();
+    showToast('Media dihapus.', 'warning');
+  }
 }
 
-// ===== AI CHAT (Akuari GPT) =====
-function showChatAIModal(){openModal('chatAIModal');document.getElementById('chatMessages').innerHTML=''}
-async function sendChatMessage(){
-  var input=document.getElementById('chatInput');var text=input.value.trim();if(!text)return;
-  var msgs=document.getElementById('chatMessages');msgs.innerHTML+=`<div class="chat-msg user"><strong>Anda:</strong> ${text}</div>`;
-  input.value='';msgs.scrollTop=msgs.scrollHeight;
-  try{
-    var res=await fetch('https://api.akuari.my.id/ai/gpt4?prompt='+encodeURIComponent(text));
-    var data=await res.json();var reply=data.result||data.respon||'Maaf, tidak ada respons.';
-    msgs.innerHTML+=`<div class="chat-msg bot"><strong>AI:</strong> ${reply}</div>`;msgs.scrollTop=msgs.scrollHeight;
-  }catch(e){msgs.innerHTML+=`<div class="chat-msg bot"><strong>AI:</strong> Gagal terhubung.</div>`}
+function updateStats() {
+  const s = getSession();
+  const userMedia = s ? (getAllMedia()[s.id] || []) : [];
+  var totalPhotos = 0, totalVideos = 0, totalSize = 0;
+  userMedia.forEach(function(item) {
+    if (item.type === 'photo') totalPhotos++;
+    else totalVideos++;
+    if (item.data) totalSize += item.data.length * 2; // perkiraan base64
+  });
+  var el;
+  el = document.getElementById('statTotalApps'); if (el) el.textContent = totalPhotos + totalVideos;
+  el = document.getElementById('statTotalCodes'); if (el) el.textContent = totalPhotos + ' foto, ' + totalVideos + ' video';
+  el = document.getElementById('statStorage'); if (el) el.textContent = (totalSize / 1024).toFixed(1) + ' KB';
+  el = document.getElementById('statTotalUsers'); if (el) el.textContent = getAllUsers().length;
+  el = document.getElementById('statPremiumStatus'); if (el) el.textContent = (s && (s.premium || s.role === 'superadmin')) ? 'Premium' : 'Free';
 }
 
-// ===== DOWNLOAD MEDIA =====
-function downloadMedia(type){
-  var url=type==='image'?document.getElementById('generatedImage').src:document.getElementById('generatedVideo').src;
-  if(!url)return;var a=document.createElement('a');a.href=url;a.download='media_'+Date.now()+'.'+(type==='image'?'png':'mp4');a.click()
+// ---------- EDIT FOTO ----------
+var currentEditPhoto = null;
+function showEditPhotoModal() { openModal('editPhotoModal'); }
+function loadPhotoToEdit(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      currentEditPhoto = img;
+      const canvas = document.getElementById('photoCanvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.filter = 'none';
+      ctx.drawImage(img, 0, 0);
+      document.getElementById('photoEditContainer').style.display = 'block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function applyPhotoFilter(filterType) {
+  if (!currentEditPhoto) return;
+  const canvas = document.getElementById('photoCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.filter = filterType === 'none' ? 'none' : filterType + '(1)';
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(currentEditPhoto, 0, 0);
+}
+function rotatePhoto(degrees) {
+  if (!currentEditPhoto) return;
+  const canvas = document.getElementById('photoCanvas');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  canvas.width = h; canvas.height = w;
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(degrees * Math.PI / 180);
+  ctx.drawImage(currentEditPhoto, -w / 2, -h / 2, w, h);
+  ctx.restore();
+  currentEditPhoto = new Image();
+  currentEditPhoto.src = canvas.toDataURL();
+}
+function downloadEditedPhoto() {
+  const canvas = document.getElementById('photoCanvas');
+  if (!canvas) return;
+  const link = document.createElement('a');
+  link.download = 'edited_photo.png';
+  link.href = canvas.toDataURL();
+  link.click();
 }
 
-// ===== FORGOT PASSWORD =====
-function handleForgotPassword(){
-  var n=document.getElementById('forgotNama').value.trim(),e=document.getElementById('forgotEmail').value.trim(),hp=document.getElementById('forgotHp').value.trim();
-  var err=document.getElementById('forgotError'),suc=document.getElementById('forgotSuccess');
-  err.classList.remove('show');suc.classList.remove('show');
-  if(!n||!e||!hp){err.textContent='Lengkapi data!';err.classList.add('show');return}
-  suc.textContent='Link reset akan dikirim via WhatsApp Admin.';suc.classList.add('show');
-  setTimeout(()=>openWhatsApp('Halo admin, saya lupa password. Nama: '+n),2000)
+// ---------- EDIT VIDEO ----------
+var currentEditVideo = null;
+function showEditVideoModal() { openModal('editVideoModal'); }
+function loadVideoToEdit(input) {
+  const file = input.files[0]; if (!file) return;
+  const url = URL.createObjectURL(file);
+  currentEditVideo = url;
+  const player = document.getElementById('editVideoPlayer');
+  player.src = url;
+  player.style.display = 'block';
+  document.getElementById('videoEditControls').style.display = 'flex';
+  player.playbackRate = 1;
+  player.style.filter = 'none';
+}
+function applyVideoSlowMotion() {
+  const player = document.getElementById('editVideoPlayer');
+  if (player) player.playbackRate = 0.5;
+}
+function applyVideoGrayscale() {
+  const player = document.getElementById('editVideoPlayer');
+  if (player) player.style.filter = 'grayscale(1)';
+}
+function resetVideoEffects() {
+  const player = document.getElementById('editVideoPlayer');
+  if (player) { player.playbackRate = 1; player.style.filter = 'none'; }
 }
 
-// ===== EDIT PACKAGE MODAL (disediakan) =====
-function editPackage(id){
-  var pkg=getPackages().find(p=>p.id===id);if(!pkg)return;
-  var newName=prompt('Nama Paket',pkg.name);if(newName===null)return;
-  var newPrice=prompt('Harga (Rp)',pkg.price);if(newPrice===null)return;
-  var newDays=prompt('Durasi (hari)',pkg.days);if(newDays===null)return;
-  var newLabel=prompt('Label',pkg.label);if(newLabel===null)return;
-  pkg.name=newName;pkg.price=parseInt(newPrice);pkg.days=parseInt(newDays);pkg.label=newLabel;
-  var pkgs=getPackages();var idx=pkgs.findIndex(p=>p.id===id);if(idx!==-1){pkgs[idx]=pkg;savePackages(pkgs)}
-  showToast('Paket diperbarui','success');switchAdminTab('packages')
+// ---------- MERGE ----------
+function showMergeModal() {
+  var s = getSession(); if (!s || (!s.premium && s.role !== 'superadmin')) { showToast('Fitur Premium!', 'error'); return; }
+  var userMedia = getAllMedia()[s.id] || [];
+  var listEl = document.getElementById('mergeAppList');
+  if (listEl) listEl.innerHTML = userMedia.map(function(m, i) { return '<label class="flex gap-sm"><input type="checkbox" checked value="' + i + '"> ' + m.name + '</label>'; }).join('');
+  var resultEl = document.getElementById('mergeResult'); if (resultEl) resultEl.classList.add('hidden');
+  var outputEl = document.getElementById('mergeOutput'); if (outputEl) outputEl.value = '';
+  openModal('mergeModal');
+}
+function performMerge() {
+  var s = getSession(); var userMedia = getAllMedia()[s.id] || [];
+  var checked = Array.from(document.querySelectorAll('#mergeAppList input:checked')).map(function(i) { return parseInt(i.value); });
+  var merged = checked.map(function(i) { return userMedia[i].data; }).join('\n');
+  var outputEl = document.getElementById('mergeOutput'); if (outputEl) outputEl.value = merged;
+  var resultEl = document.getElementById('mergeResult'); if (resultEl) resultEl.classList.remove('hidden');
+}
+function copyMergeResult() {
+  var ta = document.getElementById('mergeOutput'); if (!ta) return;
+  ta.select(); navigator.clipboard.writeText(ta.value).then(function() { showToast('Disalin!', 'success'); });
+}
+function downloadMergeResult() {
+  var code = document.getElementById('mergeOutput').value;
+  var blob = new Blob([code], { type: 'text/html' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'merged.html'; a.click();
 }
 
-// ===== ONLINE/OFFLINE =====
-function updateOnlineStatus(){
-  var badge=document.getElementById('connectionBadge'),banner=document.getElementById('offlineBanner');
-  if(navigator.onLine){badge.textContent='ONLINE';badge.style.background='#2ecc71';banner.style.display='none'}
-  else{badge.textContent='OFFLINE';badge.style.background='#e74c3c';banner.style.display='flex'}
+// ---------- IMPORT/EXPORT ----------
+function exportAllData() {
+  var s = getSession(); if (!s) return showToast('Login dulu!', 'error');
+  var data = { media: getAllMedia()[s.id] || [], exportedAt: new Date().toISOString() };
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mediastudio_export.json'; a.click();
+  showToast('Data diexport!', 'success');
 }
-window.addEventListener('online',updateOnlineStatus);window.addEventListener('offline',updateOnlineStatus);updateOnlineStatus();
-</script>
-</html>
+function importAllData(input) {
+  var s = getSession(); if (!s) return; var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data.media || !Array.isArray(data.media)) throw new Error('Format salah');
+      var all = getAllMedia(); all[s.id] = data.media; saveAllMedia(all);
+      refreshMediaUI(); updateStats(); showToast('Data diimpor!', 'success');
+    } catch (err) { showToast('Format file tidak valid.', 'error'); }
+  };
+  reader.readAsText(file);
+}
+
+// ---------- BACKUP & RESTORE ----------
+function backupAllData() {
+  var data = {};
+  for (var i = 0; i < localStorage.length; i++) { var key = localStorage.key(i); data[key] = localStorage.getItem(key); }
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], { type: 'application/json' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'mediastudio_full_backup_' + new Date().toISOString().slice(0, 10) + '.json'; a.click();
+  showToast('✅ Backup JSON berhasil!', 'success');
+}
+function restoreAllData(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!confirm('⚠️ SEMUA data saat ini akan ditimpa. Lanjutkan?')) return;
+      localStorage.clear();
+      Object.keys(data).forEach(function(key) { localStorage.setItem(key, data[key]); });
+      showToast('✅ Data JSON berhasil di-restore! Refresh halaman.', 'success');
+      setTimeout(function() { location.reload(); }, 2000);
+    } catch (err) { showToast('❌ File JSON tidak valid.', 'error'); }
+  };
+  reader.readAsText(file);
+}
+function downloadOfflinePage() {
+  var html = document.documentElement.outerHTML;
+  var blob = new Blob(['<!DOCTYPE html>\n' + html], { type: 'text/html' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'ai_media_studio_pro_v1.html'; a.click();
+  showToast('⬇ HTML berhasil didownload!', 'success');
+}
+function restoreFromHTML(input) {
+  var file = input.files[0]; if (!file) return;
+  if (!confirm('⚠️ Halaman akan diganti dengan file HTML ini. Lanjutkan?')) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var htmlContent = e.target.result;
+    var htmlMatch = htmlContent.match(/<html[^>]*>([\s\S]*)<\/html>/i);
+    if (htmlMatch) {
+      document.documentElement.innerHTML = htmlMatch[1];
+      showToast('✅ Halaman dipulihkan! Memuat ulang...', 'success');
+      setTimeout(function() { location.reload(); }, 1500);
+    } else {
+      document.open(); document.write(htmlContent); document.close();
+      showToast('✅ Halaman dipulihkan! Memuat ulang...', 'success');
+      setTimeout(function() { location.reload(); }, 1500);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ================================================================
+// AI MEDIA STUDIO PRO v1.0 – CHAT, SUPER ADMIN, PWA, INIT (FINAL)
+// ================================================================
+
+// ========== CHAT USER (DENGAN FITUR HAPUS) ==========
+var currentUserChatTab = 'admin';
+
+function showUserChatModal() {
+  openModal('userChatModal');
+  switchUserChatTab('admin');
+  loadUserListForChat();
+}
+
+function switchUserChatTab(tab) {
+  currentUserChatTab = tab;
+  document.getElementById('userChatTabAdmin').classList.toggle('hidden', tab !== 'admin');
+  document.getElementById('userChatTabUsers').classList.toggle('hidden', tab !== 'users');
+  document.getElementById('tabChatAdminBtn').classList.toggle('btn-primary', tab === 'admin');
+  document.getElementById('tabChatAdminBtn').classList.toggle('btn-outline', tab !== 'admin');
+  document.getElementById('tabChatUsersBtn').classList.toggle('btn-primary', tab === 'users');
+  document.getElementById('tabChatUsersBtn').classList.toggle('btn-outline', tab !== 'users');
+  if (tab === 'admin') { loadUserChatWithAdmin(); } else { loadUserListForChat(); loadUserToUserChat(); }
+}
+
+function loadUserChatWithAdmin() {
+  var session = getSession(); if (!session) return;
+  var messages = getChatMessages().filter(function(message) {
+    return (message.from === session.username && message.to === 'admin') ||
+           (message.from === 'admin' && message.to === session.username) ||
+           (message.from === 'admin' && message.to === 'all');
+  });
+  var chatBox = document.getElementById('userChatMessages');
+  if (!chatBox) return;
+  chatBox.innerHTML = messages.map(function(message, index) {
+    var isAdmin = message.from === 'admin';
+    return '<div class="chat-msg ' + (isAdmin ? 'admin' : 'user') + '">' +
+      '<div class="chat-sender">' + (isAdmin ? 'Admin' : 'Anda') + '</div>' +
+      message.text +
+      '<div class="chat-time">' + new Date(message.time).toLocaleString() + '</div>' +
+      '<button class="chat-delete-btn" onclick="deleteChatMessage(' + index + ', \'admin\')">×</button>' +
+    '</div>';
+  }).join('');
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function sendUserChatToAdmin() {
+  var input = document.getElementById('userChatInput');
+  var message = input.value.trim();
+  if (!message) return;
+  var session = getSession(); if (!session) return;
+  var messages = getChatMessages();
+  messages.push({ from: session.username, to: 'admin', text: message, time: new Date().toISOString() });
+  saveChatMessages(messages);
+  input.value = '';
+  loadUserChatWithAdmin();
+}
+
+function loadUserListForChat() {
+  var session = getSession(); if (!session) return;
+  var users = getAllUsers().filter(function(user) {
+    return user.id !== session.id && user.role !== 'superadmin';
+  });
+  var select = document.getElementById('userChatSelectUser');
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Pilih User --</option>' +
+    users.map(function(user) {
+      return '<option value="' + user.username + '">' + user.username + ' (' + user.nama + ')</option>';
+    }).join('');
+}
+
+function loadUserToUserChat() {
+  var session = getSession(); if (!session) return;
+  var targetUser = document.getElementById('userChatSelectUser').value;
+  var chatBox = document.getElementById('userToUserChatMessages');
+  if (!chatBox) return;
+  if (!targetUser) {
+    chatBox.innerHTML = '<p class="text-muted text-center">Pilih user untuk melihat chat.</p>';
+    return;
+  }
+  var messages = getChatMessages().filter(function(message) {
+    return (message.from === session.username && message.to === targetUser) ||
+           (message.from === targetUser && message.to === session.username);
+  });
+  chatBox.innerHTML = messages.map(function(message, index) {
+    var isMe = message.from === session.username;
+    return '<div class="chat-msg ' + (isMe ? 'user' : 'admin') + '">' +
+      '<div class="chat-sender">' + (isMe ? 'Anda' : message.from) + '</div>' +
+      message.text +
+      '<div class="chat-time">' + new Date(message.time).toLocaleString() + '</div>' +
+      '<button class="chat-delete-btn" onclick="deleteChatMessage(' + index + ', \'user\')">×</button>' +
+    '</div>';
+  }).join('');
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function sendUserToUserChat() {
+  var input = document.getElementById('userToUserChatInput');
+  var message = input.value.trim();
+  if (!message) return;
+  var session = getSession(); if (!session) return;
+  var targetUser = document.getElementById('userChatSelectUser').value;
+  if (!targetUser) { showToast('Pilih user tujuan!', 'error'); return; }
+  var messages = getChatMessages();
+  messages.push({ from: session.username, to: targetUser, text: message, time: new Date().toISOString() });
+  saveChatMessages(messages);
+  input.value = '';
+  loadUserToUserChat();
+}
+
+function clearAllUserChats() {
+  if (confirm('Hapus SEMUA chat Anda? Tindakan ini tidak bisa dibatalkan.')) {
+    var session = getSession(); if (!session) return;
+    var messages = getChatMessages().filter(function(message) {
+      return message.from !== session.username && message.to !== session.username;
+    });
+    saveChatMessages(messages);
+    if (currentUserChatTab === 'admin') { loadUserChatWithAdmin(); } else { loadUserToUserChat(); }
+    showToast('Semua chat Anda telah dihapus.', 'warning');
+  }
+}
+
+function deleteChatMessage(index, tab) {
+  var session = getSession(); if (!session) return;
+  var messages = getChatMessages();
+  var filteredMessages;
+  if (tab === 'admin') {
+    var adminMessages = messages.filter(function(message) {
+      return (message.from === session.username && message.to === 'admin') ||
+             (message.from === 'admin' && message.to === session.username) ||
+             (message.from === 'admin' && message.to === 'all');
+    });
+    var targetMessage = adminMessages[index];
+    if (targetMessage) {
+      var globalIndex = messages.indexOf(targetMessage);
+      if (globalIndex !== -1) { messages.splice(globalIndex, 1); saveChatMessages(messages); }
+    }
+    loadUserChatWithAdmin();
+  } else if (tab === 'user') {
+    var targetUser = document.getElementById('userChatSelectUser').value;
+    var userMessages = messages.filter(function(message) {
+      return (message.from === session.username && message.to === targetUser) ||
+             (message.from === targetUser && message.to === session.username);
+    });
+    var targetMessage = userMessages[index];
+    if (targetMessage) {
+      var globalIndex = messages.indexOf(targetMessage);
+      if (globalIndex !== -1) { messages.splice(globalIndex, 1); saveChatMessages(messages); }
+    }
+    loadUserToUserChat();
+  }
+}
+
+// ========== SUPER ADMIN PANEL ==========
+function showSuperAdminPanel() { openModal('superAdminModal'); switchAdminTab('codes'); }
+function switchAdminTab(tab) {
+  var content = document.getElementById('adminTabContent');
+  if (!content) return;
+
+  if (tab === 'chat') {
+    var users = getAllUsers().filter(function(user) { return user.role !== 'superadmin'; });
+    content.innerHTML = '<h4>Chat dengan User</h4>' +
+      '<div class="flex gap-sm mb-2">' +
+        '<select id="adminChatUserSelect">' +
+          '<option value="all">Semua User</option>' +
+          users.map(function(user) { return '<option value="' + user.username + '">' + user.username + ' (' + user.nama + ')</option>'; }).join('') +
+        '</select>' +
+        '<button class="btn btn-sm" onclick="loadAdminChatForUser()">Muat</button>' +
+      '</div>' +
+      '<div class="chat-box" id="adminChatMessages"></div>' +
+      '<div class="flex"><input type="text" id="adminChatInput" placeholder="Balas..."><button class="btn btn-primary" onclick="sendAdminChat()">Kirim</button></div>' +
+      '<button class="btn btn-sm btn-danger mt-2" onclick="clearAllAdminChats()">🗑 Hapus Semua Chat</button>';
+    loadAdminChatForUser();
+  } else if (tab === 'masschat') {
+    content.innerHTML = '<h4>📢 Chat Massal ke Semua User</h4>' +
+      '<textarea id="massChatMessage" rows="4" placeholder="Tulis pesan untuk semua user..."></textarea>' +
+      '<button class="btn btn-warning btn-block mt-2" onclick="sendMassChat()">Kirim ke Semua User</button>';
+  } else if (tab === 'users') {
+    content.innerHTML = '<table class="admin-table"><tr><th>Nama</th><th>Username</th><th>Email</th><th>Premium</th><th>Aksi</th></tr>' +
+      getAllUsers().map(function(user) {
+        return '<tr><td>' + user.nama + '</td><td>' + user.username + '</td><td>' + user.email + '</td><td>' + (user.premium ? 'Ya' : 'Tidak') + '</td>' +
+          '<td><button class="btn btn-sm btn-warning" onclick="toggleLockUser(\'' + user.id + '\')">' + (user.locked ? 'Buka' : 'Kunci') + '</button> ' +
+          '<button class="btn btn-sm btn-danger" onclick="deleteUser(\'' + user.id + '\')">Hapus</button></td></tr>';
+      }).join('') + '</table>';
+  } else if (tab === 'backup') {
+    content.innerHTML = '<h4>💾 Backup & Restore Data (Lengkap)</h4>' +
+      '<p class="text-secondary mb-2">Backup & restore lengkap: JSON (data) dan HTML (tampilan).</p>' +
+      '<button class="btn btn-primary btn-block mb-2" onclick="backupAllData()">⬇ Backup Data (JSON)</button>' +
+      '<label class="btn btn-warning btn-block mb-2" style="cursor:pointer;">📤 Restore Data (JSON)<input type="file" accept=".json" onchange="restoreAllData(this)" hidden></label>' +
+      '<hr class="mt-3 mb-3">' +
+      '<button class="btn btn-success btn-block mb-2" onclick="downloadOfflinePage()">⬇ Download HTML (index.html)</button>' +
+      '<label class="btn btn-warning btn-block" style="cursor:pointer;">📤 Restore HTML (index.html)<input type="file" accept=".html" onchange="restoreFromHTML(this)" hidden></label>';
+  } else if (tab === 'codes') {
+    content.innerHTML = '<h4>Buat Kode Aktivasi</h4>' +
+      '<input id="adminActUser" placeholder="Username/email" class="mb-2">' +
+      '<select id="adminActPackage" class="mb-2">' +
+        getPackages().map(function(pkg) { return '<option value="' + pkg.id + '">' + pkg.name + ' - Rp ' + pkg.price + ' (' + pkg.label + ')</option>'; }).join('') +
+      '</select>' +
+      '<button class="btn btn-success btn-block" onclick="adminCreateCode()">Buat Kode</button>' +
+      '<div id="adminCodeResult"></div>' +
+      '<h4 class="mt-3">Kode Aktif</h4><div id="activeCodesList"></div>';
+    renderActiveCodes();
+  } else if (tab === 'packages') {
+    content.innerHTML = '<div id="packageEditList"></div><button class="btn btn-sm btn-primary mt-2" onclick="addNewPackage()">+ Tambah Paket</button>';
+    renderPackageList();
+  } else if (tab === 'settings') {
+    content.innerHTML = '<label>Nomor WhatsApp</label><input id="adminWA" value="' + whatsappNumber + '" class="mb-2">' +
+      '<button class="btn btn-success btn-block" onclick="saveAdminWA()">Simpan WA</button>' +
+      '<hr><input type="password" id="adminNewPass" placeholder="Password Baru" class="mb-2">' +
+      '<button class="btn btn-warning btn-block" onclick="changeAdminPass()">Ganti Password</button>' +
+      '<input id="adminNewName" value="' + SUPER_ADMIN.nama + '" class="mb-2 mt-2">' +
+      '<button class="btn btn-info btn-block" onclick="changeAdminName()">Ganti Nama</button>' +
+      '<hr><button class="btn btn-danger btn-block" onclick="resetAllData()">Reset Semua Data</button>';
+  } else if (tab === 'restart') {
+    content.innerHTML = '<h4>🔄 Restart Aplikasi</h4>' +
+      '<p class="text-secondary mb-2">Membersihkan sampah localStorage, menghapus semua chat, mengembalikan pengaturan default. <strong>Data user & media tetap aman.</strong></p>' +
+      '<button class="btn btn-warning btn-block mb-2" onclick="restartApplication()">🔄 Restart & Bersihkan</button>' +
+      '<p class="text-sm text-muted">Tindakan ini akan menghapus: chat, log keamanan, preferensi tema, dan data sampah lainnya.</p>';
+  }
+
+  var tabs = document.querySelectorAll('.admin-tab');
+  tabs.forEach(function(button) { button.classList.remove('active'); });
+  if (event && event.target) event.target.classList.add('active');
+}
+
+function loadAdminChatForUser() {
+  var userSelect = document.getElementById('adminChatUserSelect');
+  var chatBox = document.getElementById('adminChatMessages');
+  if (!userSelect || !chatBox) return;
+  var selectedUser = userSelect.value;
+  var messages = getChatMessages();
+  if (selectedUser && selectedUser !== 'all') {
+    messages = messages.filter(function(message) {
+      return (message.from === selectedUser && message.to === 'admin') ||
+             (message.from === 'admin' && message.to === selectedUser) ||
+             (message.from === selectedUser && message.to !== 'admin') ||
+             (message.to === selectedUser && message.from !== 'admin');
+    });
+  }
+  chatBox.innerHTML = messages.map(function(message, index) {
+    var isAdmin = message.from === 'admin';
+    return '<div class="chat-msg ' + (isAdmin ? 'admin' : 'user') + '">' +
+      '<strong>' + message.from + ' → ' + message.to + '</strong><br>' + message.text +
+      '<button class="chat-delete-btn" onclick="deleteAdminChatMessage(' + index + ')">×</button>' +
+    '</div>';
+  }).join('');
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function sendAdminChat() {
+  var input = document.getElementById('adminChatInput');
+  var message = input.value.trim();
+  if (!message) return;
+  var userSelect = document.getElementById('adminChatUserSelect');
+  var selectedUser = userSelect ? userSelect.value : null;
+  var messages = getChatMessages();
+  if (selectedUser === 'all') {
+    messages.push({ from: 'admin', to: 'all', text: message, time: new Date().toISOString() });
+  } else if (selectedUser) {
+    messages.push({ from: 'admin', to: selectedUser, text: message, time: new Date().toISOString() });
+  }
+  saveChatMessages(messages);
+  input.value = '';
+  loadAdminChatForUser();
+}
+
+function clearAllAdminChats() {
+  if (confirm('Hapus SEMUA chat? Tindakan ini tidak bisa dibatalkan.')) {
+    saveChatMessages([]);
+    loadAdminChatForUser();
+    showToast('Semua chat telah dihapus.', 'warning');
+  }
+}
+
+function deleteAdminChatMessage(index) {
+  var messages = getChatMessages();
+  var userSelect = document.getElementById('adminChatUserSelect');
+  var selectedUser = userSelect ? userSelect.value : null;
+  
+  var filteredMessages = messages;
+  if (selectedUser && selectedUser !== 'all') {
+    filteredMessages = messages.filter(function(message) {
+      return (message.from === selectedUser && message.to === 'admin') ||
+             (message.from === 'admin' && message.to === selectedUser) ||
+             (message.from === selectedUser && message.to !== 'admin') ||
+             (message.to === selectedUser && message.from !== 'admin');
+    });
+  }
+  
+  var targetMessage = filteredMessages[index];
+  if (targetMessage) {
+    var globalIndex = messages.indexOf(targetMessage);
+    if (globalIndex !== -1) { messages.splice(globalIndex, 1); saveChatMessages(messages); }
+  }
+  loadAdminChatForUser();
+}
+
+function sendMassChat() {
+  var input = document.getElementById('massChatMessage');
+  var message = input.value.trim();
+  if (!message) return;
+  var messages = getChatMessages();
+  var users = getAllUsers().filter(function(user) { return user.role !== 'superadmin'; });
+  users.forEach(function(user) {
+    messages.push({ from: 'admin', to: user.username, text: message, time: new Date().toISOString() });
+  });
+  saveChatMessages(messages);
+  showToast('Pesan massal dikirim ke ' + users.length + ' user', 'success');
+}
+
+function adminCreateCode() {
+  var userField = document.getElementById('adminActUser').value.trim();
+  var packageId = document.getElementById('adminActPackage').value;
+  if (!userField || !packageId) return;
+  var code = 'MEDIA-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+  var codes = getValidCodes();
+  codes[code] = { packageId: packageId, used: false, createdAt: new Date().toISOString() };
+  saveValidCodes(codes);
+  document.getElementById('adminCodeResult').innerHTML = '<p class="form-success show">✅ Kode: <strong>' + code + '</strong></p>';
+  renderActiveCodes();
+}
+
+function renderActiveCodes() {
+  var codes = getValidCodes();
+  var listEl = document.getElementById('activeCodesList');
+  if (!listEl) return;
+  var keys = Object.keys(codes);
+  if (keys.length === 0) { listEl.innerHTML = '<p class="text-muted">Belum ada kode.</p>'; return; }
+  listEl.innerHTML = keys.map(function(code) {
+    var data = codes[code];
+    return '<div>' + code + ' - ' + data.packageId + ' ' + (data.used ? '<span class="text-danger">Terpakai</span>' : '<span class="text-success">Aktif</span>') + '</div>';
+  }).join('');
+}
+
+function toggleLockUser(userId) {
+  var users = getAllUsers();
+  var user = users.find(function(u) { return u.id === userId; });
+  if (user) { user.locked = !user.locked; saveAllUsers(users); switchAdminTab('users'); }
+}
+
+function deleteUser(userId) {
+  if (confirm('Hapus user ini?')) {
+    var users = getAllUsers().filter(function(u) { return u.id !== userId; });
+    saveAllUsers(users);
+    switchAdminTab('users');
+  }
+}
+
+function renderPackageList() {
+  var packages = getPackages();
+  var listEl = document.getElementById('packageEditList');
+  if (!listEl) return;
+  listEl.innerHTML = packages.map(function(pkg) {
+    return '<div class="flex-between"><span>' + pkg.name + ' - Rp ' + pkg.price.toLocaleString('id-ID') + ' (' + pkg.label + ')</span>' +
+      '<button class="btn btn-sm btn-warning" onclick="editPackage(\'' + pkg.id + '\')">Edit</button></div>';
+  }).join('');
+}
+
+function editPackage(packageId) {
+  var pkg = getPackages().find(function(p) { return p.id === packageId; });
+  if (!pkg) return;
+  document.getElementById('editPackageId').value = pkg.id;
+  document.getElementById('editPackageName').value = pkg.name;
+  document.getElementById('editPackagePrice').value = pkg.price;
+  document.getElementById('editPackageDays').value = pkg.days;
+  document.getElementById('editPackageLabel').value = pkg.label;
+  document.getElementById('editPackageTitle').textContent = 'Edit Paket ' + pkg.name;
+  openModal('editPackageModal');
+}
+
+function savePackageChanges() {
+  var id = document.getElementById('editPackageId').value;
+  var name = document.getElementById('editPackageName').value.trim();
+  var price = parseInt(document.getElementById('editPackagePrice').value);
+  var days = parseInt(document.getElementById('editPackageDays').value);
+  var label = document.getElementById('editPackageLabel').value.trim();
+  if (!name || isNaN(price) || isNaN(days) || !label) return;
+  var packages = getPackages();
+  var pkg = packages.find(function(p) { return p.id === id; });
+  if (!pkg) return;
+  pkg.name = name; pkg.price = price; pkg.days = days; pkg.label = label;
+  savePackages(packages);
+  closeModal('editPackageModal');
+  renderPackageList();
+}
+
+function addNewPackage() {
+  var pkg = { id: 'pkg_' + Date.now(), name: 'Paket Baru', price: 0, days: 30, label: '1 Bulan' };
+  var packages = getPackages();
+  packages.push(pkg);
+  savePackages(packages);
+  renderPackageList();
+}
+
+function saveAdminWA() {
+  var value = document.getElementById('adminWA').value.trim();
+  if (value) {
+    whatsappNumber = value;
+    localStorage.setItem('media_wa', value);
+    updateWhatsappDisplay();
+    showToast('Nomor WhatsApp disimpan', 'success');
+  }
+}
+
+function changeAdminPass() {
+  var newPass = document.getElementById('adminNewPass').value.trim();
+  if (newPass) {
+    SUPER_ADMIN.password = encodePassword(newPass);
+    showToast('Password diubah', 'success');
+  }
+}
+
+function changeAdminName() {
+  var newName = document.getElementById('adminNewName').value.trim();
+  if (newName) {
+    SUPER_ADMIN.nama = newName;
+    var session = getSession();
+    if (session && session.role === 'superadmin') { session.nama = newName; saveSession(session); }
+    updateUI();
+    showToast('Nama diubah', 'success');
+  }
+}
+
+function resetAllData() {
+  showConfirm('RESET SEMUA DATA?', 'Semua data akan dihapus permanen!', function() {
+    localStorage.clear();
+    saveAllUsers([SUPER_ADMIN]);
+    saveAllMedia({});
+    saveValidCodes({});
+    savePackages(DEFAULT_PACKAGES);
+    saveSecurityLogs([]);
+    updateUI();
+    closeModal('superAdminModal');
+    showToast('Data direset!', 'warning');
+  });
+}
+
+// ========== RESTART APLIKASI (BERSIHKAN SAMPAH) ==========
+function restartApplication() {
+  showConfirm('🔄 Restart Aplikasi?', 'Semua chat, log keamanan, preferensi tema, dan data sampah akan dihapus. Data user & media tetap aman.', function() {
+    var users = getAllUsers();
+    var media = getAllMedia();
+    var validCodes = getValidCodes();
+    var packages = getPackages();
+    var whatsapp = whatsappNumber;
+    
+    localStorage.clear();
+    
+    saveAllUsers(users);
+    saveAllMedia(media);
+    saveValidCodes(validCodes);
+    savePackages(packages);
+    localStorage.setItem('media_wa', whatsapp);
+    
+    saveChatMessages([]);
+    saveSecurityLogs([]);
+    localStorage.setItem('media_theme', 'dark');
+    document.body.classList.remove('light-theme');
+    
+    updateUI();
+    closeModal('superAdminModal');
+    showToast('✅ Aplikasi berhasil direstart! Semua sampah dibersihkan.', 'success');
+  });
+}
+
+// ========== GUEST CHAT ==========
+function openGuestChat() { openModal('guestChatModal'); renderGuestChat(); }
+function renderGuestChat() {
+  var messages = getChatMessages().filter(function(message) { return message.to === 'admin' || message.from === 'guest'; });
+  var chatBox = document.getElementById('guestChatMessages');
+  if (!chatBox) return;
+  chatBox.innerHTML = messages.map(function(message) {
+    var isGuest = message.from === 'guest';
+    return '<div class="chat-msg ' + (isGuest ? 'user' : 'admin') + '">' +
+      '<div class="chat-sender">' + (isGuest ? 'Anda' : 'Admin') + '</div>' +
+      message.text +
+      '<div class="chat-time">' + new Date(message.time).toLocaleString() + '</div>' +
+    '</div>';
+  }).join('');
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+function sendGuestChat() {
+  var input = document.getElementById('guestChatInput');
+  var message = input.value.trim();
+  if (!message) return;
+  var messages = getChatMessages();
+  messages.push({ from: 'guest', to: 'admin', text: message, time: new Date().toISOString() });
+  saveChatMessages(messages);
+  input.value = '';
+  renderGuestChat();
+}
+
+// ========== FORGOT PASSWORD ==========
+function handleForgotPassword() {
+  var namaInput = document.getElementById('forgotNama');
+  if (!namaInput) return;
+  var nama = namaInput.value.trim();
+  if (!nama) return;
+  var messages = getChatMessages();
+  messages.push({ from: 'guest', to: 'admin', text: 'Permintaan reset password dari: ' + nama, time: new Date().toISOString() });
+  saveChatMessages(messages);
+  closeModal('forgotPasswordModal');
+  showToast('Pesan reset dikirim ke admin', 'success');
+}
+
+// ========== PWA ==========
+var deferredPrompt;
+window.addEventListener('beforeinstallprompt', function(event) {
+  event.preventDefault();
+  deferredPrompt = event;
+  var btn1 = document.getElementById('installButton');
+  var btn2 = document.getElementById('installButton2');
+  if (btn1) btn1.classList.remove('hidden');
+  if (btn2) btn2.classList.remove('hidden');
+});
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(choiceResult) {
+      if (choiceResult.outcome === 'accepted') showToast('Instalasi berhasil!', 'success');
+      deferredPrompt = null;
+    });
+  } else if (window.matchMedia('(display-mode: standalone)').matches) {
+    showToast('Aplikasi sudah terinstall.', 'warning');
+  } else {
+    alert('Buka menu browser lalu pilih "Tambahkan ke Layar Utama" atau "Install".');
+  }
+}
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    var swCode = 'var CACHE_NAME="mediastudio-v1";self.addEventListener("install",function(e){e.waitUntil(caches.open(CACHE_NAME).then(function(cache){return cache.addAll(["/"])}));});self.addEventListener("fetch",function(e){e.respondWith(caches.match(e.request).then(function(r){return r||fetch(e.request)}));});';
+    var swBlob = new Blob([swCode], { type: 'application/javascript' });
+    var swUrl = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl).catch(function(err) { console.log('SW registration failed:', err); });
+  });
+}
+
+// ========== INIT ==========
+(function finalInit() {
+  var users = getAllUsers();
+  if (!users.find(function(u) { return u.role === 'superadmin'; })) {
+    users.push(SUPER_ADMIN);
+    saveAllUsers(users);
+  }
+  updateWhatsappDisplay();
+  updateUI();
+  var session = getSession();
+  if (session) { refreshMediaUI(); updateStats(); }
+  // Render paket harga di landing page
+  var packages = getPackages();
+  var grid = document.getElementById('landingPriceGrid');
+  if (grid) {
+    grid.innerHTML = packages.map(function(pkg, index) {
+      var isFeatured = index === 1;
+      return '<div class="price-card' + (isFeatured ? ' featured' : '') + '" onclick="showRegisterModal()">' +
+        (isFeatured ? '<div class="featured-badge">POPULER</div>' : '') +
+        '<div class="price-icon">💎</div>' +
+        '<div class="price-name">' + pkg.name + '</div>' +
+        '<div class="price-value">Rp ' + pkg.price.toLocaleString('id-ID') + '</div>' +
+        '<div class="price-duration">' + pkg.label + '</div>' +
+      '</div>';
+    }).join('');
+  }
+})();
