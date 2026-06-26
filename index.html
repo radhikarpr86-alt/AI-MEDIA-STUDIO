@@ -1,3 +1,6 @@
+<!-- ============================================================
+     BLOK 1 – INDEX.HTML (PEMBUKA) - REVISI HEADER + PROFIL
+     ============================================================ -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -37,7 +40,7 @@
       padding: var(--spacing-md) var(--spacing-xl); background: var(--bg-secondary);
       border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 10;
     }
-    .app-logo { font-size: 1.3rem; font-weight: 700; }
+    .app-logo { font-size: 1.3rem; font-weight: 700; cursor: pointer; }
     .main-content { flex: 1; padding: var(--spacing-xl); animation: fadeIn 0.3s; }
     .btn {
       display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
@@ -45,9 +48,13 @@
       font-size: 0.85rem; background: var(--bg-tertiary); color: var(--text-primary);
     }
     .btn-primary { background: var(--accent-primary); color: #fff; }
+    .btn-outline { background: transparent; border: 2px solid var(--accent-primary); color: var(--accent-light); }
     .btn-sm { padding: 4px 12px; font-size: 0.8rem; }
     .btn-lg { padding: 12px 28px; font-size: 1rem; }
     .btn-block { width: 100%; justify-content: center; }
+    .btn-success { background: var(--color-success); color: #fff; }
+    .btn-danger { background: var(--color-danger); color: #fff; }
+    .btn-warning { background: var(--color-warning); color: #000; }
     .toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none; }
     .toast {
       background: var(--bg-secondary); color: var(--text-primary); padding: 10px 20px;
@@ -85,12 +92,12 @@
     .modal-header h3 { font-size: 1.2rem; font-weight: 700; }
     .modal-close { background: none; border: none; font-size: 1.5rem; color: var(--text-secondary); cursor: pointer; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color); }
-    /* tambahan CSS modul (sebagian besar sudah ada di atas) */
+    /* tambahan CSS modul */
     .landing-page, .auth-page, .dashboard-page, .proyek-list-page, .editor-page,
     .upload-page, .rekam-page, .stem-page, .mixer-page, .lirik-sync-page,
     .lirik-display-page, .transpose-page, .modifikasi-page, .ai-generator-page,
     .voice-select-page, .lyrics-gen-page, .hasil-page, .download-page,
-    .premium-page, .admin-page, .chat-page, .backup-page, .settings-page, .help-page {
+    .premium-page, .admin-page, .chat-page, .backup-page, .settings-page, .help-page, .profile-page {
       max-width: 900px; margin: 0 auto;
     }
     .hero { text-align: center; padding: 40px 20px; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 30px; }
@@ -153,14 +160,30 @@
     .premium-action { opacity: 0.8; }
     .spinner { width: 30px; height: 30px; border: 3px solid var(--border-color); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .user-badge { cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 4px 12px; background: var(--bg-tertiary); border-radius: 20px; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
   </style>
 </head>
 <body>
   <div class="app-shell">
     <header class="app-header">
-      <div class="app-logo">🎵 Musik+ Studio</div>
-      <div>
-        <button class="btn btn-sm" onclick="toggleTheme()">🌓</button>
+      <div class="app-logo" onclick="MS.navigate('dashboard')">🎵 Musik+ Studio</div>
+      <div class="header-actions" id="headerActions">
+        <div id="headerGuest">
+          <button class="btn btn-sm" onclick="toggleTheme()">🌓 Tema</button>
+          <button class="btn btn-sm btn-primary" onclick="MS.navigate('auth')">🔐 Login</button>
+          <button class="btn btn-sm btn-outline" onclick="MS.navigate('auth', {mode:'register'})">📝 Daftar</button>
+        </div>
+        <div id="headerUser" class="hidden" style="display:flex;align-items:center;gap:8px;">
+          <button class="btn btn-sm" onclick="toggleTheme()">🌓</button>
+          <div class="user-badge" onclick="MS.navigate('profile')">
+            <span class="user-avatar" id="headerAvatar">U</span>
+            <span id="headerUserName" style="font-size:0.85rem;font-weight:500;">User</span>
+          </div>
+          <button class="btn btn-sm btn-warning hidden" id="headerAdminBtn" onclick="MS.navigate('admin-panel')">👑 Admin</button>
+          <button class="btn btn-sm btn-danger" onclick="MS.logout()">🚪 Logout</button>
+        </div>
       </div>
     </header>
     <main class="main-content" id="appContainer">
@@ -1332,6 +1355,65 @@
   </div>
 </template>
 
+<!-- ============================================================
+     BLOK 27 – TEMPLATE PROFIL (modul-profile)
+     ============================================================ -->
+<template id="modul-profile">
+  <div class="profile-page" style="max-width:500px;margin:0 auto;">
+    <div class="section-header">
+      <h2>👤 Profil Saya</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
+    </div>
+
+    <div class="profile-container" style="background:var(--bg-secondary);padding:24px;border-radius:var(--radius-lg);">
+      <!-- Avatar & Info -->
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+        <div id="profileAvatarBig" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-light));display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;font-weight:700;">U</div>
+        <div>
+          <h3 id="profileName">Nama User</h3>
+          <p id="profileRole" style="color:var(--text-secondary);">User Biasa</p>
+        </div>
+      </div>
+
+      <!-- Form Edit Profil -->
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" id="editProfileNama" placeholder="Nama lengkap Anda">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="editProfileEmail" placeholder="Email Anda">
+      </div>
+      <div class="form-group">
+        <label>Nomor HP</label>
+        <input type="text" id="editProfileHp" placeholder="Nomor HP Anda">
+      </div>
+      <button class="btn btn-success btn-block" onclick="saveProfile()">💾 Simpan Profil</button>
+      <div class="form-error" id="profileError"></div>
+      <div class="form-success" id="profileSuccess"></div>
+
+      <!-- Hapus Akun -->
+      <hr style="border-color:var(--border-color);margin:20px 0;">
+      <button class="btn btn-danger btn-block" onclick="deleteAccount()">🗑 Hapus Akun Saya</button>
+      <p style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;text-align:center;">
+        ⚠️ Data proyek dan semua informasi akan dihapus permanen.
+      </p>
+    </div>
+
+    <!-- Tombol Copy HTML -->
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_profile.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================
+     BLOK 2 – PENUTUP + SEMUA JAVASCRIPT (REVISI LENGKAP)
+     Letakkan paling akhir setelah semua template modul
+     ============================================================ -->
   <!-- ========== AKHIR TEMPLATE MODUL ========== -->
 
   <script>
@@ -1421,7 +1503,12 @@
         return { success: true, message: `Premium aktif hingga ${formatDate(exp.toISOString())}.` };
       }
 
-      function logout() { clearSession(); navigate('landing'); showToast('Logout berhasil.', 'info'); }
+      function logout() {
+        clearSession();
+        updateHeader();
+        navigate('landing');
+        showToast('Logout berhasil.', 'info');
+      }
 
       Object.assign(MS, {
         navigate, escapeHTML, formatDate, formatPrice,
@@ -1436,11 +1523,32 @@
         if (!users.find(u => u.role === 'superadmin')) { users.push(DEFAULT_ADMIN); saveAllUsers(users); }
         document.getElementById('initialLoader').remove();
         const session = getSession();
+        updateHeader();
         if (session) navigate('dashboard');
         else navigate('landing');
       }
       document.addEventListener('DOMContentLoaded', init);
     })();
+
+    // ========== UPDATE HEADER ==========
+    function updateHeader() {
+      const session = MS.getSession();
+      const guestEl = document.getElementById('headerGuest');
+      const userEl = document.getElementById('headerUser');
+      const adminBtn = document.getElementById('headerAdminBtn');
+      if (session) {
+        if (guestEl) guestEl.classList.add('hidden');
+        if (userEl) userEl.classList.remove('hidden');
+        const avatarEl = document.getElementById('headerAvatar');
+        const nameEl = document.getElementById('headerUserName');
+        if (avatarEl) avatarEl.textContent = session.nama.charAt(0).toUpperCase();
+        if (nameEl) nameEl.textContent = session.nama;
+        if (adminBtn) adminBtn.classList.toggle('hidden', session.role !== 'superadmin');
+      } else {
+        if (guestEl) guestEl.classList.remove('hidden');
+        if (userEl) userEl.classList.add('hidden');
+      }
+    }
 
     // ========== FUNGSI DOWNLOAD ==========
     function downloadCurrentPage(filename) {
@@ -1468,13 +1576,13 @@
       if (!u || !p) { err.textContent = 'Isi semua field!'; err.classList.add('show'); return; }
       if (u === 'superadmin' && p === 'admin123') {
         MS.saveSession({ id:'sa', username:'superadmin', nama:'Super Admin', role:'superadmin', premium:true });
-        MS.navigate('dashboard'); showToast('Login Super Admin!', 'success'); return;
+        updateHeader(); MS.navigate('dashboard'); showToast('Login Super Admin!', 'success'); return;
       }
       const users = MS.getAllUsers();
       const user = users.find(x => (x.username===u||x.email===u) && p===atob(x.password));
       if (!user) { err.textContent = 'Username/password salah!'; err.classList.add('show'); return; }
       if (user.locked) { err.textContent = 'Akun terkunci!'; err.classList.add('show'); return; }
-      MS.saveSession(user); MS.navigate('dashboard'); showToast('Selamat datang!', 'success');
+      MS.saveSession(user); updateHeader(); MS.navigate('dashboard'); showToast('Selamat datang!', 'success');
     }
     function handleRegister() {
       const n = document.getElementById('regNama').value.trim();
@@ -1608,21 +1716,26 @@
       const code = document.getElementById('activationCode').value.trim();
       if (!code) { showToast('Masukkan kode!', 'error'); return; }
       const result = MS.activatePremium(code);
-      if (result.success) { document.getElementById('activationSuccess').textContent = result.message; document.getElementById('activationSuccess').classList.add('show'); }
-      else { document.getElementById('activationError').textContent = result.message; document.getElementById('activationError').classList.add('show'); }
+      if (result.success) {
+        document.getElementById('activationSuccess').textContent = result.message;
+        document.getElementById('activationSuccess').classList.add('show');
+        document.getElementById('activationError').classList.remove('show');
+        updateHeader();
+      } else {
+        document.getElementById('activationError').textContent = result.message;
+        document.getElementById('activationError').classList.add('show');
+        document.getElementById('activationSuccess').classList.remove('show');
+      }
     }
 
     // ========== SUPER ADMIN PANEL (LENGKAP) ==========
     function switchAdminTab(tab) {
-      // Update tab aktif
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.admin-tab').forEach(t => {
         if (t.textContent.toLowerCase().includes(tab)) t.classList.add('active');
       });
-
       const content = document.getElementById('adminTabContent');
       if (!content) return;
-
       if (tab === 'users') {
         const users = MS.getAllUsers();
         content.innerHTML = `
@@ -1635,7 +1748,7 @@
                 <td>${u.premium ? 'Ya' : 'Tidak'}</td>
                 <td>
                   <button class="btn btn-sm btn-warning" onclick="toggleLockUser('${u.id}')">${u.locked ? 'Buka' : 'Kunci'}</button>
-                  <button class="btn btn-sm btn-danger" onclick="hapusUser('${u.id}')">Hapus</button>
+                  ${u.role !== 'superadmin' ? `<button class="btn btn-sm btn-danger" onclick="hapusUser('${u.id}')">Hapus</button>` : ''}
                 </td>
               </tr>
             `).join('')}
@@ -1651,8 +1764,8 @@
             </select>
           </div>
           <button class="btn btn-success" onclick="buatKode()">Buat Kode</button>
-          <div id="codeResult" class="mt-2"></div>
-          <h4 class="mt-3">Kode Aktif</h4>
+          <div id="codeResult" style="margin-top:8px;"></div>
+          <h4 style="margin-top:16px;">Kode Aktif</h4>
           <div id="activeCodes"></div>
         `;
         renderActiveCodes();
@@ -1660,7 +1773,7 @@
         content.innerHTML = `
           <h3>Paket Premium</h3>
           <div id="packageList"></div>
-          <button class="btn btn-primary btn-sm mt-2" onclick="tambahPaket()">+ Paket Baru</button>
+          <button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="tambahPaket()">+ Paket Baru</button>
         `;
         renderPackageList();
       } else if (tab === 'chat') {
@@ -1672,53 +1785,108 @@
         `;
       }
     }
-
     function toggleLockUser(userId) {
       const users = MS.getAllUsers();
       const user = users.find(u => u.id === userId);
       if (user) { user.locked = !user.locked; MS.saveAllUsers(users); switchAdminTab('users'); }
     }
     function hapusUser(userId) {
-      if (confirm('Hapus user ini?')) {
+      if (confirm('Hapus user ini? Data proyeknya juga akan dihapus.')) {
+        const user = MS.getAllUsers().find(u => u.id === userId);
         MS.saveAllUsers(MS.getAllUsers().filter(u => u.id !== userId));
+        if (user) {
+          const allProjects = MS.storageGet('projects', {});
+          delete allProjects[user.username];
+          MS.storageSet('projects', allProjects);
+        }
         switchAdminTab('users');
+        showToast('User dihapus.', 'warning');
       }
     }
     function buatKode() {
       const userField = document.getElementById('adminCodeUser').value.trim();
       const pkgId = document.getElementById('adminCodePackage').value;
-      if (!userField) return;
+      if (!userField) { showToast('Masukkan username!', 'error'); return; }
       const code = 'MK-' + Date.now().toString(36).toUpperCase();
       const codes = MS.getValidCodes();
       codes[code] = { packageId: pkgId, used: false, createdAt: new Date().toISOString() };
       MS.saveValidCodes(codes);
-      document.getElementById('codeResult').innerHTML = `<p class="form-success show">Kode: <strong>${code}</strong></p>`;
+      document.getElementById('codeResult').innerHTML = `<p class="form-success show">✅ Kode: <strong>${code}</strong></p>`;
       renderActiveCodes();
     }
     function renderActiveCodes() {
       const codes = MS.getValidCodes();
       const el = document.getElementById('activeCodes');
-      if (el) el.innerHTML = Object.keys(codes).map(c => `<div>${c} - ${codes[c].packageId} (${codes[c].used ? 'Terpakai' : 'Aktif'})</div>`).join('');
+      if (el) el.innerHTML = Object.keys(codes).length === 0 ? '<p class="text-muted">Belum ada kode.</p>' :
+        Object.keys(codes).map(c => `<div style="margin-bottom:4px;">${c} - ${codes[c].packageId} (${codes[c].used ? '<span style="color:var(--color-danger);">Terpakai</span>' : '<span style="color:var(--color-success);">Aktif</span>'})</div>`).join('');
     }
     function renderPackageList() {
       const el = document.getElementById('packageList');
-      if (el) el.innerHTML = MS.getPackages().map(p => `<div>${p.name} - ${MS.formatPrice(p.price)} (${p.label})</div>`).join('');
+      if (el) el.innerHTML = MS.getPackages().map((p,i) => `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span>${p.name} - ${MS.formatPrice(p.price)} (${p.label})</span></div>`).join('');
     }
     function tambahPaket() {
       const pkgs = MS.getPackages();
-      pkgs.push({ id: 'pkg_' + Date.now(), name: 'Baru', price: 0, days: 30, label: '1 Bulan' });
+      pkgs.push({ id: 'pkg_' + Date.now(), name: 'Paket Baru', price: 0, days: 30, label: '1 Bulan' });
       MS.savePackages(pkgs);
       renderPackageList();
+      showToast('Paket baru ditambahkan.', 'success');
+    }
+
+    // ========== FUNGSI PROFIL ==========
+    function loadProfile() {
+      const s = MS.getSession();
+      if (!s) return;
+      document.getElementById('profileAvatarBig').textContent = s.nama.charAt(0).toUpperCase();
+      document.getElementById('profileName').textContent = s.nama;
+      document.getElementById('profileRole').textContent = s.role === 'superadmin' ? 'Super Admin' : (s.premium ? 'User Premium' : 'User Biasa');
+      document.getElementById('editProfileNama').value = s.nama || '';
+      document.getElementById('editProfileEmail').value = s.email || '';
+      document.getElementById('editProfileHp').value = s.hp || '';
+    }
+    function saveProfile() {
+      const s = MS.getSession();
+      if (!s) return;
+      const n = document.getElementById('editProfileNama').value.trim();
+      const e = document.getElementById('editProfileEmail').value.trim();
+      const hp = document.getElementById('editProfileHp').value.trim();
+      const err = document.getElementById('profileError');
+      const suc = document.getElementById('profileSuccess');
+      err.textContent = ''; err.classList.remove('show');
+      suc.textContent = ''; suc.classList.remove('show');
+      if (!n || !e || !hp) { err.textContent = 'Semua field wajib diisi!'; err.classList.add('show'); return; }
+      s.nama = n; s.email = e; s.hp = hp;
+      MS.saveSession(s);
+      const users = MS.getAllUsers();
+      const idx = users.findIndex(u => u.id === s.id);
+      if (idx !== -1) { users[idx].nama = n; users[idx].email = e; users[idx].hp = hp; MS.saveAllUsers(users); }
+      updateHeader();
+      suc.textContent = 'Profil berhasil disimpan!'; suc.classList.add('show');
+      setTimeout(() => MS.navigate('dashboard'), 1500);
+    }
+    function deleteAccount() {
+      const s = MS.getSession();
+      if (!s || s.role === 'superadmin') { showToast('Super Admin tidak bisa dihapus.', 'error'); return; }
+      if (confirm('Hapus akun Anda secara permanen? Semua data proyek akan hilang.')) {
+        MS.saveAllUsers(MS.getAllUsers().filter(u => u.id !== s.id));
+        const allProjects = MS.storageGet('projects', {});
+        delete allProjects[s.username];
+        MS.storageSet('projects', allProjects);
+        MS.clearSession();
+        updateHeader();
+        MS.navigate('landing');
+        showToast('Akun berhasil dihapus.', 'warning');
+      }
     }
 
     // ========== CHAT ==========
     function switchChatTab(tab) {
       document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('chatTab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+      const tabEl = document.getElementById('chatTab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+      if (tabEl) tabEl.classList.add('active');
     }
     function kirimPesan() {
       const input = document.getElementById('chatInput');
-      if (!input.value.trim()) return;
+      if (!input || !input.value.trim()) return;
       const msgs = MS.getChatMessages();
       msgs.push({ from: MS.getSession()?.username || 'guest', to: 'admin', text: input.value, time: new Date().toISOString() });
       MS.saveChatMessages(msgs);
@@ -1728,9 +1896,11 @@
 
     // ========== BACKUP ==========
     function exportData() {
-      const data = { projects: MS.getProjects(MS.getSession().username), exportedAt: new Date().toISOString() };
-      const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'musikplus_backup.json'; a.click();
+      const s = MS.getSession(); if (!s) return;
+      const data = { username: s.username, projects: MS.getProjects(s.username), exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = 'musikplus_backup_' + s.username + '.json'; a.click();
       showToast('Data diekspor!', 'success');
     }
     function restoreData(input) {
@@ -1739,14 +1909,34 @@
       reader.onload = function(e) {
         try {
           const data = JSON.parse(e.target.result);
-          if (data.projects) { MS.saveProjects(MS.getSession().username, data.projects); showToast('Data dipulihkan!', 'success'); }
-        } catch(ex) { showToast('File tidak valid!', 'error'); }
+          if (data.projects) {
+            const s = MS.getSession(); if (!s) return;
+            MS.saveProjects(s.username, data.projects);
+            showToast('Data berhasil dipulihkan!', 'success');
+          }
+        } catch(ex) { showToast('File JSON tidak valid!', 'error'); }
       };
       reader.readAsText(input.files[0]);
     }
 
     // ========== PAGE INIT ==========
     MS.pageInit = function(page, params) {
+      updateHeader();
+      if (page === 'landing') {
+        // Render paket premium di landing
+        const grid = document.getElementById('landingPriceGrid');
+        if (grid) {
+          grid.innerHTML = MS.getPackages().map((pkg, i) => `
+            <div class="price-card ${i === 1 ? 'featured' : ''}" onclick="MS.navigate('auth', {mode:'register'})">
+              ${i === 1 ? '<div class="featured-badge">POPULER</div>' : ''}
+              <div class="price-icon">💎</div>
+              <div class="price-name">${pkg.name}</div>
+              <div class="price-value">${MS.formatPrice(pkg.price)}</div>
+              <div class="price-duration">${pkg.label}</div>
+            </div>
+          `).join('');
+        }
+      }
       if (page === 'dashboard') {
         const s = MS.getSession(); if (!s) return;
         document.getElementById('dashAvatar').textContent = s.nama.charAt(0).toUpperCase();
@@ -1754,6 +1944,9 @@
         const prem = MS.isPremium();
         document.getElementById('dashStatus').textContent = prem ? '⭐ Premium' : 'Free';
         document.getElementById('premiumExpiryBanner').classList.toggle('hidden', !prem);
+        if (prem && s.premiumExpiry) {
+          document.getElementById('premiumExpiryText').textContent = ' Berlaku hingga ' + MS.formatDate(s.premiumExpiry);
+        }
         const proj = MS.getProjects(s.username);
         document.getElementById('statProjects').textContent = proj.length;
         document.getElementById('statTracks').textContent = proj.reduce((a,p) => a + (p.tracks||[]).length, 0);
@@ -1773,15 +1966,13 @@
       }
       if (page === 'admin-panel') {
         const s = MS.getSession();
-        if (!s || s.role !== 'superadmin') {
-          MS.navigate('dashboard');
-          showToast('Akses ditolak.', 'error');
-          return;
-        }
+        if (!s || s.role !== 'superadmin') { MS.navigate('dashboard'); showToast('Akses ditolak.', 'error'); return; }
         switchAdminTab('users');
       }
+      if (page === 'profile') {
+        loadProfile();
+      }
       if (page === 'premium') {
-        // Render paket premium
         const grid = document.getElementById('premiumPriceGrid');
         if (grid) {
           grid.innerHTML = MS.getPackages().map((pkg, i) => `
