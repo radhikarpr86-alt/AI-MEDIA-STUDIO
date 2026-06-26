@@ -1603,7 +1603,7 @@
       }, 1500);
     }
 
-    // ========== PREMIUM & ADMIN ==========
+    // ========== PREMIUM ==========
     function aktivasiPremium() {
       const code = document.getElementById('activationCode').value.trim();
       if (!code) { showToast('Masukkan kode!', 'error'); return; }
@@ -1611,10 +1611,104 @@
       if (result.success) { document.getElementById('activationSuccess').textContent = result.message; document.getElementById('activationSuccess').classList.add('show'); }
       else { document.getElementById('activationError').textContent = result.message; document.getElementById('activationError').classList.add('show'); }
     }
+
+    // ========== SUPER ADMIN PANEL (LENGKAP) ==========
     function switchAdminTab(tab) {
+      // Update tab aktif
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.admin-tab').forEach(t => { if (t.textContent.toLowerCase().includes(tab)) t.classList.add('active'); });
-      document.getElementById('adminTabContent').innerHTML = '<p>Tab: ' + tab + '</p>';
+      document.querySelectorAll('.admin-tab').forEach(t => {
+        if (t.textContent.toLowerCase().includes(tab)) t.classList.add('active');
+      });
+
+      const content = document.getElementById('adminTabContent');
+      if (!content) return;
+
+      if (tab === 'users') {
+        const users = MS.getAllUsers();
+        content.innerHTML = `
+          <h3>Daftar User</h3>
+          <table class="admin-table">
+            <tr><th>Nama</th><th>Username</th><th>Email</th><th>Premium</th><th>Aksi</th></tr>
+            ${users.map(u => `
+              <tr>
+                <td>${u.nama}</td><td>${u.username}</td><td>${u.email}</td>
+                <td>${u.premium ? 'Ya' : 'Tidak'}</td>
+                <td>
+                  <button class="btn btn-sm btn-warning" onclick="toggleLockUser('${u.id}')">${u.locked ? 'Buka' : 'Kunci'}</button>
+                  <button class="btn btn-sm btn-danger" onclick="hapusUser('${u.id}')">Hapus</button>
+                </td>
+              </tr>
+            `).join('')}
+          </table>
+        `;
+      } else if (tab === 'codes') {
+        content.innerHTML = `
+          <h3>Buat Kode Aktivasi</h3>
+          <div class="form-group"><input id="adminCodeUser" placeholder="Username"></div>
+          <div class="form-group">
+            <select id="adminCodePackage">
+              ${MS.getPackages().map(p => `<option value="${p.id}">${p.name} - ${p.label}</option>`).join('')}
+            </select>
+          </div>
+          <button class="btn btn-success" onclick="buatKode()">Buat Kode</button>
+          <div id="codeResult" class="mt-2"></div>
+          <h4 class="mt-3">Kode Aktif</h4>
+          <div id="activeCodes"></div>
+        `;
+        renderActiveCodes();
+      } else if (tab === 'packages') {
+        content.innerHTML = `
+          <h3>Paket Premium</h3>
+          <div id="packageList"></div>
+          <button class="btn btn-primary btn-sm mt-2" onclick="tambahPaket()">+ Paket Baru</button>
+        `;
+        renderPackageList();
+      } else if (tab === 'chat') {
+        content.innerHTML = `<p class="text-secondary">Gunakan menu Chat untuk berkomunikasi dengan user.</p>`;
+      } else if (tab === 'backup') {
+        content.innerHTML = `
+          <h3>Backup / Restore</h3>
+          <button class="btn btn-primary" onclick="MS.navigate('backup-restore')">Buka Halaman Backup</button>
+        `;
+      }
+    }
+
+    function toggleLockUser(userId) {
+      const users = MS.getAllUsers();
+      const user = users.find(u => u.id === userId);
+      if (user) { user.locked = !user.locked; MS.saveAllUsers(users); switchAdminTab('users'); }
+    }
+    function hapusUser(userId) {
+      if (confirm('Hapus user ini?')) {
+        MS.saveAllUsers(MS.getAllUsers().filter(u => u.id !== userId));
+        switchAdminTab('users');
+      }
+    }
+    function buatKode() {
+      const userField = document.getElementById('adminCodeUser').value.trim();
+      const pkgId = document.getElementById('adminCodePackage').value;
+      if (!userField) return;
+      const code = 'MK-' + Date.now().toString(36).toUpperCase();
+      const codes = MS.getValidCodes();
+      codes[code] = { packageId: pkgId, used: false, createdAt: new Date().toISOString() };
+      MS.saveValidCodes(codes);
+      document.getElementById('codeResult').innerHTML = `<p class="form-success show">Kode: <strong>${code}</strong></p>`;
+      renderActiveCodes();
+    }
+    function renderActiveCodes() {
+      const codes = MS.getValidCodes();
+      const el = document.getElementById('activeCodes');
+      if (el) el.innerHTML = Object.keys(codes).map(c => `<div>${c} - ${codes[c].packageId} (${codes[c].used ? 'Terpakai' : 'Aktif'})</div>`).join('');
+    }
+    function renderPackageList() {
+      const el = document.getElementById('packageList');
+      if (el) el.innerHTML = MS.getPackages().map(p => `<div>${p.name} - ${MS.formatPrice(p.price)} (${p.label})</div>`).join('');
+    }
+    function tambahPaket() {
+      const pkgs = MS.getPackages();
+      pkgs.push({ id: 'pkg_' + Date.now(), name: 'Baru', price: 0, days: 30, label: '1 Bulan' });
+      MS.savePackages(pkgs);
+      renderPackageList();
     }
 
     // ========== CHAT ==========
@@ -1676,6 +1770,30 @@
       if (page === 'auth') {
         const mode = params && params.mode ? params.mode : 'login';
         switchAuthTab(mode);
+      }
+      if (page === 'admin-panel') {
+        const s = MS.getSession();
+        if (!s || s.role !== 'superadmin') {
+          MS.navigate('dashboard');
+          showToast('Akses ditolak.', 'error');
+          return;
+        }
+        switchAdminTab('users');
+      }
+      if (page === 'premium') {
+        // Render paket premium
+        const grid = document.getElementById('premiumPriceGrid');
+        if (grid) {
+          grid.innerHTML = MS.getPackages().map((pkg, i) => `
+            <div class="price-card ${i === 1 ? 'featured' : ''}">
+              ${i === 1 ? '<div class="featured-badge">POPULER</div>' : ''}
+              <div class="price-icon">💎</div>
+              <div class="price-name">${pkg.name}</div>
+              <div class="price-value">${MS.formatPrice(pkg.price)}</div>
+              <div class="price-duration">${pkg.label}</div>
+            </div>
+          `).join('');
+        }
       }
     };
   </script>
