@@ -1221,7 +1221,7 @@
 </template>
 
 <!-- ============================================================
-     BLOK 23 – TEMPLATE CHAT (DEBUG VERSION)
+     BLOK 23 – TEMPLATE CHAT (modul-chat) - VERSI FINAL
      ============================================================ -->
 <template id="modul-chat">
   <div class="chat-page">
@@ -1230,21 +1230,30 @@
       <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
     </div>
 
-    <div class="chat-container">
-      <div id="chatMessages" class="chat-messages" style="height:350px;background:var(--bg-tertiary);padding:10px;border-radius:8px;">
-        <p>Menunggu pesan...</p>
+    <div class="chat-container" style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:16px;">
+      <!-- Area Pesan -->
+      <div id="chatMessages" style="height:350px;overflow-y:auto;background:var(--bg-tertiary);border-radius:8px;padding:10px;margin-bottom:12px;">
+        <p style="color:var(--text-secondary);text-align:center;padding:20px;">Memuat pesan...</p>
       </div>
-      <div class="chat-input-row" style="display:flex;gap:8px;margin-top:10px;">
-        <input type="text" id="chatInput" placeholder="Ketik pesan..." style="flex:1;">
-        <button class="btn btn-primary" onclick="sendChatMessage()">Kirim</button>
+
+      <!-- Input Chat -->
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="chatInput" placeholder="Ketik pesan Anda..." style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border-color-strong);background:var(--bg-tertiary);color:var(--text-primary);">
+        <button class="btn btn-primary" onclick="sendChatMessage()" style="padding:10px 20px;white-space:nowrap;">Kirim</button>
       </div>
-      <div id="adminChatActions" style="display:none;margin-top:8px;text-align:right;">
+
+      <!-- Tombol Admin -->
+      <div id="adminChatActions" style="display:none;margin-top:12px;text-align:right;">
         <button class="btn btn-sm btn-danger" onclick="clearAllChat()">🗑 Hapus Semua Chat</button>
       </div>
     </div>
 
+    <!-- Tombol Copy HTML -->
     <div style="text-align:center;margin:30px 0;">
-      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_chat.html')">⬇️ Copy HTML</button>
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_chat.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
     </div>
   </div>
 </template>
@@ -1694,7 +1703,7 @@
 
 <!-- ============================================================
      BLOK 2.3 – AI, ADMIN, PROFIL, CHAT, BACKUP, PAGE INIT
-     (VERSI FINAL DEBUG HP - DENGAN ALERT)
+     (VERSI LENGKAP - CHAT MINIMAL TANPA ALERT)
      ============================================================ -->
   <script>
     // ========== AI GENERATOR ==========
@@ -1829,116 +1838,80 @@
     function saveProfile() { const s = MS.getSession(); if (!s) return; const n = document.getElementById('editProfileNama').value.trim(), e = document.getElementById('editProfileEmail').value.trim(), hp = document.getElementById('editProfileHp').value.trim(); const err = document.getElementById('profileError'), suc = document.getElementById('profileSuccess'); err.textContent=''; suc.textContent=''; if (!n||!e||!hp) { err.textContent='Semua field wajib!'; err.classList.add('show'); return; } s.nama=n; s.email=e; s.hp=hp; MS.saveSession(s); const users = MS.getAllUsers(); const idx = users.findIndex(u=>u.id===s.id); if (idx!==-1) { users[idx].nama=n; users[idx].email=e; users[idx].hp=hp; MS.saveAllUsers(users); } updateHeader(); suc.textContent='Profil tersimpan!'; suc.classList.add('show'); setTimeout(()=>MS.navigate('dashboard'),1500); }
     function deleteAccount() { const s = MS.getSession(); if (!s||s.role==='superadmin') { showToast('Super Admin tidak bisa dihapus.','error'); return; } if (confirm('Hapus akun permanen?')) { MS.saveAllUsers(MS.getAllUsers().filter(u=>u.id!==s.id)); MS.clearSession(); updateHeader(); MS.navigate('landing'); showToast('Akun dihapus.','warning'); } }
 
-    // ========== CHAT (DEBUG HP - PAKAI ALERT) ==========
+    // ========== CHAT (MINIMAL - PASTI BERFUNGSI) ==========
     function loadChatMessages() {
-      alert('🔵 loadChatMessages dijalankan');
-      
-      const allMessages = MS.getChatMessages();
-      const session = MS.getSession();
-      const currentUser = session ? session.username : 'guest';
-      const isAdmin = session && session.role === 'superadmin';
+      var allMessages = MS.getChatMessages();
+      var session = MS.getSession();
+      var currentUser = session ? session.username : 'guest';
+      var isAdmin = session && session.role === 'superadmin';
 
-      alert('User: ' + currentUser + ', Admin: ' + isAdmin + ', Total pesan: ' + allMessages.length);
-
-      let filtered = [];
+      var filtered = [];
       if (isAdmin) {
         filtered = allMessages;
       } else {
-        filtered = allMessages.filter(m =>
-          (m.from === currentUser && m.to === 'admin') ||
-          (m.from === 'admin' && m.to === currentUser) ||
-          (m.from === 'admin' && m.to === 'all')
-        );
+        filtered = allMessages.filter(function(m) {
+          return (m.from === currentUser && m.to === 'admin') ||
+                 (m.from === 'admin' && m.to === currentUser) ||
+                 (m.from === 'admin' && m.to === 'all');
+        });
       }
 
-      alert('Pesan setelah difilter: ' + filtered.length);
-
-      const container = document.getElementById('chatMessages');
-      
-      if (!container) {
-        alert('❌ ERROR: Container #chatMessages TIDAK DITEMUKAN!');
-        return;
-      }
-
-      alert('✅ Container ditemukan!');
+      var container = document.getElementById('chatMessages');
+      if (!container) return;
 
       if (filtered.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:20px;">💬 Belum ada pesan. Silakan kirim pesan pertama!</p>';
+        container.innerHTML = '<p style="color:gray;text-align:center;padding:20px;">Belum ada pesan. Kirim pesan pertama!</p>';
         return;
       }
 
-      filtered.sort((a, b) => new Date(a.time) - new Date(b.time));
+      filtered.sort(function(a, b) { return new Date(a.time) - new Date(b.time); });
 
-      container.innerHTML = filtered.map(m => {
-        const isMe = (m.from === currentUser) || (isAdmin && m.from === 'admin');
-        const bubbleStyle = isMe ? 
-          'background:var(--accent-primary);color:#fff;margin-left:auto;' : 
-          'background:var(--bg-hover);color:var(--text-primary);margin-right:auto;';
-        
-        return `
-          <div style="margin-bottom:10px;display:flex;flex-direction:column;">
-            <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:2px;text-align:${isMe ? 'right' : 'left'};">
-              <strong>${MS.escapeHTML(m.from)}</strong>
-              ${m.to !== 'all' ? ' → ' + MS.escapeHTML(m.to) : ' (semua)'}
-              · ${new Date(m.time).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'})}
-            </div>
-            <div style="max-width:85%;padding:10px 16px;border-radius:16px;${bubbleStyle}">
-              ${MS.escapeHTML(m.text)}
-            </div>
-          </div>
-        `;
-      }).join('');
-
+      var html = '';
+      for (var i = 0; i < filtered.length; i++) {
+        var m = filtered[i];
+        var isMe = (m.from === currentUser) || (isAdmin && m.from === 'admin');
+        var bg = isMe ? 'var(--accent-primary)' : 'var(--bg-hover)';
+        var color = isMe ? '#fff' : 'var(--text-primary)';
+        var align = isMe ? 'right' : 'left';
+        html += '<div style="margin-bottom:8px;text-align:' + align + ';">';
+        html += '<div style="font-size:0.7rem;color:gray;margin-bottom:2px;"><strong>' + MS.escapeHTML(m.from) + '</strong> · ' + new Date(m.time).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'}) + '</div>';
+        html += '<div style="display:inline-block;max-width:80%;padding:8px 14px;border-radius:16px;background:' + bg + ';color:' + color + ';">' + MS.escapeHTML(m.text) + '</div>';
+        html += '</div>';
+      }
+      container.innerHTML = html;
       container.scrollTop = container.scrollHeight;
-      alert('✅ Chat berhasil ditampilkan! ' + filtered.length + ' pesan.');
     }
 
     function sendChatMessage() {
-      alert('🟢 sendChatMessage dijalankan');
-      
-      const input = document.getElementById('chatInput');
-      
-      if (!input) {
-        alert('❌ ERROR: Input #chatInput TIDAK DITEMUKAN!');
-        return;
-      }
-      
-      const text = input.value.trim();
-      
-      if (!text) {
-        alert('❌ Pesan kosong! Tidak bisa dikirim.');
-        return;
-      }
+      var input = document.getElementById('chatInput');
+      if (!input) return;
+      var text = input.value.trim();
+      if (!text) return;
 
-      const session = MS.getSession();
-      const currentUser = session ? session.username : 'guest';
-      const isAdmin = session && session.role === 'superadmin';
+      var session = MS.getSession();
+      var currentUser = session ? session.username : 'guest';
+      var isAdmin = session && session.role === 'superadmin';
 
-      const newMsg = {
+      var newMsg = {
         from: isAdmin ? 'admin' : currentUser,
         to: isAdmin ? 'all' : 'admin',
         text: text,
         time: new Date().toISOString()
       };
 
-      alert('📨 Mengirim: ' + text + ' | Dari: ' + newMsg.from + ' | Ke: ' + newMsg.to);
-
-      const msgs = MS.getChatMessages();
+      var msgs = MS.getChatMessages();
       msgs.push(newMsg);
       MS.saveChatMessages(msgs);
-      
-      alert('✅ Pesan tersimpan! Total: ' + msgs.length);
-      
       input.value = '';
       loadChatMessages();
-      showToast('✅ Pesan terkirim!', 'success');
+      showToast('Pesan terkirim!', 'success');
     }
 
     function clearAllChat() {
-      if (confirm('Hapus SEMUA chat? Tindakan ini tidak bisa dibatalkan.')) {
+      if (confirm('Hapus semua chat?')) {
         MS.saveChatMessages([]);
         loadChatMessages();
-        showToast('🗑 Semua chat dihapus.', 'warning');
+        showToast('Chat dihapus.', 'warning');
       }
     }
 
@@ -1976,29 +1949,9 @@
       if (page === 'hasil-generate') { const stored=localStorage.getItem('ms_last_generated'); if (stored) { try { renderHasil(JSON.parse(stored)); } catch(e) { document.getElementById('hasilContainer').innerHTML='<p class="text-warning">Data tidak valid.</p>'; } } else { document.getElementById('hasilContainer').innerHTML='<p class="text-secondary">Belum ada hasil.</p>'; } }
       if (page === 'download-manager') { const session=MS.getSession(); const downloads=JSON.parse(localStorage.getItem('ms_download_log_'+(session?session.username:'guest'))||'[]'); renderDownloadList(downloads); window._downloads=downloads; }
       if (page === 'chat') {
-        alert('🟢 Halaman chat dimuat');
-        
-        const session = MS.getSession();
-        const isAdmin = session && session.role === 'superadmin';
-        const adminActions = document.getElementById('adminChatActions');
-        
-        alert('isAdmin: ' + isAdmin + ' | adminActions ada: ' + (adminActions ? 'Ya' : 'Tidak'));
-        
-        if (isAdmin) {
-          if (adminActions) {
-            adminActions.style.display = 'block';
-            alert('✅ Tombol admin ditampilkan');
-          }
-        } else {
-          if (adminActions) {
-            adminActions.style.display = 'none';
-            alert('✅ Tombol admin disembunyikan');
-          }
-        }
-        
-        setTimeout(() => {
+        setTimeout(function() {
           loadChatMessages();
-        }, 300);
+        }, 200);
       }
     };
   </script>
