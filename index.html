@@ -322,12 +322,17 @@
   // Pemanggilan dilakukan oleh script di index.html setelah semua siap.
 })();
 
-<!-- modules/landing.html -->
+<!-- ============================================================
+     BLOK 3 - MODUL LANDING (modules/landing.html) - REVISI
+     Konten murni, tanpa <style> & <script>
+     ============================================================ -->
 <div class="landing-page">
   <section class="hero">
     <div class="hero-icon">🎵</div>
     <h1 class="gradient-text">Musik+ Studio</h1>
-    <p class="hero-description">Rekam, pisahkan instrumen, buat lagu dengan AI, dan kelola proyek musik Anda. <strong>Offline, multi‑user, dan premium.</strong></p>
+    <p class="hero-description">
+      Rekam, pisahkan instrumen, buat lagu dengan AI, dan kelola proyek musik Anda. <strong>Offline, multi‑user, dan premium.</strong>
+    </p>
     <div class="hero-buttons">
       <button class="btn btn-primary btn-lg" onclick="MS.navigate('auth')">🔐 Masuk</button>
       <button class="btn btn-outline btn-lg" onclick="MS.navigate('auth', {mode:'register'})">📝 Daftar</button>
@@ -346,7 +351,9 @@
   </div>
 
   <h2 class="section-title">Paket Premium</h2>
-  <div class="price-grid" id="landingPriceGrid"></div>
+  <div class="price-grid" id="landingPriceGrid">
+    <!-- Diisi oleh JS global (renderLandingPackages) -->
+  </div>
   <div style="text-align:center;margin:20px 0;">
     <button class="btn btn-primary" onclick="MS.navigate('auth', {mode:'register'})">Daftar & Coba Premium</button>
   </div>
@@ -360,63 +367,10 @@
   </div>
 </div>
 
-<script>
-  (function() {
-    const grid = document.getElementById('landingPriceGrid');
-    if (grid) {
-      grid.innerHTML = MS.getPackages().map((p, i) => {
-        const feat = i === 1;
-        return `<div class="price-card${feat?' featured':''}" onclick="MS.navigate('auth', {mode:'register'})">
-          ${feat?'<div class="featured-badge">POPULER</div>':''}
-          <div class="price-icon">💎</div><div class="price-name">${p.name}</div>
-          <div class="price-value">${MS.formatPrice(p.price)}</div><div class="price-duration">${p.label}</div>
-        </div>`;
-      }).join('');
-    }
-    window.downloadLandingHTML = function() {
-      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-      const blob = new Blob([html], { type: 'text/html' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = 'musikplus_landing.html'; a.click();
-      MS.toast('✅ Halaman landing di-download!', 'success');
-    };
-  })();
-</script>
-
-<style>
-  .landing-page { max-width: 1000px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .hero { text-align: center; padding: 40px 20px; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 30px; }
-  .hero-icon { font-size: 4rem; margin-bottom: 16px; }
-  .gradient-text { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-light), #ff9a9e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .hero-description { color: var(--text-secondary); max-width: 600px; margin: 0 auto 24px; line-height: 1.7; }
-  .hero-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .btn-lg { padding: 12px 28px; font-size: 1rem; border-radius: var(--radius-sm); }
-  .btn-outline { background: transparent; border: 2px solid var(--accent-primary); color: var(--accent-light); }
-  .section-title { text-align: center; font-size: 1.5rem; font-weight: 700; margin: 30px 0 20px; }
-  .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
-  .feature-card { background: var(--bg-secondary); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center; transition: all 0.2s; }
-  .feature-card:hover { border-color: var(--accent-primary); transform: translateY(-3px); box-shadow: var(--shadow-md); }
-  .feature-icon { font-size: 2.5rem; margin-bottom: 12px; }
-  .feature-card h4 { font-size: 1.1rem; margin-bottom: 8px; }
-  .feature-card p { font-size: 0.85rem; color: var(--text-secondary); }
-  .price-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-bottom: 20px; }
-  .price-card { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 30px 20px; border: 2px solid var(--border-color); text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
-  .price-card:hover { border-color: var(--accent-primary); transform: translateY(-4px); }
-  .price-card.featured { border-color: var(--accent-primary); background: var(--bg-tertiary); }
-  .featured-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent-primary); color: #fff; padding: 3px 16px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
-  .price-icon { font-size: 2.5rem; margin-bottom: 10px; }
-  .price-name { font-size: 1.2rem; font-weight: 700; }
-  .price-value { font-size: 2rem; font-weight: 800; color: var(--color-success); margin: 10px 0; }
-  .price-duration { font-size: 0.9rem; color: var(--text-secondary); }
-  @media (max-width: 640px) {
-    .hero { padding: 24px 16px; }
-    .gradient-text { font-size: 1.6rem; }
-    .hero-buttons { flex-direction: column; align-items: center; }
-    .features-grid, .price-grid { grid-template-columns: 1fr; }
-  }
-</style>
-
-<!-- modules/auth.html -->
+<!-- ============================================================
+     BLOK 4 - MODUL AUTH (modules/auth.html) - REVISI
+     Konten murni, tanpa <style> & <script>
+     ============================================================ -->
 <div class="auth-page">
   <div class="auth-container">
     <div class="auth-tabs">
@@ -424,6 +378,7 @@
       <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">📝 Daftar</button>
       <button class="auth-tab" id="tabForgot" onclick="switchAuthTab('forgot')">❓ Lupa</button>
     </div>
+
     <!-- Form Login -->
     <div class="auth-form" id="formLogin">
       <h3>Masuk ke Musik+</h3>
@@ -433,6 +388,7 @@
       <button class="btn btn-primary btn-block" onclick="handleLogin()">Masuk</button>
       <p class="auth-switch">Belum punya akun? <span onclick="switchAuthTab('register')">Daftar</span></p>
     </div>
+
     <!-- Form Register -->
     <div class="auth-form hidden" id="formRegister">
       <h3>Daftar Akun Baru</h3>
@@ -447,6 +403,7 @@
       <button class="btn btn-primary btn-block" onclick="handleRegister()">Daftar</button>
       <p class="auth-switch">Sudah punya akun? <span onclick="switchAuthTab('login')">Login</span></p>
     </div>
+
     <!-- Form Lupa Password -->
     <div class="auth-form hidden" id="formForgot">
       <h3>Lupa Password</h3>
@@ -468,97 +425,10 @@
   </div>
 </div>
 
-<script>
-  window.switchAuthTab = function(tab) {
-    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.auth-form').forEach(f => f.classList.add('hidden'));
-    document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
-    document.getElementById('form'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.remove('hidden');
-    document.querySelectorAll('.form-error,.form-success').forEach(e => { e.textContent=''; e.classList.remove('show'); });
-  };
-  window.handleLogin = function() {
-    const u = document.getElementById('loginUsername').value.trim();
-    const p = document.getElementById('loginPassword').value;
-    const err = document.getElementById('loginError');
-    err.textContent = ''; err.classList.remove('show');
-    if (!u || !p) { err.textContent = 'Isi semua field!'; err.classList.add('show'); return; }
-    if (u === MS.CONFIG.DEFAULT_ADMIN.username && p === atob(MS.CONFIG.DEFAULT_ADMIN.password)) {
-      MS.saveSession(MS.CONFIG.DEFAULT_ADMIN); MS.toast('Login Super Admin!', 'success'); MS.navigate('dashboard'); return;
-    }
-    const user = MS.getAllUsers().find(x => (x.username===u||x.email===u) && p===atob(x.password));
-    if (!user) { err.textContent = 'Username/password salah!'; err.classList.add('show'); return; }
-    if (user.locked) { err.textContent = 'Akun terkunci!'; err.classList.add('show'); return; }
-    MS.saveSession(user); MS.toast(`Selamat datang, ${user.nama}!`, 'success'); MS.navigate('dashboard');
-  };
-  window.handleRegister = function() {
-    const n = document.getElementById('regNama').value.trim();
-    const e = document.getElementById('regEmail').value.trim();
-    const hp = document.getElementById('regHp').value.trim();
-    const un = document.getElementById('regUsername').value.trim();
-    const pw = document.getElementById('regPassword').value;
-    const cp = document.getElementById('regPasswordConfirm').value;
-    const err = document.getElementById('regError');
-    const suc = document.getElementById('regSuccess');
-    err.textContent = ''; err.classList.remove('show'); suc.textContent = ''; suc.classList.remove('show');
-    if (!n||!e||!hp||!un||!pw||!cp) { err.textContent = 'Semua field wajib!'; err.classList.add('show'); return; }
-    if (!MS.isValidEmail(e)) { err.textContent = 'Email tidak valid!'; err.classList.add('show'); return; }
-    if (pw.length < 6) { err.textContent = 'Password min 6 karakter!'; err.classList.add('show'); return; }
-    if (pw !== cp) { err.textContent = 'Password tidak cocok!'; err.classList.add('show'); return; }
-    const users = MS.getAllUsers();
-    if (users.find(x => x.username===un)) { err.textContent = 'Username sudah dipakai!'; err.classList.add('show'); return; }
-    if (users.find(x => x.email===e)) { err.textContent = 'Email sudah dipakai!'; err.classList.add('show'); return; }
-    users.push({ id: Date.now().toString(), nama: n, email: e, hp, username: un, password: btoa(pw), role:'user', premium:false, premiumExpiry:null, locked:false, createdAt: new Date().toISOString() });
-    MS.saveAllUsers(users);
-    suc.textContent = 'Pendaftaran berhasil! Silakan login.'; suc.classList.add('show');
-    ['regNama','regEmail','regHp','regUsername','regPassword','regPasswordConfirm'].forEach(id => document.getElementById(id).value='');
-    setTimeout(() => switchAuthTab('login'), 2000);
-  };
-  window.handleForgotPassword = function() {
-    const n = document.getElementById('forgotNama').value.trim();
-    const e = document.getElementById('forgotEmail').value.trim();
-    const hp = document.getElementById('forgotHp').value.trim();
-    if (!n||!e||!hp) { MS.toast('Isi semua field!', 'error'); return; }
-    const msgs = MS.getChatMessages();
-    msgs.push({ from:'guest', to:'admin', text:`[RESET PASSWORD] Nama: ${n}, Email: ${e}, HP: ${hp}`, time: new Date().toISOString() });
-    MS.saveChatMessages(msgs);
-    MS.toast('Permintaan dikirim ke admin.', 'success');
-    switchAuthTab('login');
-  };
-  window.downloadAuthHTML = function() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_auth.html'; a.click();
-    MS.toast('✅ Halaman auth di-download!', 'success');
-  };
-  // Set tab awal
-  const params = (typeof arguments !== 'undefined' && arguments[0]) || {};
-  switchAuthTab(params.mode || 'login');
-</script>
-
-<style>
-  .auth-page { max-width: 480px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .auth-container { background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px solid var(--border-color); padding: 30px; box-shadow: var(--shadow-md); }
-  .auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 4px; }
-  .auth-tab { flex: 1; padding: 10px 8px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; font-size: 0.85rem; border-radius: var(--radius-sm); cursor: pointer; transition: 0.2s; }
-  .auth-tab.active { background: var(--accent-primary); color: #fff; }
-  .auth-tab:hover:not(.active) { background: var(--bg-hover); }
-  .auth-form h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; text-align: center; }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); }
-  .form-group input { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color-strong); border-radius: var(--radius-sm); font-size: 0.9rem; background: var(--bg-tertiary); color: var(--text-primary); transition: 0.2s; }
-  .form-group input:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(233,69,96,0.1); }
-  .btn-block { width: 100%; margin-top: 8px; }
-  .btn-warning { background: var(--color-warning); color: #000; }
-  .form-error, .form-success { font-size: 0.85rem; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 12px; display: none; }
-  .form-error.show { display: block; background: rgba(231,76,60,0.1); color: var(--color-danger); border: 1px solid var(--color-danger); }
-  .form-success.show { display: block; background: rgba(46,204,113,0.1); color: var(--color-success); border: 1px solid var(--color-success); }
-  .hidden { display: none !important; }
-  .auth-switch { text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-secondary); }
-  .auth-switch span { color: var(--accent-light); cursor: pointer; font-weight: 600; }
-</style>
-
-<!-- modules/dashboard.html -->
+<!-- ============================================================
+     BLOK 5 - MODUL DASHBOARD (modules/dashboard.html) - REVISI
+     Konten murni, tanpa <style> & <script>
+     ============================================================ -->
 <div class="dashboard-page">
   <div class="dashboard-welcome">
     <div class="welcome-avatar" id="dashAvatar">U</div>
@@ -603,79 +473,9 @@
   </div>
 </div>
 
-<script>
-  (function() {
-    const s = MS.getSession();
-    if (!s) { MS.navigate('landing'); return; }
-    document.getElementById('dashAvatar').textContent = s.nama.charAt(0).toUpperCase();
-    document.getElementById('dashGreeting').textContent = `Selamat datang, ${s.nama}!`;
-    const isPremium = MS.isPremium();
-    const statusEl = document.getElementById('dashStatus');
-    const banner = document.getElementById('premiumExpiryBanner');
-    if (isPremium) {
-      statusEl.textContent = `Status: ${MS.getPremiumStatusText()}`;
-      statusEl.style.color = 'var(--color-success)';
-      banner.classList.remove('hidden');
-      document.getElementById('premiumExpiryText').textContent = s.premiumExpiry ? ` Berlaku hingga ${MS.formatDate(s.premiumExpiry)}` : ' Akses Penuh';
-    } else {
-      statusEl.textContent = 'Status: Free (Terbatas)';
-      statusEl.style.color = 'var(--color-warning)';
-    }
-
-    const projects = MS.getProjects(s.username);
-    let totalTracks = 0, totalSize = 0;
-    projects.forEach(p => { totalTracks += (p.tracks||[]).length; totalSize += JSON.stringify(p).length; });
-    document.getElementById('statProjects').textContent = projects.length;
-    document.getElementById('statTracks').textContent = totalTracks;
-    document.getElementById('statStorage').textContent = (totalSize/1024).toFixed(1)+' KB';
-    document.getElementById('statDownloads').textContent = parseInt(localStorage.getItem('ms_download_count_'+s.username)||'0');
-    if (s.premiumExpiry && s.role !== 'superadmin') {
-      const days = Math.max(0, Math.ceil((new Date(s.premiumExpiry)-new Date())/86400000));
-      document.getElementById('statPremiumDays').textContent = days + ' hari';
-    } else if (s.role === 'superadmin') {
-      document.getElementById('statPremiumDays').textContent = '∞';
-    } else document.getElementById('statPremiumDays').textContent = '0';
-
-    window.downloadDashboardHTML = function() {
-      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-      const blob = new Blob([html], { type: 'text/html' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = 'musikplus_dashboard.html'; a.click();
-      MS.toast('✅ Dashboard di-download!', 'success');
-    };
-  })();
-</script>
-
-<style>
-  .dashboard-page { max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .dashboard-welcome { display: flex; align-items: center; gap: 20px; padding: 24px; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 24px; }
-  .welcome-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-light)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; font-weight: 700; }
-  .welcome-text h2 { font-size: 1.3rem; font-weight: 700; }
-  .welcome-text p { color: var(--text-secondary); }
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .stat-card { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center; }
-  .stat-icon { font-size: 1.5rem; } .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--accent-light); } .stat-label { font-size: 0.8rem; color: var(--text-secondary); }
-  .premium-stat { border-color: var(--color-warning); }
-  .section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; }
-  .quick-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .action-card { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; text-align: center; }
-  .action-card:hover { border-color: var(--accent-primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-  .action-icon { font-size: 2rem; } .action-card h4 { font-size: 0.95rem; margin: 8px 0 4px; } .action-card p { font-size: 0.8rem; color: var(--text-secondary); }
-  .premium-action { opacity: 0.8; }
-  .premium-banner { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-light)); border-radius: var(--radius-md); color: #fff; margin-bottom: 24px; }
-  .hidden { display: none !important; }
-  @media (max-width: 640px) {
-    .dashboard-welcome { flex-direction: column; text-align: center; }
-    .quick-actions { grid-template-columns: 1fr 1fr; }
-  }
-</style>
-
 <!-- ============================================================
-     BLOK 6 – MODUL PROYEK LIST (modules/proyek-list.html)
-     - Daftar proyek musik user
-     - Buat, edit, hapus, duplikasi proyek
-     - Search & filter
-     - Tombol Copy HTML di bagian bawah
+     BLOK 6 - MODUL PROYEK LIST (modules/proyek-list.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="proyek-list-page">
   <div class="section-header">
@@ -699,6 +499,32 @@
     <button class="btn btn-primary" onclick="openProyekForm()">➕ Buat Proyek</button>
   </div>
 
+  <!-- Form Modal Proyek (inline) -->
+  <div class="modal-overlay" id="proyekFormModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="proyekFormTitle">Tambah Proyek Baru</h3>
+        <button class="modal-close" onclick="closeProyekForm()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editProyekId">
+        <div class="form-group">
+          <label>Nama Proyek</label>
+          <input type="text" id="proyekNama" placeholder="Judul lagu / proyek">
+        </div>
+        <div class="form-group">
+          <label>Deskripsi</label>
+          <textarea id="proyekDesc" rows="3" placeholder="Deskripsi singkat..."></textarea>
+        </div>
+        <div class="form-error" id="proyekError"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-gray" onclick="closeProyekForm()">Batal</button>
+        <button class="btn btn-success" onclick="saveProyek()">Simpan</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadProyekListHTML()">
@@ -708,412 +534,11 @@
   </div>
 </div>
 
-<!-- Form Modal Proyek (inline) -->
-<div class="modal-overlay" id="proyekFormModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="proyekFormTitle">Tambah Proyek Baru</h3>
-      <button class="modal-close" onclick="closeProyekForm()">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="editProyekId">
-      <div class="form-group">
-        <label>Nama Proyek</label>
-        <input type="text" id="proyekNama" placeholder="Judul lagu / proyek">
-      </div>
-      <div class="form-group">
-        <label>Deskripsi</label>
-        <textarea id="proyekDesc" rows="3" placeholder="Deskripsi singkat..."></textarea>
-      </div>
-      <div class="form-error" id="proyekError"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-gray" onclick="closeProyekForm()">Batal</button>
-      <button class="btn btn-success" onclick="saveProyek()">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<script>
-  // ========== SCRIPT PROYEK LIST ==========
-  (function() {
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-
-    const username = session.username;
-
-    // Load proyek dari storage
-    function getProyekData() {
-      return MS.getProjects(username);
-    }
-
-    function saveProyekData(data) {
-      MS.saveProjects(username, data);
-    }
-
-    // Render daftar proyek
-    window.renderProyekList = function() {
-      const proyek = getProyekData();
-      const grid = document.getElementById('proyekGrid');
-      const empty = document.getElementById('emptyProyek');
-      const search = document.getElementById('proyekSearch')?.value.toLowerCase().trim() || '';
-
-      let filtered = proyek;
-      if (search) {
-        filtered = proyek.filter(p => p.nama.toLowerCase().includes(search) || (p.desc || '').toLowerCase().includes(search));
-      }
-
-      if (filtered.length === 0) {
-        grid.innerHTML = '';
-        empty.classList.remove('hidden');
-      } else {
-        empty.classList.add('hidden');
-        grid.innerHTML = filtered.map(p => {
-          const trackCount = (p.tracks || []).length;
-          const created = MS.formatDate(p.createdAt);
-          return `
-            <div class="proyek-card">
-              <div class="proyek-card-header">
-                <span class="proyek-icon">🎹</span>
-                <div class="proyek-info">
-                  <h4>${MS.escapeHTML(p.nama)}</h4>
-                  <small>${trackCount} trek · ${created}</small>
-                </div>
-              </div>
-              ${p.desc ? `<p class="proyek-desc">${MS.escapeHTML(p.desc)}</p>` : ''}
-              <div class="proyek-actions">
-                <button class="btn btn-sm btn-primary" onclick="bukaProyek('${p.id}')">📂 Buka</button>
-                <button class="btn btn-sm btn-warning" onclick="editProyek('${p.id}')">✏️ Edit</button>
-                <button class="btn btn-sm btn-blue" onclick="duplikatProyek('${p.id}')">📋 Duplikat</button>
-                <button class="btn btn-sm btn-danger" onclick="hapusProyek('${p.id}')">🗑 Hapus</button>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
-    };
-
-    // Buka proyek -> navigasi ke proyek-editor (Blok 7 nanti)
-    window.bukaProyek = function(id) {
-      MS.navigate('proyek-editor', { proyekId: id });
-    };
-
-    // Form tambah/edit proyek
-    window.openProyekForm = function(editId = null) {
-      document.getElementById('proyekError').textContent = '';
-      document.getElementById('proyekError').classList.remove('show');
-      if (editId) {
-        const proyek = getProyekData().find(p => p.id === editId);
-        if (!proyek) return;
-        document.getElementById('editProyekId').value = editId;
-        document.getElementById('proyekNama').value = proyek.nama;
-        document.getElementById('proyekDesc').value = proyek.desc || '';
-        document.getElementById('proyekFormTitle').textContent = 'Edit Proyek';
-      } else {
-        document.getElementById('editProyekId').value = '';
-        document.getElementById('proyekNama').value = '';
-        document.getElementById('proyekDesc').value = '';
-        document.getElementById('proyekFormTitle').textContent = 'Tambah Proyek Baru';
-      }
-      document.getElementById('proyekFormModal').style.display = 'flex';
-      setTimeout(() => document.getElementById('proyekFormModal').classList.add('show'), 10);
-    };
-
-    window.closeProyekForm = function() {
-      document.getElementById('proyekFormModal').classList.remove('show');
-      setTimeout(() => document.getElementById('proyekFormModal').style.display = 'none', 300);
-    };
-
-    window.saveProyek = function() {
-      const nama = document.getElementById('proyekNama').value.trim();
-      const desc = document.getElementById('proyekDesc').value.trim();
-      const err = document.getElementById('proyekError');
-      if (!nama) {
-        err.textContent = 'Nama proyek wajib diisi!';
-        err.classList.add('show');
-        return;
-      }
-      const editId = document.getElementById('editProyekId').value;
-      let proyek = getProyekData();
-      if (editId) {
-        const idx = proyek.findIndex(p => p.id === editId);
-        if (idx !== -1) {
-          proyek[idx].nama = nama;
-          proyek[idx].desc = desc;
-        }
-      } else {
-        proyek.push({
-          id: Date.now().toString(),
-          nama,
-          desc,
-          tracks: [],
-          createdAt: new Date().toISOString()
-        });
-      }
-      saveProyekData(proyek);
-      closeProyekForm();
-      renderProyekList();
-      MS.toast('Proyek disimpan!', 'success');
-    };
-
-    window.editProyek = function(id) {
-      openProyekForm(id);
-    };
-
-    window.hapusProyek = function(id) {
-      if (confirm('Hapus proyek ini beserta semua trek di dalamnya?')) {
-        let proyek = getProyekData().filter(p => p.id !== id);
-        saveProyekData(proyek);
-        renderProyekList();
-        MS.toast('Proyek dihapus.', 'warning');
-      }
-    };
-
-    window.duplikatProyek = function(id) {
-      const proyek = getProyekData().find(p => p.id === id);
-      if (!proyek) return;
-      const newProyek = {
-        ...proyek,
-        id: Date.now().toString(),
-        nama: proyek.nama + ' (salinan)',
-        createdAt: new Date().toISOString()
-      };
-      let all = getProyekData();
-      all.push(newProyek);
-      saveProyekData(all);
-      renderProyekList();
-      MS.toast('Proyek diduplikasi.', 'success');
-    };
-
-    // Download halaman sebagai HTML
-    window.downloadProyekListHTML = function() {
-      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-      const blob = new Blob([html], { type: 'text/html' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'musikplus_proyek_list.html';
-      a.click();
-      MS.toast('✅ Halaman Proyek List di-download!', 'success');
-    };
-
-    // Inisialisasi render
-    renderProyekList();
-
-    // Tutup modal jika klik overlay
-    document.getElementById('proyekFormModal').addEventListener('click', function(e) {
-      if (e.target === this) closeProyekForm();
-    });
-  })();
-</script>
-
-<style>
-  /* ========== PROYEK LIST STYLES ========== */
-  .proyek-list-page {
-    max-width: 900px;
-    margin: 0 auto;
-    animation: fadeIn 0.4s ease;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .section-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .search-bar {
-    position: relative;
-    margin-bottom: 24px;
-  }
-  .search-bar input {
-    width: 100%;
-    padding: 10px 40px 10px 16px;
-    border: 1px solid var(--border-color-strong);
-    border-radius: var(--radius-sm);
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    font-size: 0.9rem;
-  }
-  .search-bar input:focus {
-    outline: none;
-    border-color: var(--accent-primary);
-  }
-  .search-icon {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-  }
-
-  .proyek-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .proyek-card {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    padding: 16px;
-    transition: all 0.2s;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .proyek-card:hover {
-    border-color: var(--accent-primary);
-    box-shadow: var(--shadow-sm);
-  }
-  .proyek-card-header {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-  }
-  .proyek-icon {
-    font-size: 2rem;
-  }
-  .proyek-info h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-  .proyek-info small {
-    color: var(--text-muted);
-    font-size: 0.8rem;
-  }
-  .proyek-desc {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    line-height: 1.4;
-  }
-  .proyek-actions {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-secondary);
-  }
-  .empty-icon {
-    font-size: 3rem;
-    margin-bottom: 12px;
-  }
-  .empty-state h3 {
-    font-size: 1.3rem;
-    margin-bottom: 8px;
-    color: var(--text-primary);
-  }
-  .empty-state p {
-    margin-bottom: 20px;
-  }
-
-  .hidden {
-    display: none !important;
-  }
-
-  /* Modal styles */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(4px);
-    align-items: center;
-    justify-content: center;
-    z-index: 998;
-    padding: 20px;
-  }
-  .modal-overlay.show {
-    display: flex;
-  }
-  .modal-content {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    max-width: 480px;
-    width: 100%;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 24px;
-    border: 1px solid var(--border-color);
-    animation: slideUp 0.3s ease;
-  }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-color);
-  }
-  .modal-header h3 {
-    font-size: 1.2rem;
-    font-weight: 700;
-  }
-  .modal-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-  }
-  .modal-close:hover {
-    color: var(--color-danger);
-  }
-  .modal-body {
-    margin-bottom: 20px;
-  }
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border-color);
-  }
-
-  .btn-gray {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-  }
-  .btn-blue {
-    background: var(--color-info);
-    color: #fff;
-  }
-
-  @media (max-width: 640px) {
-    .proyek-grid {
-      grid-template-columns: 1fr;
-    }
-    .section-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
-</style>
-
 <!-- ============================================================
-     BLOK 7 – MODUL PROYEK EDITOR (modules/proyek-editor.html)
-     - Editor proyek musik: daftar trek, kontrol volume/pan/mute
-     - Tambah trek (upload/rekam), akses fitur AI & stem
-     - Tombol Copy HTML di bagian bawah
+     BLOK 7 - MODUL PROYEK EDITOR (modules/proyek-editor.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="editor-page">
-  <!-- Header Proyek -->
   <div class="editor-header">
     <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
     <div class="editor-title">
@@ -1126,7 +551,6 @@
     </div>
   </div>
 
-  <!-- Kontrol Utama (Transport) -->
   <div class="transport-bar">
     <button class="btn btn-sm" id="btnPlay" onclick="togglePlay()">▶ Play</button>
     <button class="btn btn-sm" id="btnStop" onclick="stopAll()">⏹ Stop</button>
@@ -1135,7 +559,6 @@
     <span style="font-size:0.8rem;">🔊 Master</span>
   </div>
 
-  <!-- Daftar Trek -->
   <div class="track-list" id="trackListContainer">
     <!-- Diisi oleh JS -->
   </div>
@@ -1156,335 +579,9 @@
   </div>
 </div>
 
-<script>
-  // ========== SCRIPT PROYEK EDITOR ==========
-  // MS.pageInit akan dipanggil oleh core.js setelah modul dimuat
-  MS.pageInit = function(page, params) {
-    if (page !== 'proyek-editor') return;
-
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-
-    const proyekId = params ? params.proyekId : null;
-    if (!proyekId) {
-      MS.toast('Proyek tidak ditemukan.', 'error');
-      MS.navigate('proyek-list');
-      return;
-    }
-
-    const username = session.username;
-    let currentProject = null;
-    const projects = MS.getProjects(username);
-    currentProject = projects.find(p => p.id === proyekId);
-    if (!currentProject) {
-      MS.toast('Proyek tidak ditemukan.', 'error');
-      MS.navigate('proyek-list');
-      return;
-    }
-
-    // Simpan referensi global untuk digunakan fungsi lain
-    window._editorProject = currentProject;
-    window._editorUsername = username;
-
-    // Tampilkan nama proyek
-    document.getElementById('editorProjectName').textContent = currentProject.nama;
-    updateTrackCount();
-
-    // Render trek
-    renderTracks();
-
-    // Setup AudioContext (jika belum ada)
-    if (!window._audioContext) {
-      try {
-        window._audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      } catch(e) {
-        console.warn('Web Audio API tidak didukung');
-      }
-    }
-
-    // Master volume
-    const masterGain = window._audioContext ? window._audioContext.createGain() : null;
-    if (masterGain) {
-      masterGain.connect(window._audioContext.destination);
-      masterGain.gain.value = document.getElementById('masterVolume').value;
-      window._masterGain = masterGain;
-    }
-  };
-
-  // Fungsi render daftar trek
-  function renderTracks() {
-    const project = window._editorProject;
-    if (!project) return;
-
-    const container = document.getElementById('trackListContainer');
-    const empty = document.getElementById('emptyTracks');
-    const tracks = project.tracks || [];
-
-    if (tracks.length === 0) {
-      container.innerHTML = '';
-      empty.classList.remove('hidden');
-    } else {
-      empty.classList.add('hidden');
-      container.innerHTML = tracks.map((track, index) => {
-        return `
-          <div class="track-item" data-index="${index}">
-            <div class="track-header">
-              <span class="track-name">🎧 ${MS.escapeHTML(track.name)}</span>
-              <span class="track-type">${track.type || 'audio'}</span>
-              <div class="track-controls">
-                <button class="btn btn-sm" onclick="toggleMute(${index})" title="Mute">${track.muted ? '🔇' : '🔊'}</button>
-                <button class="btn btn-sm" onclick="toggleSolo(${index})" title="Solo" style="background:${track.solo ? 'var(--color-warning)' : ''}">S</button>
-                <input type="range" min="0" max="1" step="0.05" value="${track.volume !== undefined ? track.volume : 0.8}" oninput="setTrackVolume(${index}, this.value)" class="track-slider" title="Volume">
-                <input type="range" min="-1" max="1" step="0.1" value="${track.pan !== undefined ? track.pan : 0}" oninput="setTrackPan(${index}, this.value)" class="track-slider" title="Pan">
-                <button class="btn btn-sm btn-danger" onclick="deleteTrack(${index})">🗑</button>
-              </div>
-            </div>
-            <div class="track-waveform">
-              <div class="waveform-placeholder">📈 Waveform (durasi: ${track.duration || '?'})</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-    updateTrackCount();
-  }
-
-  function updateTrackCount() {
-    const count = (window._editorProject?.tracks || []).length;
-    const el = document.getElementById('editorTrackCount');
-    if (el) el.textContent = count + ' trek';
-  }
-
-  // Simpan proyek ke localStorage
-  function saveCurrentProject() {
-    if (!window._editorProject || !window._editorUsername) return;
-    const projects = MS.getProjects(window._editorUsername);
-    const idx = projects.findIndex(p => p.id === window._editorProject.id);
-    if (idx !== -1) {
-      projects[idx] = window._editorProject;
-      MS.saveProjects(window._editorUsername, projects);
-      MS.toast('Proyek disimpan!', 'success');
-    }
-  }
-
-  // Tambah trek -> pilih upload atau rekam
-  function addNewTrack() {
-    // Sementara, kita beri pilihan sederhana
-    const choice = confirm('Pilih sumber trek:\nOK = Upload file audio\nCancel = Rekam audio');
-    if (choice) {
-      MS.navigate('upload-media', { proyekId: window._editorProject?.id });
-    } else {
-      MS.navigate('rekam-audio', { proyekId: window._editorProject?.id });
-    }
-  }
-
-  // Fungsi kontrol trek
-  function toggleMute(index) {
-    const track = window._editorProject?.tracks[index];
-    if (track) {
-      track.muted = !track.muted;
-      renderTracks();
-    }
-  }
-
-  function toggleSolo(index) {
-    const track = window._editorProject?.tracks[index];
-    if (track) {
-      track.solo = !track.solo;
-      // Matikan solo yang lain jika perlu (opsional)
-      renderTracks();
-    }
-  }
-
-  function setTrackVolume(index, value) {
-    const track = window._editorProject?.tracks[index];
-    if (track) {
-      track.volume = parseFloat(value);
-    }
-  }
-
-  function setTrackPan(index, value) {
-    const track = window._editorProject?.tracks[index];
-    if (track) {
-      track.pan = parseFloat(value);
-    }
-  }
-
-  function deleteTrack(index) {
-    if (!window._editorProject) return;
-    if (confirm('Hapus trek ini?')) {
-      window._editorProject.tracks.splice(index, 1);
-      renderTracks();
-      MS.toast('Trek dihapus.', 'warning');
-    }
-  }
-
-  function setMasterVolume(value) {
-    if (window._masterGain) {
-      window._masterGain.gain.value = parseFloat(value);
-    }
-  }
-
-  // Transport (dummy)
-  let isPlaying = false;
-  function togglePlay() {
-    isPlaying = !isPlaying;
-    document.getElementById('btnPlay').textContent = isPlaying ? '⏸ Pause' : '▶ Play';
-  }
-
-  function stopAll() {
-    isPlaying = false;
-    document.getElementById('btnPlay').textContent = '▶ Play';
-  }
-
-  // Download HTML
-  function downloadEditorHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_editor.html';
-    a.click();
-    MS.toast('✅ Halaman Editor di-download!', 'success');
-  }
-</script>
-
-<style>
-  /* ========== PROYEK EDITOR STYLES ========== */
-  .editor-page {
-    max-width: 1000px;
-    margin: 0 auto;
-    animation: fadeIn 0.4s;
-  }
-
-  .editor-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .editor-title {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .editor-title h2 {
-    font-size: 1.4rem;
-    font-weight: 700;
-  }
-  .badge {
-    background: var(--accent-primary);
-    color: #fff;
-    padding: 2px 12px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-  }
-  .editor-header-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .transport-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-md);
-    margin-bottom: 20px;
-    border: 1px solid var(--border-color);
-    flex-wrap: wrap;
-  }
-  .time-display {
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    color: var(--accent-light);
-    min-width: 60px;
-  }
-
-  .track-list {
-    margin-bottom: 20px;
-  }
-  .track-item {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    padding: 12px;
-    margin-bottom: 12px;
-  }
-  .track-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .track-name {
-    font-weight: 600;
-    min-width: 120px;
-  }
-  .track-type {
-    font-size: 0.75rem;
-    background: var(--bg-tertiary);
-    padding: 2px 8px;
-    border-radius: 8px;
-    color: var(--text-secondary);
-  }
-  .track-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    justify-content: flex-end;
-  }
-  .track-slider {
-    width: 60px;
-    height: 4px;
-    accent-color: var(--accent-primary);
-  }
-  .track-waveform {
-    margin-top: 8px;
-    background: var(--bg-tertiary);
-    border-radius: 4px;
-    padding: 8px;
-  }
-  .waveform-placeholder {
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    text-align: center;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-secondary);
-  }
-  .empty-icon { font-size: 3rem; margin-bottom: 12px; }
-  .empty-state h3 { font-size: 1.3rem; margin-bottom: 8px; color: var(--text-primary); }
-  .empty-state p { margin-bottom: 20px; }
-  .hidden { display: none !important; }
-
-  @media (max-width: 640px) {
-    .track-controls {
-      width: 100%;
-      justify-content: flex-start;
-      margin-top: 8px;
-    }
-    .editor-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
-</style>
-
 <!-- ============================================================
-     BLOK 8 – MODUL UPLOAD MEDIA (modules/upload-media.html)
-     - Pilih file audio/video dari memori HP
-     - Preview sebelum menambahkan ke proyek
-     - Konversi ke base64 (batasan ukuran)
-     - Tombol Copy HTML di bagian bawah
+     BLOK 8 - MODUL UPLOAD MEDIA (modules/upload-media.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="upload-page">
   <div class="section-header">
@@ -1526,278 +623,9 @@
   </div>
 </div>
 
-<script>
-  // ========== SCRIPT UPLOAD MEDIA ==========
-  MS.pageInit = function(page, params) {
-    if (page !== 'upload-media') return;
-
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-
-    const proyekId = params?.proyekId;
-    if (!proyekId) {
-      MS.toast('Proyek tidak valid.', 'error');
-      MS.navigate('proyek-list');
-      return;
-    }
-
-    // Simpan referensi
-    window._uploadProyekId = proyekId;
-    window._uploadUsername = session.username;
-
-    // Setup drag & drop
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.style.borderColor = 'var(--accent-primary)';
-    });
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.style.borderColor = '';
-    });
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.style.borderColor = '';
-      handleFiles(e.dataTransfer.files);
-    });
-
-    fileInput.addEventListener('change', (e) => {
-      handleFiles(e.target.files);
-    });
-
-    // Variabel penampung file yang sudah dibaca
-    window._selectedFiles = [];
-  };
-
-  function handleFiles(fileList) {
-    const validFiles = [];
-    for (let file of fileList) {
-      if (file.size > 2 * 1024 * 1024) {
-        MS.toast(`File ${file.name} terlalu besar (>2MB), dilewati.`, 'warning');
-        continue;
-      }
-      validFiles.push(file);
-    }
-    if (validFiles.length === 0) return;
-
-    // Baca sebagai base64
-    Promise.all(validFiles.map(file => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          resolve({
-            name: file.name,
-            type: file.type,
-            data: reader.result, // base64 string
-            size: file.size,
-            duration: null // akan diisi nanti jika audio
-          });
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    })).then(results => {
-      window._selectedFiles = results;
-      renderFileList(results);
-      if (results.length > 0) {
-        previewFile(results[0]);
-      }
-      document.getElementById('btnAddToProject').disabled = false;
-    }).catch(err => {
-      MS.toast('Gagal membaca file.', 'error');
-    });
-  }
-
-  function renderFileList(files) {
-    const container = document.getElementById('fileList');
-    if (files.length === 0) {
-      container.innerHTML = '';
-      return;
-    }
-    container.innerHTML = files.map((f, i) => `
-      <div class="file-item" onclick="previewFileByIndex(${i})">
-        <span>🎵 ${MS.escapeHTML(f.name)}</span>
-        <small>${(f.size/1024).toFixed(1)} KB</small>
-      </div>
-    `).join('');
-  }
-
-  function previewFile(file) {
-    const preview = document.getElementById('previewContainer');
-    const audio = document.getElementById('audioPreview');
-    preview.classList.remove('hidden');
-    audio.src = file.data;
-    audio.load();
-  }
-
-  function previewFileByIndex(index) {
-    if (window._selectedFiles && window._selectedFiles[index]) {
-      previewFile(window._selectedFiles[index]);
-    }
-  }
-
-  function clearFiles() {
-    window._selectedFiles = [];
-    document.getElementById('fileList').innerHTML = '';
-    document.getElementById('previewContainer').classList.add('hidden');
-    document.getElementById('audioPreview').src = '';
-    document.getElementById('btnAddToProject').disabled = true;
-  }
-
-  function addToProject() {
-    if (!window._selectedFiles || window._selectedFiles.length === 0) return;
-    const proyekId = window._uploadProyekId;
-    const username = window._uploadUsername;
-    const projects = MS.getProjects(username);
-    const proyek = projects.find(p => p.id === proyekId);
-    if (!proyek) {
-      MS.toast('Proyek tidak ditemukan.', 'error');
-      return;
-    }
-
-    // Tambahkan setiap file sebagai trek baru
-    window._selectedFiles.forEach(file => {
-      proyek.tracks = proyek.tracks || [];
-      proyek.tracks.push({
-        id: Date.now().toString() + Math.random(),
-        name: file.name,
-        type: file.type.startsWith('video') ? 'video' : 'audio',
-        data: file.data, // base64 data URL
-        volume: 0.8,
-        pan: 0,
-        muted: false,
-        solo: false,
-        duration: null // akan diestimasi saat play
-      });
-    });
-
-    MS.saveProjects(username, projects);
-    MS.toast(`${window._selectedFiles.length} trek ditambahkan ke proyek!`, 'success');
-    clearFiles();
-    // Opsi: langsung kembali ke editor
-    setTimeout(() => {
-      MS.navigate('proyek-editor', { proyekId: proyekId });
-    }, 1000);
-  }
-
-  function kembaliKeEditor() {
-    const proyekId = window._uploadProyekId;
-    if (proyekId) {
-      MS.navigate('proyek-editor', { proyekId });
-    } else {
-      MS.navigate('proyek-list');
-    }
-  }
-
-  function downloadUploadHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_upload.html';
-    a.click();
-    MS.toast('✅ Halaman Upload di-download!', 'success');
-  }
-</script>
-
-<style>
-  .upload-page {
-    max-width: 700px;
-    margin: 0 auto;
-    animation: fadeIn 0.4s;
-  }
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-  }
-  .section-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .upload-area {
-    border: 2px dashed var(--border-color-strong);
-    border-radius: var(--radius-md);
-    padding: 40px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s;
-    background: var(--bg-secondary);
-    margin-bottom: 20px;
-  }
-  .upload-area:hover {
-    border-color: var(--accent-primary);
-  }
-  .upload-icon {
-    font-size: 3rem;
-    margin-bottom: 12px;
-  }
-
-  .file-list {
-    margin-bottom: 16px;
-  }
-  .file-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-sm);
-    margin-bottom: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .file-item:hover {
-    background: var(--bg-hover);
-  }
-  .file-item span {
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .preview-container {
-    margin-bottom: 16px;
-    padding: 12px;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-  }
-  .preview-container h4 {
-    margin-bottom: 8px;
-  }
-
-  .action-buttons {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    justify-content: center;
-  }
-
-  .storage-warning {
-    font-size: 0.8rem;
-    color: var(--color-warning);
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .hidden { display: none !important; }
-
-  @media (max-width: 480px) {
-    .upload-area { padding: 24px; }
-  }
-</style>
-
 <!-- ============================================================
-     BLOK 9 – MODUL REKAM AUDIO (modules/rekam-audio.html)
-     - Merekam suara melalui mikrofon
-     - Preview hasil rekaman
-     - Menambahkan ke proyek sebagai trek
-     - Tombol Copy HTML di bagian bawah
+     BLOK 9 - MODUL REKAM AUDIO (modules/rekam-audio.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="rekam-page">
   <div class="section-header">
@@ -1838,259 +666,9 @@
   </div>
 </div>
 
-<script>
-  // ========== SCRIPT REKAM AUDIO ==========
-  MS.pageInit = function(page, params) {
-    if (page !== 'rekam-audio') return;
-
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-
-    const proyekId = params?.proyekId;
-    if (!proyekId) {
-      MS.toast('Proyek tidak valid.', 'error');
-      MS.navigate('proyek-list');
-      return;
-    }
-
-    window._rekamProyekId = proyekId;
-    window._rekamUsername = session.username;
-
-    // Reset state rekaman
-    window._mediaRecorder = null;
-    window._recordedChunks = [];
-    window._recordedBlob = null;
-    document.getElementById('statusText').textContent = 'Siap merekam';
-    document.getElementById('statusIndicator').style.background = '';
-    document.getElementById('previewSection').classList.add('hidden');
-    document.getElementById('btnRecord').classList.remove('hidden');
-    document.getElementById('btnStop').classList.add('hidden');
-    document.getElementById('timerDisplay').textContent = '00:00';
-    if (document.getElementById('recordedAudio')) {
-      document.getElementById('recordedAudio').src = '';
-    }
-  };
-
-  async function toggleRecording() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert('Browser Anda tidak mendukung perekaman.');
-      return;
-    }
-
-    const btnRecord = document.getElementById('btnRecord');
-    const btnStop = document.getElementById('btnStop');
-    const statusText = document.getElementById('statusText');
-    const indicator = document.getElementById('statusIndicator');
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      window._mediaStream = stream;
-      window._mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-      window._recordedChunks = [];
-
-      window._mediaRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          window._recordedChunks.push(e.data);
-        }
-      };
-
-      window._mediaRecorder.onstop = () => {
-        window._recordedBlob = new Blob(window._recordedChunks, { type: 'audio/webm' });
-        // Tampilkan preview
-        const audio = document.getElementById('recordedAudio');
-        const url = URL.createObjectURL(window._recordedBlob);
-        audio.src = url;
-        document.getElementById('previewSection').classList.remove('hidden');
-        btnRecord.classList.add('hidden');
-        btnStop.classList.add('hidden');
-        statusText.textContent = 'Rekaman selesai';
-        indicator.style.background = 'var(--color-success)';
-        // Hentikan stream
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      window._mediaRecorder.start();
-      btnRecord.classList.add('hidden');
-      btnStop.classList.remove('hidden');
-      statusText.textContent = '🔴 Merekam...';
-      indicator.style.background = 'var(--color-danger)';
-      startTimer();
-    } catch (err) {
-      MS.toast('Izin mikrofon ditolak.', 'error');
-      console.error(err);
-    }
-  }
-
-  function stopRecording() {
-    if (window._mediaRecorder && window._mediaRecorder.state !== 'inactive') {
-      window._mediaRecorder.stop();
-    }
-    stopTimer();
-  }
-
-  let timerInterval;
-  let seconds = 0;
-  function startTimer() {
-    seconds = 0;
-    updateTimerDisplay();
-    timerInterval = setInterval(() => {
-      seconds++;
-      updateTimerDisplay();
-    }, 1000);
-  }
-  function stopTimer() {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-  function updateTimerDisplay() {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    document.getElementById('timerDisplay').textContent = `${m}:${s}`;
-  }
-
-  function resetRecording() {
-    window._recordedBlob = null;
-    window._recordedChunks = [];
-    document.getElementById('previewSection').classList.add('hidden');
-    document.getElementById('btnRecord').classList.remove('hidden');
-    document.getElementById('btnStop').classList.add('hidden');
-    document.getElementById('statusText').textContent = 'Siap merekam';
-    document.getElementById('statusIndicator').style.background = '';
-    document.getElementById('timerDisplay').textContent = '00:00';
-    stopTimer();
-  }
-
-  function addRecordingToProject() {
-    if (!window._recordedBlob) {
-      MS.toast('Belum ada rekaman.', 'error');
-      return;
-    }
-
-    const proyekId = window._rekamProyekId;
-    const username = window._rekamUsername;
-    const projects = MS.getProjects(username);
-    const proyek = projects.find(p => p.id === proyekId);
-    if (!proyek) {
-      MS.toast('Proyek tidak ditemukan.', 'error');
-      return;
-    }
-
-    // Konversi blob ke base64
-    const reader = new FileReader();
-    reader.onload = () => {
-      proyek.tracks = proyek.tracks || [];
-      proyek.tracks.push({
-        id: Date.now().toString(),
-        name: `Rekaman ${new Date().toLocaleTimeString()}`,
-        type: 'audio',
-        data: reader.result, // base64 data URL
-        volume: 0.8,
-        pan: 0,
-        muted: false,
-        solo: false,
-        duration: null
-      });
-      MS.saveProjects(username, projects);
-      MS.toast('Rekaman ditambahkan ke proyek!', 'success');
-      resetRecording();
-      setTimeout(() => {
-        MS.navigate('proyek-editor', { proyekId });
-      }, 1000);
-    };
-    reader.readAsDataURL(window._recordedBlob);
-  }
-
-  function kembaliKeEditor() {
-    const proyekId = window._rekamProyekId;
-    if (proyekId) {
-      MS.navigate('proyek-editor', { proyekId });
-    } else {
-      MS.navigate('proyek-list');
-    }
-  }
-
-  function downloadRekamHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_rekam.html';
-    a.click();
-    MS.toast('✅ Halaman Rekam di-download!', 'success');
-  }
-</script>
-
-<style>
-  .rekam-page {
-    max-width: 600px;
-    margin: 0 auto;
-    animation: fadeIn 0.4s;
-  }
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-  }
-  .section-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .recorder-container {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    padding: 30px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-  }
-  .status-indicator {
-    display: inline-block;
-    padding: 8px 20px;
-    border-radius: var(--radius-full);
-    background: var(--bg-tertiary);
-    margin-bottom: 16px;
-    transition: background 0.3s;
-  }
-  .timer {
-    font-size: 2.5rem;
-    font-family: 'Courier New', monospace;
-    margin-bottom: 20px;
-  }
-  .controls {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .btn-lg {
-    padding: 14px 28px;
-    font-size: 1.1rem;
-  }
-  .hidden {
-    display: none !important;
-  }
-  .info-text {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-  }
-
-  @media (max-width: 480px) {
-    .recorder-container {
-      padding: 20px;
-    }
-  }
-</style>
-
 <!-- ============================================================
-     BLOK 10 – MODUL STEM SEPARATION (modules/stem-separation.html)
-     - Pilih file audio, pisahkan menjadi stem (vokal, drum, bass, gitar, keyboard, dll)
-     - Free: hanya vokal, drum, bass, gitar
-     - Premium: semua stem + kontrol volume individual
-     - Simpan stem ke proyek
-     - Tombol Copy HTML di bagian bawah
+     BLOK 10 - MODUL STEM SEPARATION (modules/stem-separation.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="stem-page">
   <div class="section-header">
@@ -2133,166 +711,9 @@
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'stem-separation') return;
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-    window._stemUsername = session.username;
-    // Reset UI
-    document.getElementById('stemResults').style.display = 'none';
-    document.getElementById('stemFilePreview').style.display = 'none';
-    document.getElementById('stemInfoBox').style.display = 'none';
-    document.getElementById('stemFileInput').value = '';
-  };
-
-  function previewStemFile(input) {
-    if (input.files.length === 0) return;
-    const file = input.files[0];
-    if (file.size > 5 * 1024 * 1024) {
-      MS.toast('File terlalu besar (>5MB). Gunakan file lebih kecil.', 'error');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('stemAudioPreview').src = e.target.result;
-      document.getElementById('stemFilePreview').style.display = 'block';
-      // Simpan base64 untuk diproses (simulasi)
-      window._stemFileData = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  async function startSeparation() {
-    // Simulasi proses pemisahan (2 detik)
-    const infoBox = document.getElementById('stemInfoBox');
-    const progressText = document.getElementById('stemProgressText');
-    infoBox.style.display = 'block';
-    progressText.textContent = 'Memproses... (simulasi)';
-    
-    // Simulasi delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // Hasil simulasi stem
-    const isPremium = MS.isPremium();
-    const stemNames = ['vokal', 'drum', 'bass', 'gitar', 'keyboard', 'other'];
-    const freeStems = ['vokal', 'drum', 'bass', 'gitar'];
-    
-    const stems = stemNames.map(name => ({
-      name,
-      available: isPremium ? true : freeStems.includes(name),
-      volume: 0.8,
-      muted: false,
-      // Data simulasi: gunakan audio asli sebagai placeholder
-      data: window._stemFileData
-    }));
-
-    window._separatedStems = stems;
-    renderStemResults(stems);
-    infoBox.style.display = 'none';
-    MS.toast('Pemisahan selesai! (simulasi)', 'success');
-  }
-
-  function renderStemResults(stems) {
-    const grid = document.getElementById('stemGrid');
-    grid.innerHTML = stems.map((stem, i) => `
-      <div class="stem-item ${stem.available ? '' : 'locked'}">
-        <div class="stem-header">
-          <span>${stem.available ? '🎵' : '🔒'} ${stem.name.toUpperCase()}</span>
-          ${!stem.available ? '<span class="badge badge-warning">Premium</span>' : ''}
-        </div>
-        <div class="stem-controls">
-          <input type="range" min="0" max="1" step="0.05" value="${stem.volume}" oninput="updateStemVolume(${i}, this.value)" ${stem.available ? '' : 'disabled'}>
-          <button class="btn btn-sm" onclick="toggleStemMute(${i})" ${stem.available ? '' : 'disabled'}>
-            ${stem.muted ? '🔇' : '🔊'}
-          </button>
-          <span>${Math.round(stem.volume * 100)}%</span>
-        </div>
-        <div class="stem-waveform">📈 Waveform ${stem.name}</div>
-      </div>
-    `).join('');
-    document.getElementById('stemResults').style.display = 'block';
-  }
-
-  function updateStemVolume(index, value) {
-    if (window._separatedStems) {
-      window._separatedStems[index].volume = parseFloat(value);
-    }
-  }
-  function toggleStemMute(index) {
-    if (window._separatedStems) {
-      window._separatedStems[index].muted = !window._separatedStems[index].muted;
-      renderStemResults(window._separatedStems);
-    }
-  }
-
-  function saveStemsToProject() {
-    if (!window._separatedStems) return;
-    const username = window._stemUsername;
-    const projects = MS.getProjects(username);
-    if (projects.length === 0) {
-      MS.toast('Buat proyek terlebih dahulu!', 'error');
-      return;
-    }
-    // Pilih proyek terakhir untuk menyimpan (bisa dimodifikasi)
-    const proyek = projects[projects.length - 1];
-    window._separatedStems.forEach(stem => {
-      if (stem.available) {
-        proyek.tracks = proyek.tracks || [];
-        proyek.tracks.push({
-          id: Date.now().toString() + Math.random(),
-          name: stem.name + ' (stem)',
-          type: 'audio',
-          data: stem.data,
-          volume: stem.volume,
-          pan: 0,
-          muted: stem.muted,
-          solo: false
-        });
-      }
-    });
-    MS.saveProjects(username, projects);
-    MS.toast('Stem disimpan ke proyek!', 'success');
-  }
-
-  function downloadStemHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_stem.html';
-    a.click();
-    MS.toast('✅ Halaman Stem di-download!', 'success');
-  }
-</script>
-
-<style>
-  .stem-page { max-width: 800px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .stem-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .upload-section { margin-bottom: 20px; }
-  .file-preview { margin-top: 12px; }
-  .info-box { text-align: center; padding: 20px; }
-  .spinner { width: 30px; height: 30px; border: 3px solid var(--border-color); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .stem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .stem-item { background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
-  .stem-item.locked { opacity: 0.6; }
-  .stem-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .badge-warning { background: var(--color-warning); color: #000; padding: 2px 8px; border-radius: 8px; font-size: 0.7rem; }
-  .stem-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .stem-waveform { font-size: 0.8rem; color: var(--text-muted); }
-  .action-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
-  .hidden { display: none !important; }
-</style>
-
 <!-- ============================================================
-     BLOK 11 – MODUL MIXER (modules/mixer.html)
-     - Mixer lengkap dengan track fader, pan, efek dasar (simulasi)
-     - Bisa load proyek dan tampilkan semua trek
-     - Free: hanya volume & pan, Premium: efek reverb/delay (simulasi)
-     - Tombol Copy HTML
+     BLOK 11 - MODUL MIXER (modules/mixer.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="mixer-page">
   <div class="section-header">
@@ -2315,110 +736,13 @@
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadMixerHTML()">
       ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'mixer') return;
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-    window._mixerUsername = session.username;
-    // Otomatis load
-    loadCurrentProjectTracks();
-  };
-
-  function loadCurrentProjectTracks() {
-    const username = window._mixerUsername;
-    const projects = MS.getProjects(username);
-    if (projects.length === 0) {
-      document.getElementById('mixerContainer').innerHTML = '<p class="text-center text-warning">Belum ada proyek.</p>';
-      return;
-    }
-    const proyek = projects[projects.length - 1]; // proyek terakhir
-    window._mixerProject = proyek;
-    renderMixer(proyek.tracks || []);
-  }
-
-  function renderMixer(tracks) {
-    const container = document.getElementById('mixerContainer');
-    if (tracks.length === 0) {
-      container.innerHTML = '<p class="text-center text-secondary">Tidak ada trek.</p>';
-      return;
-    }
-    const isPremium = MS.isPremium();
-    container.innerHTML = tracks.map((track, i) => `
-      <div class="mixer-channel">
-        <div class="channel-name">${MS.escapeHTML(track.name)}</div>
-        <input type="range" class="vertical-slider" min="0" max="1" step="0.01" value="${track.volume !== undefined ? track.volume : 0.8}" oninput="setMixerVolume(${i}, this.value)" orient="vertical">
-        <span class="volume-value">${Math.round((track.volume || 0.8)*100)}%</span>
-        <button class="btn btn-sm" onclick="toggleMixerMute(${i})">${track.muted ? '🔇' : '🔊'}</button>
-        <input type="range" min="-1" max="1" step="0.1" value="${track.pan || 0}" oninput="setMixerPan(${i}, this.value)" title="Pan">
-        ${isPremium ? '<div class="fx-controls"><button class="btn btn-xs" onclick="toggleReverb('+i+')">💧 Reverb</button><button class="btn btn-xs" onclick="toggleDelay('+i+')">⏱ Delay</button></div>' : '<div class="fx-controls locked">🔒 FX (Premium)</div>'}
-      </div>
-    `).join('');
-  }
-
-  function setMixerVolume(index, value) {
-    const track = window._mixerProject?.tracks[index];
-    if (track) track.volume = parseFloat(value);
-    // Update tampilan persentase
-    const volEl = document.querySelectorAll('.volume-value')[index];
-    if (volEl) volEl.textContent = Math.round(value * 100) + '%';
-  }
-  function toggleMixerMute(index) {
-    const track = window._mixerProject?.tracks[index];
-    if (track) {
-      track.muted = !track.muted;
-      loadCurrentProjectTracks(); // refresh sederhana
-    }
-  }
-  function setMixerPan(index, value) {
-    const track = window._mixerProject?.tracks[index];
-    if (track) track.pan = parseFloat(value);
-  }
-  function toggleReverb(index) {
-    MS.toast('Reverb: simulasi (Premium)', 'info');
-  }
-  function toggleDelay(index) {
-    MS.toast('Delay: simulasi (Premium)', 'info');
-  }
-  function updateMaster() {
-    const val = document.getElementById('masterMixerVolume').value;
-    document.getElementById('masterValue').textContent = Math.round(val * 100) + '%';
-  }
-  function downloadMixerHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_mixer.html';
-    a.click();
-    MS.toast('✅ Mixer di-download!', 'success');
-  }
-</script>
-
-<style>
-  .mixer-page { max-width: 1000px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .mixer-container { display: flex; gap: 12px; overflow-x: auto; padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-bottom: 20px; }
-  .mixer-channel { flex: 0 0 120px; background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-sm); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  .channel-name { font-weight: 600; font-size: 0.8rem; word-break: break-all; }
-  .vertical-slider { writing-mode: bt-lr; -webkit-appearance: slider-vertical; width: 20px; height: 100px; }
-  .volume-value { font-size: 0.8rem; }
-  .fx-controls { margin-top: 4px; }
-  .fx-controls.locked { color: var(--text-muted); font-size: 0.7rem; }
-  .master-section { display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: var(--bg-secondary); border-radius: var(--radius-md); }
-  .btn-xs { padding: 2px 8px; font-size: 0.7rem; }
-</style>
-
 <!-- ============================================================
-     BLOK 12 – MODUL LIRIK SYNC (modules/lirik-sync.html)
-     - Tulis lirik per baris
-     - Sinkronisasi waktu dengan audio (tap untuk timestamp)
-     - Simpan ke proyek
-     - Tombol Copy HTML
+     BLOK 12 - MODUL LIRIK SYNC (modules/lirik-sync.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="lirik-sync-page">
   <div class="section-header">
@@ -2446,119 +770,19 @@ Baris 2
       <button class="btn btn-sm" onclick="copyLRC()">📋 Copy LRC</button>
     </div>
   </div>
+
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadLirikSyncHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'lirik-sync') return;
-  };
-  let syncLines = [];
-  let syncIndex = 0;
-  let syncStartTime = 0;
-  function startSyncProcess() {
-    const text = document.getElementById('lyricText').value.trim();
-    if (!text) { MS.toast('Tulis lirik dulu.', 'error'); return; }
-    syncLines = text.split('\n').filter(l => l.trim());
-    if (syncLines.length === 0) return;
-    syncIndex = 0;
-    syncStartTime = Date.now();
-    MS.toast(`Klik tombol "Tap" saat baris berikutnya dimulai.`, 'info');
-    showTapInterface();
-  }
-  function showTapInterface() {
-    const container = document.querySelector('.sync-controls');
-    container.innerHTML = `
-      <div class="tap-area">
-        <p>Baris: <strong id="currentLine">${syncLines[syncIndex]}</strong></p>
-        <button class="btn btn-primary btn-lg" onclick="tapNext()">👆 Tap</button>
-        <button class="btn btn-sm" onclick="cancelSync()">Cancel</button>
-      </div>
-    `;
-  }
-  const timecodes = [];
-  function tapNext() {
-    const time = (Date.now() - syncStartTime) / 1000;
-    timecodes.push({ line: syncLines[syncIndex], time: time.toFixed(2) });
-    syncIndex++;
-    if (syncIndex >= syncLines.length) {
-      finishSync();
-    } else {
-      document.getElementById('currentLine').textContent = syncLines[syncIndex];
-    }
-  }
-  function cancelSync() {
-    timecodes.length = 0;
-    syncIndex = 0;
-    loadCurrentProjectTracks(); // reset tampilan
-  }
-  function finishSync() {
-    // Buat LRC
-    let lrc = `[ti:${document.getElementById('songTitle').value || 'Untitled'}]
-`;
-    timecodes.forEach(tc => {
-      const mins = Math.floor(tc.time / 60);
-      const secs = (tc.time % 60).toFixed(2);
-      lrc += `[${String(mins).padStart(2,'0')}:${String(secs).padStart(5,'0')}] ${tc.line}
-`;
-    });
-    document.getElementById('lrcOutput').textContent = lrc;
-    document.getElementById('syncResult').style.display = 'block';
-    window._lrcData = lrc;
-    document.querySelector('.sync-controls').innerHTML = `
-      <button class="btn btn-primary" onclick="startSyncProcess()">🔄 Ulangi</button>
-      <button class="btn btn-warning" onclick="saveLirikToProject()">💾 Simpan</button>
-    `;
-    MS.toast('Sinkronisasi selesai!', 'success');
-  }
-  function saveLirikToProject() {
-    if (!window._lrcData) return;
-    const username = MS.getSession()?.username;
-    if (!username) return;
-    const projects = MS.getProjects(username);
-    if (projects.length === 0) {
-      MS.toast('Buat proyek dulu.', 'error');
-      return;
-    }
-    const proyek = projects[projects.length - 1];
-    proyek.lyrics = window._lrcData;
-    MS.saveProjects(username, projects);
-    MS.toast('Lirik disimpan!', 'success');
-  }
-  function copyLRC() {
-    navigator.clipboard.writeText(window._lrcData || '');
-    MS.toast('LRC disalin!', 'success');
-  }
-  function downloadLirikSyncHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_lirik_sync.html';
-    a.click();
-    MS.toast('✅ Halaman di-download!', 'success');
-  }
-</script>
-
-<style>
-  .lirik-sync-page { max-width: 600px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .lirik-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .sync-controls { display: flex; gap: 12px; margin-top: 12px; }
-  .tap-area { text-align: center; margin: 20px 0; }
-  .sync-result pre { background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-sm); font-size: 0.85rem; overflow-x: auto; }
-</style>
-
 <!-- ============================================================
-     BLOK 13 – MODUL LIRIK DISPLAY (modules/lirik-display.html)
-     - Tampilan lirik berjalan (karaoke mode)
-     - Load dari proyek, auto-scroll
-     - Tombol Copy HTML
+     BLOK 13 - MODUL LIRIK DISPLAY (modules/lirik-display.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="lirik-display-page">
   <div class="section-header">
@@ -2578,108 +802,19 @@ Baris 2
       <div class="progress-bar"><div id="lyricProgress"></div></div>
     </div>
   </div>
+
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadDisplayHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'lirik-display') return;
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-    const projects = MS.getProjects(session.username);
-    const select = document.getElementById('projectSelect');
-    select.innerHTML = '<option value="">-- Pilih Proyek --</option>' + 
-      projects.filter(p => p.lyrics).map(p => `<option value="${p.id}">${p.nama}</option>`).join('');
-    if (projects.filter(p => p.lyrics).length === 0) {
-      document.getElementById('displayContainer').innerHTML += '<p class="text-warning">Belum ada lirik tersimpan.</p>';
-    }
-  };
-  let lyricsData = [];
-  let currentLineIndex = 0;
-  let displayInterval;
-  function loadProjectLyrics() {
-    const id = document.getElementById('projectSelect').value;
-    if (!id) return;
-    const session = MS.getSession();
-    const projects = MS.getProjects(session.username);
-    const proyek = projects.find(p => p.id === id);
-    if (proyek && proyek.lyrics) {
-      // Parse LRC sederhana
-      const lines = proyek.lyrics.split('\n').filter(l => l.startsWith('['));
-      lyricsData = lines.map(l => {
-        const match = l.match(/\[(\d+):(\d+\.\d+)\](.*)/);
-        if (match) {
-          return {
-            time: parseInt(match[1]) * 60 + parseFloat(match[2]),
-            text: match[3].trim()
-          };
-        }
-        return null;
-      }).filter(l => l);
-      // Urutkan berdasarkan waktu
-      lyricsData.sort((a,b) => a.time - b.time);
-      document.getElementById('lyricScreen').style.display = 'block';
-      startDisplay();
-    }
-  }
-  function startDisplay() {
-    if (lyricsData.length === 0) return;
-    currentLineIndex = 0;
-    updateDisplay();
-    if (displayInterval) clearInterval(displayInterval);
-    displayInterval = setInterval(advanceLyric, 1000); // Simulasi 1 detik per baris
-  }
-  function advanceLyric() {
-    if (currentLineIndex < lyricsData.length - 1) {
-      currentLineIndex++;
-      updateDisplay();
-    } else {
-      clearInterval(displayInterval);
-      document.getElementById('currentLyricLine').textContent = '♪ Lagu selesai ♪';
-      document.getElementById('nextLyricLine').textContent = '';
-    }
-  }
-  function updateDisplay() {
-    const current = lyricsData[currentLineIndex];
-    const next = lyricsData[currentLineIndex + 1];
-    document.getElementById('currentLyricLine').textContent = current?.text || '';
-    document.getElementById('nextLyricLine').textContent = next?.text || '';
-    const progress = (currentLineIndex / Math.max(1, lyricsData.length - 1)) * 100;
-    document.getElementById('lyricProgress').style.width = progress + '%';
-  }
-  function downloadDisplayHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_lirik_display.html';
-    a.click();
-    MS.toast('✅ Halaman di-download!', 'success');
-  }
-</script>
-
-<style>
-  .lirik-display-page { max-width: 600px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .lyric-screen { background: #000; color: #fff; padding: 30px; border-radius: var(--radius-lg); text-align: center; min-height: 200px; display: flex; flex-direction: column; justify-content: center; }
-  .lyric-line { font-size: 1.5rem; transition: all 0.3s; }
-  .lyric-line.active { font-weight: 700; color: var(--accent-light); transform: scale(1.05); }
-  .lyric-line.next { opacity: 0.6; font-size: 1.2rem; }
-  .progress-bar { height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin-top: 20px; }
-  #lyricProgress { height: 100%; width: 0; background: var(--accent-primary); border-radius: 2px; transition: width 0.3s; }
-</style>
-
 <!-- ============================================================
-     BLOK 14 – MODUL TRANSPOSE (modules/transpose.html)
-     - Ubah kunci lagu (simulasi)
-     - Input chord asli & pilih kunci baru
-     - Hasil transpose ditampilkan
-     - Tombol Copy HTML
+     BLOK 14 - MODUL TRANSPOSE (modules/transpose.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="transpose-page">
   <div class="section-header">
@@ -2718,87 +853,18 @@ Baris 2
     </div>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadTransposeHTML()">
       ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'transpose') return;
-  };
-
-  const chordNotes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-
-  function transposeChord(chord, steps) {
-    // Ekstrak root dan kualitas
-    const match = chord.match(/^([A-G]#?)(.*)/);
-    if (!match) return chord;
-    let root = match[1];
-    const quality = match[2];
-    let idx = chordNotes.indexOf(root);
-    if (idx === -1) return chord;
-    idx = (idx + steps + 12) % 12;
-    return chordNotes[idx] + quality;
-  }
-
-  function prosesTranspose() {
-    const input = document.getElementById('chordInput').value.trim();
-    const fromKey = document.getElementById('fromKey').value;
-    const toKey = document.getElementById('toKey').value;
-    if (!input) { MS.toast('Masukkan chord!', 'error'); return; }
-
-    const fromIdx = chordNotes.indexOf(fromKey);
-    const toIdx = chordNotes.indexOf(toKey);
-    const steps = (toIdx - fromIdx + 12) % 12;
-    if (steps === 0) {
-      document.getElementById('transposedChords').textContent = input + ' (tidak berubah)';
-      document.getElementById('transposeResult').style.display = 'block';
-      return;
-    }
-
-    const chords = input.split(/[\s,]+/).filter(c => c);
-    const transposed = chords.map(c => transposeChord(c, steps)).join(' ');
-    document.getElementById('transposedChords').textContent = transposed;
-    document.getElementById('transposeResult').style.display = 'block';
-    window._transposeResult = transposed;
-  }
-
-  function copyTransposeResult() {
-    if (window._transposeResult) {
-      navigator.clipboard.writeText(window._transposeResult);
-      MS.toast('Hasil disalin!', 'success');
-    }
-  }
-
-  function downloadTransposeHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_transpose.html';
-    a.click();
-    MS.toast('✅ Halaman Transpose di-download!', 'success');
-  }
-</script>
-
-<style>
-  .transpose-page { max-width: 500px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .transpose-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .btn-block { width: 100%; margin-top: 12px; }
-  .result-box { margin-top: 16px; padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm); }
-</style>
-
 <!-- ============================================================
-     BLOK 15 – MODIFIKASI GENRE (modules/modifikasi-genre.html)
-     - Ubah genre lagu (simulasi AI)
-     - Pilihan genre: dangdut, jazz, rock, pop, dll
-     - Hasil modifikasi (simulasi)
-     - Tombol Copy HTML
+     BLOK 15 - MODIFIKASI GENRE (modules/modifikasi-genre.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="modifikasi-page">
   <div class="section-header">
@@ -2836,119 +902,18 @@ Baris 2
     </div>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadModifikasiHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'modifikasi-genre') return;
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-    window._modifUsername = session.username;
-
-    // Load trek audio dari proyek
-    const projects = MS.getProjects(session.username);
-    const select = document.getElementById('audioSelect');
-    let options = '<option value="">-- Pilih Audio --</option>';
-    projects.forEach(proj => {
-      (proj.tracks || []).forEach(track => {
-        if (track.data) {
-          options += `<option value="${track.data}" data-name="${track.name}">${proj.nama} - ${track.name}</option>`;
-        }
-      });
-    });
-    select.innerHTML = options;
-    select.onchange = function() {
-      if (this.value) {
-        previewAudio(this.value);
-      }
-    };
-  };
-
-  function previewModifFile(input) {
-    if (input.files.length === 0) return;
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      previewAudio(e.target.result);
-      window._modifSource = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function previewAudio(src) {
-    const audio = document.getElementById('modifAudio');
-    audio.src = src;
-    document.getElementById('modifResult').style.display = 'block';
-    window._modifResult = src; // Simpan untuk disimpan ke proyek
-  }
-
-  function prosesModifikasi() {
-    // Cek apakah ada audio yang dipilih
-    const selectAudio = document.getElementById('audioSelect').value;
-    const fileInput = document.getElementById('modifFileInput').files[0];
-    if (!selectAudio && !fileInput) {
-      MS.toast('Pilih audio terlebih dahulu!', 'error');
-      return;
-    }
-    // Simulasi: langsung tampilkan audio asli dengan info genre
-    const genre = document.getElementById('genreSelect').value;
-    const audio = document.getElementById('modifAudio');
-    if (!audio.src && selectAudio) audio.src = selectAudio;
-    document.getElementById('modifResult').style.display = 'block';
-    MS.toast(`Genre diubah ke ${genre} (simulasi)`, 'success');
-  }
-
-  function simpanHasilModifikasi() {
-    if (!window._modifResult) return;
-    const username = window._modifUsername;
-    const projects = MS.getProjects(username);
-    if (projects.length === 0) {
-      MS.toast('Buat proyek dulu!', 'error');
-      return;
-    }
-    const proyek = projects[projects.length - 1];
-    proyek.tracks.push({
-      id: Date.now().toString(),
-      name: `Modifikasi ${document.getElementById('genreSelect').value}`,
-      type: 'audio',
-      data: window._modifResult,
-      volume: 0.8, pan: 0, muted: false, solo: false
-    });
-    MS.saveProjects(username, projects);
-    MS.toast('Hasil modifikasi disimpan ke proyek!', 'success');
-  }
-
-  function downloadModifikasiHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_modifikasi.html';
-    a.click();
-    MS.toast('✅ Halaman di-download!', 'success');
-  }
-</script>
-
-<style>
-  .modifikasi-page { max-width: 500px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .modifikasi-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .result-box { margin-top: 16px; padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm); }
-  .text-warning { color: var(--color-warning); font-size: 0.8rem; }
-</style>
-
 <!-- ============================================================
-     BLOK 16 – AI GENERATOR (modules/ai-generator.html)
-     - Halaman utama generator lagu AI
-     - Input judul, pilih genre, pilih suara
-     - Generate 3 pilihan lagu (simulasi)
-     - Tombol Copy HTML
+     BLOK 16 – AI GENERATOR (modules/ai-generator.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="ai-generator-page">
   <div class="section-header">
@@ -2992,7 +957,7 @@ Baris 2
       <textarea id="aiLyrics" rows="4" placeholder="Tulis lirik atau biarkan kosong untuk auto-generate"></textarea>
       <button class="btn btn-sm btn-outline" onclick="MS.navigate('ai-lyrics-generator')">📝 Generate Lirik Otomatis</button>
     </div>
-    <button class="btn btn-primary btn-block" onclick="generateSong()">🎵 Generate Lagu</button>
+    <button class="btn btn-primary btn-block" id="btnGenerateSong" onclick="generateSong()">🎵 Generate Lagu</button>
 
     <div id="aiProgress" style="display:none; text-align:center; padding:20px;">
       <div class="spinner"></div>
@@ -3004,139 +969,18 @@ Baris 2
     </div>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadAIGeneratorHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'ai-generator') return;
-    const isPremium = MS.isPremium();
-    if (!isPremium) {
-      document.getElementById('premiumNotice').style.display = 'block';
-      // Disable tombol
-      document.querySelector('.btn-primary.btn-block').disabled = true;
-    }
-  };
-
-  async function generateSong() {
-    const title = document.getElementById('aiSongTitle').value.trim();
-    if (!title) { MS.toast('Masukkan judul lagu!', 'error'); return; }
-
-    document.getElementById('aiProgress').style.display = 'block';
-    document.getElementById('aiResults').style.display = 'none';
-
-    // Simulasi delay 3 detik
-    await new Promise(resolve => setTimeout(resolve, 3000));
-
-    const genre = document.getElementById('aiGenre').value;
-    const voice = document.getElementById('aiVoice').value;
-    const lyrics = document.getElementById('aiLyrics').value.trim() || `[Lirik otomatis untuk ${title}]`;
-
-    // Hasil simulasi: 3 versi dengan nama berbeda
-    const results = [
-      { id: 1, name: `${title} (Versi 1)`, desc: `${genre} - ${voice}`, data: null, lyrics },
-      { id: 2, name: `${title} (Versi 2)`, desc: `${genre} - ${voice} (Alternate)`, data: null, lyrics },
-      { id: 3, name: `${title} (Versi 3)`, desc: `${genre} - ${voice} (Remix)`, data: null, lyrics }
-    ];
-    window._aiResults = results;
-
-    renderAIResults(results);
-    document.getElementById('aiProgress').style.display = 'none';
-    MS.toast('3 lagu berhasil di-generate! (simulasi)', 'success');
-  }
-
-  function renderAIResults(results) {
-    const container = document.getElementById('aiResults');
-    container.innerHTML = results.map((r, i) => `
-      <div class="result-card">
-        <h4>🎵 ${r.name}</h4>
-        <p>${r.desc}</p>
-        <div class="result-actions">
-          <button class="btn btn-sm" onclick="previewAIResult(${i})">▶ Preview</button>
-          <button class="btn btn-sm btn-success" onclick="saveAIResult(${i})">💾 Simpan ke Proyek</button>
-          <button class="btn btn-sm btn-primary" onclick="downloadAIResult(${i})">⬇ Download</button>
-        </div>
-      </div>
-    `).join('');
-    container.style.display = 'grid';
-  }
-
-  function previewAIResult(index) {
-    MS.toast('Preview: fitur audio belum tersedia (simulasi)', 'info');
-  }
-
-  function saveAIResult(index) {
-    const result = window._aiResults[index];
-    if (!result) return;
-    const username = MS.getSession()?.username;
-    if (!username) return;
-    const projects = MS.getProjects(username);
-    if (projects.length === 0) {
-      MS.toast('Buat proyek dulu!', 'error');
-      return;
-    }
-    const proyek = projects[projects.length - 1];
-    proyek.tracks.push({
-      id: Date.now().toString(),
-      name: result.name,
-      type: 'ai-generated',
-      data: null, // belum ada audio real
-      volume: 0.8, pan: 0, muted: false, solo: false,
-      aiData: { title: result.name, lyrics: result.lyrics, genre: document.getElementById('aiGenre').value }
-    });
-    if (!proyek.lyrics && result.lyrics) {
-      proyek.lyrics = result.lyrics;
-    }
-    MS.saveProjects(username, projects);
-    MS.toast(`${result.name} disimpan ke proyek!`, 'success');
-  }
-
-  function downloadAIResult(index) {
-    const result = window._aiResults[index];
-    if (!result) return;
-    const content = `Judul: ${result.name}\nGenre: ${result.desc}\nLirik:\n${result.lyrics}`;
-    const blob = new Blob([content], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = result.name.replace(/\s+/g, '_') + '.txt';
-    a.click();
-    MS.toast('Lirik di-download!', 'success');
-  }
-
-  function downloadAIGeneratorHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_ai_generator.html';
-    a.click();
-    MS.toast('✅ Halaman di-download!', 'success');
-  }
-</script>
-
-<style>
-  .ai-generator-page { max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .generator-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .premium-notice { background: var(--color-warning); padding: 10px; border-radius: var(--radius-sm); margin-bottom: 16px; color: #000; }
-  .btn-outline { border: 2px solid var(--accent-primary); color: var(--accent-light); background: transparent; }
-  .spinner { width: 30px; height: 30px; border: 3px solid var(--border-color); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
-  .result-card { background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-sm); text-align: center; }
-  .result-actions { display: flex; gap: 4px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
-</style>
-
 <!-- ============================================================
-     BLOK 17 – AI VOICE SELECT (modules/ai-voice-select.html)
-     - Pilih karakter suara AI untuk vokal
-     - Preview suara (simulasi)
-     - Tombol Copy HTML
+     BLOK 17 - AI VOICE SELECT (modules/ai-voice-select.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="voice-select-page">
   <div class="section-header">
@@ -3145,88 +989,24 @@ Baris 2
   </div>
 
   <div class="voice-container">
-    <div class="voice-grid" id="voiceGrid"></div>
+    <div class="voice-grid" id="voiceGrid">
+      <!-- Diisi oleh JS global -->
+    </div>
     <button class="btn btn-primary btn-block" onclick="pilihSuara()">✅ Pilih Suara Ini</button>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadVoiceHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'ai-voice-select') return;
-
-    const voices = [
-      { id: 'wanita-muda', name: '👩 Perempuan Muda', desc: 'Suara cerah, cocok untuk pop/dangdut' },
-      { id: 'wanita-tua', name: '👵 Perempuan Tua', desc: 'Suara berat, berwibawa' },
-      { id: 'pria-muda', name: '👨 Laki-laki Muda', desc: 'Suara energik, rock/pop' },
-      { id: 'pria-tua', name: '👴 Laki-laki Tua', desc: 'Suara dalam, seriosa' },
-      { id: 'anak', name: '👶 Anak-anak', desc: 'Suara ceria, musik anak' },
-      { id: 'robot', name: '🤖 Robot', desc: 'Efek futuristik' },
-      { id: 'seriosa', name: '🎭 Seriosa', desc: 'Suara opera klasik' }
-    ];
-
-    const grid = document.getElementById('voiceGrid');
-    grid.innerHTML = voices.map(v => `
-      <div class="voice-card" data-id="${v.id}" onclick="selectVoice('${v.id}')">
-        <div class="voice-icon">${v.name.split(' ')[0]}</div>
-        <h4>${v.name}</h4>
-        <p>${v.desc}</p>
-      </div>
-    `).join('');
-
-    // Tandai suara yang sudah dipilih sebelumnya
-    const lastVoice = localStorage.getItem('ms_selected_voice') || 'wanita-muda';
-    selectVoice(lastVoice);
-  };
-
-  let selectedVoice = 'wanita-muda';
-  function selectVoice(id) {
-    selectedVoice = id;
-    document.querySelectorAll('.voice-card').forEach(card => {
-      card.classList.toggle('selected', card.dataset.id === id);
-    });
-  }
-
-  function pilihSuara() {
-    localStorage.setItem('ms_selected_voice', selectedVoice);
-    MS.toast('Suara dipilih: ' + selectedVoice, 'success');
-    setTimeout(() => MS.navigate('ai-generator'), 1000);
-  }
-
-  function downloadVoiceHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_voice_select.html';
-    a.click();
-    MS.toast('✅ Halaman di-download!', 'success');
-  }
-</script>
-
-<style>
-  .voice-select-page { max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .voice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
-  .voice-card { background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
-  .voice-card:hover { border-color: var(--accent-primary); transform: translateY(-2px); }
-  .voice-card.selected { border-color: var(--accent-primary); background: var(--bg-tertiary); }
-  .voice-icon { font-size: 2.5rem; margin-bottom: 8px; }
-  .voice-card h4 { font-size: 1rem; margin-bottom: 4px; }
-  .voice-card p { font-size: 0.8rem; color: var(--text-secondary); }
-</style>
-
 <!-- ============================================================
-     BLOK 18 – AI LYRICS GENERATOR (modules/ai-lyrics-generator.html)
-     - Generate lirik otomatis dari judul
-     - Beberapa pilihan style
-     - Hasil bisa disalin atau langsung dipakai
-     - Tombol Copy HTML
+     BLOK 18 – AI LYRICS GENERATOR (modules/ai-lyrics-generator.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="lyrics-gen-page">
   <div class="section-header">
@@ -3263,112 +1043,18 @@ Baris 2
     </div>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadLyricsGenHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'ai-lyrics-generator') return;
-  };
-
-  async function generateLyrics() {
-    const theme = document.getElementById('lyricTheme').value.trim();
-    if (!theme) { MS.toast('Masukkan tema/judul!', 'error'); return; }
-
-    document.getElementById('lyricProgress').style.display = 'block';
-    document.getElementById('lyricResults').style.display = 'none';
-
-    // Simulasi delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    const style = document.getElementById('lyricStyle').value;
-    // Lirik simulasi berdasarkan tema
-    const templates = {
-      romantis: [`[Verse]`, `Mataku terpana saat melihatmu`, `Hatiku berdebar tak menentu`, ``, `[Chorus]`, `Kau adalah bintang di hatiku`, `Penerang gelap malam-malamku`, `${theme} jadi saksi cintaku`],
-      semangat: [`[Verse]`, `Bangkitlah kawan jangan menyerah`, `Hari ini kita buktikan`, ``, `[Chorus]`, `Terus melangkah gapai mimpi`, `${theme} jadi motivasi`],
-      sedih: [`[Verse]`, `Hujan turun membasahi bumi`, `Seperti air mata di pipiku`, ``, `[Chorus]`, `Kenangan itu tetap abadi`, `${theme} menemani sepi`],
-      gembira: [`[Verse]`, `Hari cerah penuh warna`, `Semua tertawa riang gembira`, ``, `[Chorus]`, `Ayo bernyanyi bersama`, `${theme} di hati kita`],
-      religi: [`[Verse]`, `Dalam sujudku pada-Mu`, `Kumohon ampunan selalu`, ``, `[Chorus]`, `Ya Allah Tuhan semesta alam`, `${theme} adalah karunia`],
-      anak: [`[Verse]`, `Lihatlah kupu-kupu terbang`, `Bunga-bunga pun tersenyum`, ``, `[Chorus]`, `Ayo kawan kita bermain`, `${theme} sangat menyenangkan`]
-    };
-
-    const lyricsArray = templates[style] || templates.romantis;
-    const versions = [];
-    for (let i = 0; i < 3; i++) {
-      let lirik = lyricsArray.join('\n');
-      if (i > 0) {
-        lirik = lirik.replace(/\n/g, '\n') + `\n\n(Bridge - versi ${i+1})\nMenikmati indahnya ${theme}`;
-      }
-      versions.push({ text: lirik, index: i });
-    }
-
-    window._generatedLyrics = versions;
-    renderLyricVersions(versions);
-    document.getElementById('lyricProgress').style.display = 'none';
-    MS.toast('Lirik berhasil di-generate!', 'success');
-  }
-
-  function renderLyricVersions(versions) {
-    const container = document.getElementById('lyricVersions');
-    container.innerHTML = versions.map((v, i) => `
-      <div class="lyric-version">
-        <h5>Versi ${i + 1}</h5>
-        <pre>${v.text}</pre>
-        <div class="btn-group">
-          <button class="btn btn-sm" onclick="copyLyricVersion(${i})">📋 Copy</button>
-          <button class="btn btn-sm btn-success" onclick="useLyricVersion(${i})">✅ Pakai Lirik Ini</button>
-        </div>
-      </div>
-    `).join('');
-    document.getElementById('lyricResults').style.display = 'block';
-  }
-
-  function copyLyricVersion(index) {
-    const lyrics = window._generatedLyrics[index]?.text || '';
-    navigator.clipboard.writeText(lyrics);
-    MS.toast('Lirik disalin!', 'success');
-  }
-
-  function useLyricVersion(index) {
-    const lyrics = window._generatedLyrics[index]?.text || '';
-    localStorage.setItem('ms_selected_lyrics', lyrics);
-    MS.toast('Lirik dipilih! Kembali ke AI Generator.', 'success');
-    setTimeout(() => MS.navigate('ai-generator'), 1000);
-  }
-
-  function downloadLyricsGenHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_lyrics_gen.html';
-    a.click();
-    MS.toast('✅ Halaman di-download!', 'success');
-  }
-</script>
-
-<style>
-  .lyrics-gen-page { max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .generator-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .spinner { width: 30px; height: 30px; border: 3px solid var(--border-color); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .lyric-version { background: var(--bg-tertiary); padding: 12px; margin-bottom: 12px; border-radius: var(--radius-sm); }
-  .lyric-version pre { white-space: pre-wrap; font-size: 0.9rem; font-family: inherit; }
-  .btn-group { display: flex; gap: 8px; margin-top: 8px; }
-</style>
-
 <!-- ============================================================
-     BLOK 19 – HASIL GENERATE (modules/hasil-generate.html)
-     - Menampilkan 3 hasil generate lagu dari AI Generator
-     - Data diambil dari localStorage sementara
-     - Bisa preview (simulasi), download lirik, simpan ke proyek
-     - Tombol Copy HTML
+     BLOK 19 - HASIL GENERATE (modules/hasil-generate.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="hasil-page">
   <div class="section-header">
@@ -3380,128 +1066,18 @@ Baris 2
     <p class="text-center text-secondary">Memuat hasil generate terakhir...</p>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadHasilHTML()">
       ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'hasil-generate') return;
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-    window._hasilUsername = session.username;
-
-    // Ambil data hasil generate dari localStorage (disimpan oleh ai-generator)
-    const stored = localStorage.getItem('ms_last_generated');
-    if (stored) {
-      try {
-        const results = JSON.parse(stored);
-        renderHasil(results);
-      } catch (e) {
-        document.getElementById('hasilContainer').innerHTML = '<p class="text-warning">Data hasil generate tidak valid.</p>';
-      }
-    } else {
-      document.getElementById('hasilContainer').innerHTML = '<p class="text-center text-secondary">Belum ada hasil generate. <a href="#" onclick="MS.navigate(\'ai-generator\')">Buat lagu sekarang</a>.</p>';
-    }
-  };
-
-  function renderHasil(results) {
-    const container = document.getElementById('hasilContainer');
-    if (!results || results.length === 0) {
-      container.innerHTML = '<p class="text-center text-secondary">Tidak ada hasil.</p>';
-      return;
-    }
-    container.innerHTML = results.map((r, i) => `
-      <div class="hasil-card">
-        <div class="hasil-info">
-          <h4>🎵 ${MS.escapeHTML(r.name)}</h4>
-          <p>${MS.escapeHTML(r.desc)}</p>
-          ${r.lyrics ? `<details><summary>Lihat Lirik</summary><pre>${MS.escapeHTML(r.lyrics)}</pre></details>` : ''}
-        </div>
-        <div class="hasil-actions">
-          <button class="btn btn-sm" onclick="previewHasil(${i})">▶ Preview</button>
-          <button class="btn btn-sm btn-success" onclick="simpanKeProyek(${i})">💾 Simpan ke Proyek</button>
-          <button class="btn btn-sm btn-primary" onclick="downloadHasil(${i})">⬇ Download Lirik</button>
-        </div>
-      </div>
-    `).join('');
-    window._hasilData = results;
-  }
-
-  function previewHasil(index) {
-    MS.toast('Preview audio: simulasi (belum ada file audio)', 'info');
-  }
-
-  function simpanKeProyek(index) {
-    const result = window._hasilData[index];
-    if (!result) return;
-    const username = window._hasilUsername;
-    const projects = MS.getProjects(username);
-    if (projects.length === 0) {
-      MS.toast('Buat proyek terlebih dahulu!', 'error');
-      return;
-    }
-    const proyek = projects[projects.length - 1];
-    proyek.tracks.push({
-      id: Date.now().toString(),
-      name: result.name,
-      type: 'ai-generated',
-      data: null,
-      volume: 0.8,
-      pan: 0,
-      muted: false,
-      solo: false,
-      aiData: { ...result }
-    });
-    if (!proyek.lyrics && result.lyrics) {
-      proyek.lyrics = result.lyrics;
-    }
-    MS.saveProjects(username, projects);
-    MS.toast(`${result.name} disimpan ke proyek!`, 'success');
-  }
-
-  function downloadHasil(index) {
-    const result = window._hasilData[index];
-    if (!result) return;
-    const content = `Judul: ${result.name}\nDeskripsi: ${result.desc}\n\nLirik:\n${result.lyrics || '(tidak ada)'}`;
-    const blob = new Blob([content], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = result.name.replace(/\s+/g, '_') + '.txt';
-    a.click();
-    MS.toast('Lirik di-download!', 'success');
-  }
-
-  function downloadHasilHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_hasil_generate.html';
-    a.click();
-    MS.toast('✅ Halaman Hasil Generate di-download!', 'success');
-  }
-</script>
-
-<style>
-  .hasil-page { max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .hasil-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .hasil-card { background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 12px; }
-  .hasil-info h4 { margin-bottom: 4px; }
-  .hasil-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-  details pre { white-space: pre-wrap; font-size: 0.85rem; font-family: inherit; margin-top: 8px; }
-</style>
-
 <!-- ============================================================
-     BLOK 20 – DOWNLOAD MANAGER (modules/download-manager.html)
-     - Lihat daftar file yang sudah di-download (simulasi)
-     - Hapus file, lihat status
-     - Tombol Copy HTML
+     BLOK 20 - DOWNLOAD MANAGER (modules/download-manager.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="download-page">
   <div class="section-header">
@@ -3515,75 +1091,18 @@ Baris 2
     </div>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadManagerHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'download-manager') return;
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-
-    // Ambil log download dari localStorage (simulasi)
-    const downloads = JSON.parse(localStorage.getItem('ms_download_log_' + session.username) || '[]');
-    renderDownloadList(downloads);
-    window._downloads = downloads;
-  };
-
-  function renderDownloadList(list) {
-    const container = document.getElementById('downloadList');
-    if (list.length === 0) {
-      container.innerHTML = '<p class="text-center text-secondary">Belum ada file yang di-download.</p>';
-      return;
-    }
-    container.innerHTML = list.map((item, i) => `
-      <div class="download-item">
-        <span>📄 ${MS.escapeHTML(item.name)}</span>
-        <span class="text-muted">${MS.formatDate(item.date)}</span>
-        <button class="btn btn-sm btn-danger" onclick="hapusDownload(${i})">🗑</button>
-      </div>
-    `).join('');
-  }
-
-  function hapusDownload(index) {
-    const downloads = window._downloads;
-    if (!downloads) return;
-    downloads.splice(index, 1);
-    const username = MS.getSession()?.username;
-    if (username) {
-      localStorage.setItem('ms_download_log_' + username, JSON.stringify(downloads));
-    }
-    renderDownloadList(downloads);
-    MS.toast('Log download dihapus.', 'info');
-  }
-
-  function downloadManagerHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_download_manager.html';
-    a.click();
-    MS.toast('✅ Halaman Download Manager di-download!', 'success');
-  }
-</script>
-
-<style>
-  .download-page { max-width: 600px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .download-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .download-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm); margin-bottom: 6px; }
-</style>
-
 <!-- ============================================================
-     BLOK 21 – PREMIUM (modules/premium.html)
-     - Status premium, paket harga, aktivasi kode
-     - Tombol Copy HTML
+     BLOK 21 - MODUL PREMIUM (modules/premium.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="premium-page">
   <div class="section-header">
@@ -3612,108 +1131,18 @@ Baris 2
     <div class="price-grid" id="premiumPriceGrid"></div>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadPremiumHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'premium') return;
-    const session = MS.getSession();
-    if (!session) { MS.navigate('landing'); return; }
-
-    // Tampilkan status
-    const statusEl = document.getElementById('premiumStatusText');
-    const expEl = document.getElementById('premiumExpiryText');
-    if (MS.isPremium()) {
-      statusEl.textContent = MS.getPremiumStatusText();
-      statusEl.style.color = 'var(--color-success)';
-      if (session.premiumExpiry && session.role !== 'superadmin') {
-        expEl.textContent = 'Berlaku hingga ' + MS.formatDate(session.premiumExpiry);
-      }
-    } else {
-      statusEl.textContent = 'Free (Terbatas)';
-      statusEl.style.color = 'var(--color-warning)';
-      expEl.textContent = 'Upgrade untuk akses semua fitur.';
-    }
-
-    // Render paket
-    const packages = MS.getPackages();
-    const grid = document.getElementById('premiumPriceGrid');
-    grid.innerHTML = packages.map((pkg, i) => `
-      <div class="price-card ${i === 1 ? 'featured' : ''}">
-        ${i === 1 ? '<div class="featured-badge">POPULER</div>' : ''}
-        <div class="price-icon">💎</div>
-        <div class="price-name">${pkg.name}</div>
-        <div class="price-value">${MS.formatPrice(pkg.price)}</div>
-        <div class="price-duration">${pkg.label}</div>
-      </div>
-    `).join('');
-  };
-
-  function aktivasiPremium() {
-    const code = document.getElementById('activationCode').value.trim();
-    const err = document.getElementById('activationError');
-    const suc = document.getElementById('activationSuccess');
-    err.textContent = ''; suc.textContent = '';
-    err.classList.remove('show'); suc.classList.remove('show');
-
-    if (!code) {
-      err.textContent = 'Masukkan kode aktivasi!';
-      err.classList.add('show');
-      return;
-    }
-
-    const result = MS.activatePremium(code);
-    if (result.success) {
-      suc.textContent = result.message;
-      suc.classList.add('show');
-      setTimeout(() => MS.navigate('dashboard'), 2000);
-    } else {
-      err.textContent = result.message;
-      err.classList.add('show');
-    }
-  }
-
-  function downloadPremiumHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_premium.html';
-    a.click();
-    MS.toast('✅ Halaman Premium di-download!', 'success');
-  }
-</script>
-
-<style>
-  .premium-page { max-width: 600px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .premium-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .status-card { background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 20px; }
-  .activation-card { margin-bottom: 20px; }
-  .price-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 12px; }
-  .price-card { background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-sm); text-align: center; position: relative; border: 2px solid transparent; }
-  .price-card.featured { border-color: var(--accent-primary); }
-  .featured-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--accent-primary); color: #fff; padding: 2px 12px; border-radius: 10px; font-size: 0.7rem; }
-  .price-icon { font-size: 2rem; }
-  .price-name { font-weight: 700; }
-  .price-value { font-size: 1.4rem; font-weight: 800; color: var(--color-success); }
-  .price-duration { font-size: 0.8rem; color: var(--text-secondary); }
-  .form-error, .form-success { font-size: 0.85rem; padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 8px; display: none; }
-  .form-error.show { display: block; background: rgba(231,76,60,0.1); color: var(--color-danger); }
-  .form-success.show { display: block; background: rgba(46,204,113,0.1); color: var(--color-success); }
-</style>
-
 <!-- ============================================================
-     BLOK 22 – ADMIN PANEL (modules/admin-panel.html)
-     - Panel super admin: kelola user, kode aktivasi, paket, chat, backup
-     - Hanya bisa diakses super admin
-     - Tombol Copy HTML
+     BLOK 22 - MODUL ADMIN PANEL (modules/admin-panel.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="admin-page">
   <div class="section-header">
@@ -3731,151 +1160,22 @@ Baris 2
     </div>
 
     <div id="adminTabContent" class="admin-tab-content">
-      <!-- Diisi oleh JS -->
+      <!-- Diisi oleh JS global -->
     </div>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadAdminHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'admin-panel') return;
-    const session = MS.getSession();
-    if (!session || session.role !== 'superadmin') {
-      MS.navigate('dashboard');
-      MS.toast('Akses ditolak.', 'error');
-      return;
-    }
-    switchAdminTab('users');
-  };
-
-  function switchAdminTab(tab) {
-    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-    if (event && event.target) event.target.classList.add('active');
-
-    const content = document.getElementById('adminTabContent');
-    if (tab === 'users') {
-      const users = MS.getAllUsers();
-      content.innerHTML = `
-        <h3>Daftar User</h3>
-        <table class="admin-table">
-          <tr><th>Nama</th><th>Username</th><th>Email</th><th>Premium</th><th>Aksi</th></tr>
-          ${users.map(u => `
-            <tr>
-              <td>${u.nama}</td><td>${u.username}</td><td>${u.email}</td>
-              <td>${u.premium ? 'Ya' : 'Tidak'}</td>
-              <td>
-                <button class="btn btn-sm btn-warning" onclick="toggleLock('${u.id}')">${u.locked ? 'Buka' : 'Kunci'}</button>
-                <button class="btn btn-sm btn-danger" onclick="hapusUser('${u.id}')">Hapus</button>
-              </td>
-            </tr>
-          `).join('')}
-        </table>
-      `;
-    } else if (tab === 'codes') {
-      content.innerHTML = `
-        <h3>Buat Kode Aktivasi</h3>
-        <div class="form-group"><input id="adminCodeUser" placeholder="Username"></div>
-        <div class="form-group">
-          <select id="adminCodePackage">${MS.getPackages().map(p => `<option value="${p.id}">${p.name} - ${p.label}</option>`).join('')}</select>
-        </div>
-        <button class="btn btn-success" onclick="buatKode()">Buat Kode</button>
-        <div id="codeResult" class="mt-2"></div>
-        <h4 class="mt-3">Kode Aktif</h4>
-        <div id="activeCodes"></div>
-      `;
-      renderActiveCodes();
-    } else if (tab === 'packages') {
-      content.innerHTML = `
-        <h3>Paket Premium</h3>
-        <div id="packageList"></div>
-        <button class="btn btn-primary btn-sm mt-2" onclick="tambahPaket()">+ Paket Baru</button>
-      `;
-      renderPackageList();
-    } else if (tab === 'chat') {
-      content.innerHTML = `<p class="text-secondary">Chat dengan user (lihat modul chat).</p>`;
-    } else if (tab === 'backup') {
-      content.innerHTML = `
-        <h3>Backup / Restore</h3>
-        <button class="btn btn-primary" onclick="MS.navigate('backup-restore')">Buka Halaman Backup</button>
-      `;
-    }
-  }
-
-  // Fungsi admin
-  function toggleLock(userId) {
-    const users = MS.getAllUsers();
-    const user = users.find(u => u.id === userId);
-    if (user) { user.locked = !user.locked; MS.saveAllUsers(users); switchAdminTab('users'); }
-  }
-  function hapusUser(userId) {
-    if (confirm('Hapus user ini?')) {
-      MS.saveAllUsers(MS.getAllUsers().filter(u => u.id !== userId));
-      switchAdminTab('users');
-    }
-  }
-  function buatKode() {
-    const userField = document.getElementById('adminCodeUser').value.trim();
-    const pkgId = document.getElementById('adminCodePackage').value;
-    if (!userField) return;
-    const code = 'MK-' + Date.now().toString(36).toUpperCase();
-    const codes = MS.getValidCodes();
-    codes[code] = { packageId: pkgId, used: false, createdAt: new Date().toISOString() };
-    MS.saveValidCodes(codes);
-    document.getElementById('codeResult').innerHTML = `<p class="form-success show">Kode: <strong>${code}</strong></p>`;
-    renderActiveCodes();
-  }
-  function renderActiveCodes() {
-    const codes = MS.getValidCodes();
-    const el = document.getElementById('activeCodes');
-    if (el) el.innerHTML = Object.keys(codes).map(c => `<div>${c} - ${codes[c].packageId} (${codes[c].used ? 'Terpakai' : 'Aktif'})</div>`).join('');
-  }
-  function renderPackageList() {
-    const el = document.getElementById('packageList');
-    if (el) el.innerHTML = MS.getPackages().map(p => `<div>${p.name} - ${MS.formatPrice(p.price)} (${p.label})</div>`).join('');
-  }
-  function tambahPaket() {
-    const pkgs = MS.getPackages();
-    pkgs.push({ id: 'pkg_'+Date.now(), name: 'Baru', price: 0, days: 30, label: '1 Bulan' });
-    MS.savePackages(pkgs);
-    renderPackageList();
-  }
-
-  function downloadAdminHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_admin.html';
-    a.click();
-    MS.toast('✅ Halaman Admin di-download!', 'success');
-  }
-</script>
-
-<style>
-  .admin-page { max-width: 800px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .admin-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .admin-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
-  .admin-tab { padding: 8px 16px; border: 2px solid var(--accent-primary); background: transparent; color: var(--accent-light); border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; font-size: 0.85rem; }
-  .admin-tab.active { background: var(--accent-primary); color: #fff; }
-  .admin-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-  .admin-table th, .admin-table td { padding: 6px 10px; border: 1px solid var(--border-color); text-align: left; }
-  .admin-table th { background: var(--bg-tertiary); }
-  .mt-2 { margin-top: 12px; }
-  .mt-3 { margin-top: 16px; }
-</style>
-
 <!-- ============================================================
-     BLOK 23 – CHAT (modules/chat.html)
-     - Chat internal: user ↔ admin, user ↔ user, guest chat
-     - Tombol Copy HTML
+     BLOK 23 - MODUL CHAT (modules/chat.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="chat-page">
   <div class="section-header">
@@ -3885,107 +1185,32 @@ Baris 2
 
   <div class="chat-container">
     <div class="chat-tabs">
-      <button class="chat-tab active" onclick="switchChatTab('admin')">👑 Admin</button>
-      <button class="chat-tab" onclick="switchChatTab('users')">👥 Sesama User</button>
+      <button class="chat-tab active" id="chatTabAdmin" onclick="switchChatTab('admin')">👑 Admin</button>
+      <button class="chat-tab" id="chatTabUsers" onclick="switchChatTab('users')">👥 Sesama User</button>
     </div>
 
-    <div id="chatMessages" class="chat-messages"></div>
+    <div id="chatMessages" class="chat-messages">
+      <!-- Diisi oleh JS global -->
+    </div>
+
     <div class="chat-input-row">
       <input type="text" id="chatInput" placeholder="Ketik pesan...">
       <button class="btn btn-primary" onclick="kirimPesan()">Kirim</button>
     </div>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadChatHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'chat') return;
-    const session = MS.getSession();
-    if (!session && !params?.guest) { MS.navigate('landing'); return; }
-    window._chatUser = session ? session.username : 'guest';
-    window._chatRole = session ? session.role : 'guest';
-    switchChatTab('admin');
-  };
-
-  let currentChatTab = 'admin';
-
-  function switchChatTab(tab) {
-    currentChatTab = tab;
-    document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
-    if (event && event.target) event.target.classList.add('active');
-    loadChatMessages();
-  }
-
-  function loadChatMessages() {
-    const messages = MS.getChatMessages();
-    const user = window._chatUser;
-    let filtered;
-    if (currentChatTab === 'admin') {
-      filtered = messages.filter(m => (m.from === user && m.to === 'admin') || (m.from === 'admin' && (m.to === user || m.to === 'all')));
-    } else {
-      filtered = messages.filter(m => m.from === user || m.to === user);
-    }
-    const container = document.getElementById('chatMessages');
-    container.innerHTML = filtered.map(m => `
-      <div class="chat-bubble ${m.from === user ? 'me' : 'other'}">
-        <strong>${m.from}</strong>: ${MS.escapeHTML(m.text)}
-        <div class="chat-time">${new Date(m.time).toLocaleTimeString()}</div>
-      </div>
-    `).join('');
-    container.scrollTop = container.scrollHeight;
-  }
-
-  function kirimPesan() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if (!text) return;
-    const messages = MS.getChatMessages();
-    const target = currentChatTab === 'admin' ? 'admin' : 'all';
-    messages.push({ from: window._chatUser, to: target, text, time: new Date().toISOString() });
-    MS.saveChatMessages(messages);
-    input.value = '';
-    loadChatMessages();
-  }
-
-  function downloadChatHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_chat.html';
-    a.click();
-    MS.toast('✅ Halaman Chat di-download!', 'success');
-  }
-</script>
-
-<style>
-  .chat-page { max-width: 600px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .chat-container { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 16px; }
-  .chat-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
-  .chat-tab { padding: 6px 16px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); }
-  .chat-tab.active { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); }
-  .chat-messages { height: 300px; overflow-y: auto; margin-bottom: 12px; padding: 8px; background: var(--bg-tertiary); border-radius: var(--radius-sm); }
-  .chat-bubble { margin-bottom: 8px; padding: 8px 12px; border-radius: var(--radius-sm); max-width: 80%; }
-  .chat-bubble.me { background: var(--accent-primary); color: #fff; margin-left: auto; }
-  .chat-bubble.other { background: var(--bg-hover); color: var(--text-primary); }
-  .chat-time { font-size: 0.7rem; opacity: 0.7; margin-top: 4px; }
-  .chat-input-row { display: flex; gap: 8px; }
-  .chat-input-row input { flex: 1; }
-</style>
-
 <!-- ============================================================
-     BLOK 24 – BACKUP RESTORE (modules/backup-restore.html)
-     - Export semua data proyek ke JSON
-     - Import dari JSON
-     - Tombol Copy HTML
+     BLOK 24 - MODUL BACKUP RESTORE (modules/backup-restore.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="backup-page">
   <div class="section-header">
@@ -4006,80 +1231,18 @@ Baris 2
     </div>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadBackupHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'backup-restore') return;
-  };
-
-  function exportData() {
-    const session = MS.getSession();
-    if (!session) return;
-    const username = session.username;
-    const data = {
-      username,
-      projects: MS.getProjects(username),
-      exportedAt: new Date().toISOString()
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `musikplus_backup_${username}_${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    MS.toast('Data proyek di-export!', 'success');
-  }
-
-  function restoreData(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const data = JSON.parse(e.target.result);
-        if (!data.projects || !Array.isArray(data.projects)) throw new Error('Format salah');
-        const session = MS.getSession();
-        if (!session) return;
-        if (!confirm('⚠️ Proyek saat ini akan diganti dengan data dari file. Lanjutkan?')) return;
-        MS.saveProjects(session.username, data.projects);
-        MS.toast('Data berhasil dipulihkan!', 'success');
-      } catch (err) {
-        MS.toast('File JSON tidak valid.', 'error');
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function downloadBackupHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_backup_restore.html';
-    a.click();
-    MS.toast('✅ Halaman Backup di-download!', 'success');
-  }
-</script>
-
-<style>
-  .backup-page { max-width: 600px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .backup-container { display: grid; gap: 16px; }
-  .backup-card { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .backup-card h4 { margin-bottom: 8px; }
-  .backup-card p { color: var(--text-secondary); margin-bottom: 12px; }
-</style>
-
 <!-- ============================================================
-     BLOK 25 – SETTINGS & HELP (modules/settings.html)
-     - Pengaturan tema, tentang aplikasi, bantuan
-     - Tombol Copy HTML
+     BLOK 25 - MODUL SETTINGS (modules/settings.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="settings-page">
   <div class="section-header">
@@ -4103,7 +1266,7 @@ Baris 2
     </div>
     <div class="setting-card">
       <h4>❓ Bantuan</h4>
-      <p>Kunjungi modul <a href="#" onclick="MS.navigate('help')">Bantuan</a> untuk panduan lengkap.</p>
+      <p>Kunjungi halaman <a href="#" onclick="MS.navigate('help')">Bantuan</a> untuk panduan lengkap.</p>
     </div>
     <div class="setting-card">
       <h4>🚪 Logout</h4>
@@ -4111,44 +1274,18 @@ Baris 2
     </div>
   </div>
 
+  <!-- Tombol Copy HTML -->
   <div style="text-align:center;margin:30px 0;">
     <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadSettingsHTML()">
-      ⬇️ Copy HTML
+      ⬇️ Copy HTML (Download Halaman)
     </button>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
   </div>
 </div>
 
-<script>
-  MS.pageInit = function(page, params) {
-    if (page !== 'settings') return;
-    // Ambil nomor WA dari localStorage
-    const wa = localStorage.getItem('ms_admin_wa') || '081220285226';
-    document.getElementById('adminWA').textContent = wa;
-  };
-  function downloadSettingsHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_settings.html';
-    a.click();
-    MS.toast('✅ Halaman Pengaturan di-download!', 'success');
-  }
-</script>
-
-<style>
-  .settings-page { max-width: 600px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .settings-container { display: grid; gap: 16px; }
-  .setting-card { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); }
-  .setting-card h4 { margin-bottom: 12px; }
-</style>
-
 <!-- ============================================================
-     MODUL HELP (modules/help.html) – tambahan opsional
-     - Panduan penggunaan aplikasi
-     - Tombol Copy HTML
+     BLOK 26 - MODUL HELP (modules/help.html) - REVISI
+     Konten murni, tanpa <style> & <script>
      ============================================================ -->
 <div class="help-page">
   <div class="section-header">
@@ -4182,26 +1319,3 @@ Baris 2
     </button>
   </div>
 </div>
-
-<script>
-  function downloadHelpHTML() {
-    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'musikplus_help.html';
-    a.click();
-    MS.toast('✅ Halaman Bantuan di-download!', 'success');
-  }
-</script>
-
-<style>
-  .help-page { max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .section-header h2 { font-size: 1.5rem; font-weight: 700; }
-  .help-container { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); line-height: 1.7; }
-  .help-container ul { margin-left: 20px; }
-  .help-container h3, .help-container h4 { margin: 16px 0 8px; }
-</style>
-</body>
-</html>
