@@ -1694,7 +1694,7 @@
 
 <!-- ============================================================
      BLOK 2.3 – AI, ADMIN, PROFIL, CHAT, BACKUP, PAGE INIT
-     (VERSI LENGKAP FINAL - SEMUA FITUR BERFUNGSI)
+     (VERSI FINAL DEBUG HP - DENGAN ALERT)
      ============================================================ -->
   <script>
     // ========== AI GENERATOR ==========
@@ -1786,18 +1786,12 @@
         suc.classList.add('show');
         document.getElementById('activationCode').value = '';
         updateHeader();
-        // Update status di halaman premium
         const s = MS.getSession();
         if (s) {
           const statusEl = document.getElementById('premiumStatusText');
           const expEl = document.getElementById('premiumExpiryText');
-          if (statusEl) {
-            statusEl.textContent = '⭐ Premium Aktif';
-            statusEl.style.color = 'var(--color-success)';
-          }
-          if (expEl && s.premiumExpiry) {
-            expEl.textContent = 'Berlaku hingga ' + MS.formatDate(s.premiumExpiry);
-          }
+          if (statusEl) { statusEl.textContent = '⭐ Premium Aktif'; statusEl.style.color = 'var(--color-success)'; }
+          if (expEl && s.premiumExpiry) { expEl.textContent = 'Berlaku hingga ' + MS.formatDate(s.premiumExpiry); }
         }
         showToast(result.message, 'success');
       } else {
@@ -1835,27 +1829,118 @@
     function saveProfile() { const s = MS.getSession(); if (!s) return; const n = document.getElementById('editProfileNama').value.trim(), e = document.getElementById('editProfileEmail').value.trim(), hp = document.getElementById('editProfileHp').value.trim(); const err = document.getElementById('profileError'), suc = document.getElementById('profileSuccess'); err.textContent=''; suc.textContent=''; if (!n||!e||!hp) { err.textContent='Semua field wajib!'; err.classList.add('show'); return; } s.nama=n; s.email=e; s.hp=hp; MS.saveSession(s); const users = MS.getAllUsers(); const idx = users.findIndex(u=>u.id===s.id); if (idx!==-1) { users[idx].nama=n; users[idx].email=e; users[idx].hp=hp; MS.saveAllUsers(users); } updateHeader(); suc.textContent='Profil tersimpan!'; suc.classList.add('show'); setTimeout(()=>MS.navigate('dashboard'),1500); }
     function deleteAccount() { const s = MS.getSession(); if (!s||s.role==='superadmin') { showToast('Super Admin tidak bisa dihapus.','error'); return; } if (confirm('Hapus akun permanen?')) { MS.saveAllUsers(MS.getAllUsers().filter(u=>u.id!==s.id)); MS.clearSession(); updateHeader(); MS.navigate('landing'); showToast('Akun dihapus.','warning'); } }
 
-    // ========== CHAT ==========
+    // ========== CHAT (DEBUG HP - PAKAI ALERT) ==========
     function loadChatMessages() {
+      alert('🔵 loadChatMessages dijalankan');
+      
       const allMessages = MS.getChatMessages();
       const session = MS.getSession();
       const currentUser = session ? session.username : 'guest';
       const isAdmin = session && session.role === 'superadmin';
-      let filtered = isAdmin ? allMessages : allMessages.filter(m => (m.from === currentUser && m.to === 'admin') || (m.from === 'admin' && m.to === currentUser) || (m.from === 'admin' && m.to === 'all'));
-      const container = document.getElementById('chatMessages'); if (!container) return;
-      if (filtered.length === 0) { container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Belum ada pesan. Ketik pesan pertama Anda!</p>'; return; }
+
+      alert('User: ' + currentUser + ', Admin: ' + isAdmin + ', Total pesan: ' + allMessages.length);
+
+      let filtered = [];
+      if (isAdmin) {
+        filtered = allMessages;
+      } else {
+        filtered = allMessages.filter(m =>
+          (m.from === currentUser && m.to === 'admin') ||
+          (m.from === 'admin' && m.to === currentUser) ||
+          (m.from === 'admin' && m.to === 'all')
+        );
+      }
+
+      alert('Pesan setelah difilter: ' + filtered.length);
+
+      const container = document.getElementById('chatMessages');
+      
+      if (!container) {
+        alert('❌ ERROR: Container #chatMessages TIDAK DITEMUKAN!');
+        return;
+      }
+
+      alert('✅ Container ditemukan!');
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:20px;">💬 Belum ada pesan. Silakan kirim pesan pertama!</p>';
+        return;
+      }
+
       filtered.sort((a, b) => new Date(a.time) - new Date(b.time));
-      container.innerHTML = filtered.map(m => { const isMe = (m.from === currentUser) || (isAdmin && m.from === 'admin'); return `<div class="chat-bubble ${isMe ? 'me' : 'other'}"><div style="font-size:0.75rem;opacity:0.8;margin-bottom:2px;"><strong>${MS.escapeHTML(m.from)}</strong>${m.to !== 'all' ? ' → ' + MS.escapeHTML(m.to) : ' (semua)'}</div><div>${MS.escapeHTML(m.text)}</div><div class="chat-time">${new Date(m.time).toLocaleString('id-ID', {hour:'2-digit',minute:'2-digit', day:'numeric', month:'short'})}</div></div>`; }).join('');
+
+      container.innerHTML = filtered.map(m => {
+        const isMe = (m.from === currentUser) || (isAdmin && m.from === 'admin');
+        const bubbleStyle = isMe ? 
+          'background:var(--accent-primary);color:#fff;margin-left:auto;' : 
+          'background:var(--bg-hover);color:var(--text-primary);margin-right:auto;';
+        
+        return `
+          <div style="margin-bottom:10px;display:flex;flex-direction:column;">
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:2px;text-align:${isMe ? 'right' : 'left'};">
+              <strong>${MS.escapeHTML(m.from)}</strong>
+              ${m.to !== 'all' ? ' → ' + MS.escapeHTML(m.to) : ' (semua)'}
+              · ${new Date(m.time).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'})}
+            </div>
+            <div style="max-width:85%;padding:10px 16px;border-radius:16px;${bubbleStyle}">
+              ${MS.escapeHTML(m.text)}
+            </div>
+          </div>
+        `;
+      }).join('');
+
       container.scrollTop = container.scrollHeight;
+      alert('✅ Chat berhasil ditampilkan! ' + filtered.length + ' pesan.');
     }
+
     function sendChatMessage() {
-      const input = document.getElementById('chatInput'); if (!input || !input.value.trim()) return;
-      const session = MS.getSession(); const currentUser = session ? session.username : 'guest'; const isAdmin = session && session.role === 'superadmin';
-      const newMsg = { from: isAdmin ? 'admin' : currentUser, to: isAdmin ? 'all' : 'admin', text: input.value.trim(), time: new Date().toISOString() };
-      const msgs = MS.getChatMessages(); msgs.push(newMsg); MS.saveChatMessages(msgs);
-      input.value = ''; loadChatMessages(); showToast('Pesan terkirim!', 'success');
+      alert('🟢 sendChatMessage dijalankan');
+      
+      const input = document.getElementById('chatInput');
+      
+      if (!input) {
+        alert('❌ ERROR: Input #chatInput TIDAK DITEMUKAN!');
+        return;
+      }
+      
+      const text = input.value.trim();
+      
+      if (!text) {
+        alert('❌ Pesan kosong! Tidak bisa dikirim.');
+        return;
+      }
+
+      const session = MS.getSession();
+      const currentUser = session ? session.username : 'guest';
+      const isAdmin = session && session.role === 'superadmin';
+
+      const newMsg = {
+        from: isAdmin ? 'admin' : currentUser,
+        to: isAdmin ? 'all' : 'admin',
+        text: text,
+        time: new Date().toISOString()
+      };
+
+      alert('📨 Mengirim: ' + text + ' | Dari: ' + newMsg.from + ' | Ke: ' + newMsg.to);
+
+      const msgs = MS.getChatMessages();
+      msgs.push(newMsg);
+      MS.saveChatMessages(msgs);
+      
+      alert('✅ Pesan tersimpan! Total: ' + msgs.length);
+      
+      input.value = '';
+      loadChatMessages();
+      showToast('✅ Pesan terkirim!', 'success');
     }
-    function clearAllChat() { if (confirm('Hapus SEMUA chat?')) { MS.saveChatMessages([]); loadChatMessages(); showToast('Semua chat dihapus.', 'warning'); } }
+
+    function clearAllChat() {
+      if (confirm('Hapus SEMUA chat? Tindakan ini tidak bisa dibatalkan.')) {
+        MS.saveChatMessages([]);
+        loadChatMessages();
+        showToast('🗑 Semua chat dihapus.', 'warning');
+      }
+    }
 
     // ========== EXPORT USER ==========
     function exportData() { const s = MS.getSession(); if (!s) return; const data = { username:s.username, projects:MS.getProjects(s.username), exportedAt:new Date().toISOString() }; const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_'+s.username+'.json'; a.click(); showToast('Data diekspor!','success'); }
@@ -1891,12 +1976,29 @@
       if (page === 'hasil-generate') { const stored=localStorage.getItem('ms_last_generated'); if (stored) { try { renderHasil(JSON.parse(stored)); } catch(e) { document.getElementById('hasilContainer').innerHTML='<p class="text-warning">Data tidak valid.</p>'; } } else { document.getElementById('hasilContainer').innerHTML='<p class="text-secondary">Belum ada hasil.</p>'; } }
       if (page === 'download-manager') { const session=MS.getSession(); const downloads=JSON.parse(localStorage.getItem('ms_download_log_'+(session?session.username:'guest'))||'[]'); renderDownloadList(downloads); window._downloads=downloads; }
       if (page === 'chat') {
+        alert('🟢 Halaman chat dimuat');
+        
         const session = MS.getSession();
         const isAdmin = session && session.role === 'superadmin';
         const adminActions = document.getElementById('adminChatActions');
-        if (isAdmin) { if (adminActions) adminActions.style.display = 'block'; }
-        else { if (adminActions) adminActions.style.display = 'none'; }
-        loadChatMessages();
+        
+        alert('isAdmin: ' + isAdmin + ' | adminActions ada: ' + (adminActions ? 'Ya' : 'Tidak'));
+        
+        if (isAdmin) {
+          if (adminActions) {
+            adminActions.style.display = 'block';
+            alert('✅ Tombol admin ditampilkan');
+          }
+        } else {
+          if (adminActions) {
+            adminActions.style.display = 'none';
+            alert('✅ Tombol admin disembunyikan');
+          }
+        }
+        
+        setTimeout(() => {
+          loadChatMessages();
+        }, 300);
       }
     };
   </script>
