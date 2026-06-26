@@ -1187,41 +1187,138 @@
   </div>
 </template>
 
+<script>
+  // ========== PROYEK ==========
+  function openProyekForm(editId) { document.getElementById('proyekFormModal').style.display='flex'; setTimeout(function(){ document.getElementById('proyekFormModal').classList.add('show'); },10); }
+  function closeProyekForm() { document.getElementById('proyekFormModal').classList.remove('show'); setTimeout(function(){ document.getElementById('proyekFormModal').style.display='none'; },300); }
+  function saveProyek() {
+    var nama = document.getElementById('proyekNama').value.trim();
+    if (!nama) { document.getElementById('proyekError').textContent='Nama wajib!'; document.getElementById('proyekError').classList.add('show'); return; }
+    var projects = MS.getProjects(MS.getSession().username);
+    projects.push({ id:Date.now().toString(), nama:nama, desc:document.getElementById('proyekDesc').value, tracks:[], createdAt:new Date().toISOString() });
+    MS.saveProjects(MS.getSession().username, projects);
+    closeProyekForm(); renderProyekList(); showToast('Proyek disimpan!', 'success');
+  }
+  function renderProyekList() {
+    var projects = MS.getProjects(MS.getSession().username);
+    var grid = document.getElementById('proyekGrid');
+    if (projects.length===0) { grid.innerHTML=''; document.getElementById('emptyProyek').classList.remove('hidden'); return; }
+    document.getElementById('emptyProyek').classList.add('hidden');
+    var html = '';
+    for (var i=0;i<projects.length;i++) {
+      var p = projects[i];
+      html += '<div class="proyek-card"><h4>'+p.nama+'</h4><small>'+(p.tracks||[]).length+' trek</small><div class="proyek-actions"><button class="btn btn-sm btn-primary" onclick="MS.navigate(\'proyek-editor\',{proyekId:\''+p.id+'\'})">Buka</button><button class="btn btn-sm btn-warning" onclick="openProyekForm(\''+p.id+'\')">Edit</button><button class="btn btn-sm btn-danger" onclick="hapusProyek(\''+p.id+'\')">Hapus</button></div></div>';
+    }
+    grid.innerHTML = html;
+  }
+  function hapusProyek(id) {
+    if (confirm('Hapus proyek ini?')) {
+      var projects = MS.getProjects(MS.getSession().username);
+      var newProjects = [];
+      for (var i=0;i<projects.length;i++) { if (projects[i].id!==id) newProjects.push(projects[i]); }
+      MS.saveProjects(MS.getSession().username, newProjects);
+      renderProyekList(); showToast('Proyek dihapus.','warning');
+    }
+  }
+
+  // ========== PROYEK EDITOR ==========
+  function renderTracks() {
+    var project = window._editorProject; if (!project) return;
+    var container = document.getElementById('trackListContainer');
+    var empty = document.getElementById('emptyTracks');
+    var tracks = project.tracks || [];
+    if (tracks.length===0) { container.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    var html = '';
+    for (var i=0;i<tracks.length;i++) {
+      var t = tracks[i];
+      html += '<div class="track-item"><div class="track-header"><span class="track-name">🎧 '+MS.escapeHTML(t.name)+'</span><span class="track-type">'+(t.type||'audio')+'</span><div class="track-controls"><button class="btn btn-sm" onclick="toggleMute('+i+')">'+(t.muted?'🔇':'🔊')+'</button><button class="btn btn-sm" onclick="toggleSolo('+i+')" style="background:'+(t.solo?'var(--color-warning)':'')+'">S</button><input type="range" min="0" max="1" step="0.05" value="'+(t.volume!==undefined?t.volume:0.8)+'" oninput="setTrackVolume('+i+',this.value)" class="track-slider"><input type="range" min="-1" max="1" step="0.1" value="'+(t.pan!==undefined?t.pan:0)+'" oninput="setTrackPan('+i+',this.value)" class="track-slider"><button class="btn btn-sm btn-danger" onclick="deleteTrack('+i+')">🗑</button></div></div><div class="track-waveform"><div class="waveform-placeholder">📈 Waveform</div></div></div>';
+    }
+    container.innerHTML = html;
+    document.getElementById('editorTrackCount').textContent = tracks.length + ' trek';
+  }
+  function saveCurrentProject() {
+    if (window._editorProject) {
+      var projects = MS.getProjects(window._editorUsername);
+      for (var i=0;i<projects.length;i++) {
+        if (projects[i].id===window._editorProject.id) { projects[i]=window._editorProject; break; }
+      }
+      MS.saveProjects(window._editorUsername, projects);
+      showToast('Proyek disimpan!','success');
+    }
+  }
+  function addNewTrack() {
+    var choice = confirm('Pilih sumber trek:\nOK = Upload file audio\nCancel = Rekam audio');
+    if (choice) MS.navigate('upload-media', {proyekId:window._editorProject.id});
+    else MS.navigate('rekam-audio', {proyekId:window._editorProject.id});
+  }
+  function toggleMute(i) { var t = window._editorProject.tracks[i]; if (t) { t.muted = !t.muted; renderTracks(); } }
+  function toggleSolo(i) { var t = window._editorProject.tracks[i]; if (t) { t.solo = !t.solo; renderTracks(); } }
+  function setTrackVolume(i,v) { var t = window._editorProject.tracks[i]; if (t) t.volume = parseFloat(v); }
+  function setTrackPan(i,v) { var t = window._editorProject.tracks[i]; if (t) t.pan = parseFloat(v); }
+  function deleteTrack(i) { if (confirm('Hapus trek ini?')) { window._editorProject.tracks.splice(i,1); renderTracks(); showToast('Trek dihapus.','warning'); } }
+  function togglePlay() { showToast('Play (simulasi)', 'info'); }
+  function stopAll() { showToast('Stop (simulasi)', 'info'); }
+  function setMasterVolume(v) {}
+
+  // ========== UPLOAD & REKAM ==========
+  function kembaliKeEditor() { MS.navigate('proyek-list'); }
+  function addToProject() { showToast('File ditambahkan (simulasi)', 'success'); }
+  function clearFiles() { document.getElementById('fileList').innerHTML=''; document.getElementById('btnAddToProject').disabled=true; }
+  function toggleRecording() { showToast('Rekaman dimulai (simulasi)', 'info'); }
+  function stopRecording() { showToast('Rekaman dihentikan', 'info'); }
+  function addRecordingToProject() { showToast('Rekaman disimpan ke proyek', 'success'); }
+  function resetRecording() { showToast('Perekam direset', 'info'); }
+
+  // ========== STEM SEPARATION ==========
+  function previewStemFile(input) { showToast('File dipilih', 'info'); }
+  function startSeparation() { showToast('Pemisahan dimulai (simulasi)', 'info'); }
+  function saveStemsToProject() { showToast('Stem disimpan ke proyek', 'success'); }
+  function renderStemResults(stems) {
+    var grid = document.getElementById('stemGrid');
+    if (!grid) return;
+    var html = '';
+    for (var i=0;i<stems.length;i++) {
+      var s = stems[i];
+      html += '<div class="stem-item '+(s.available?'':'locked')+'"><div class="stem-header"><span>'+(s.available?'🎵':'🔒')+' '+s.name.toUpperCase()+'</span>'+(s.available?'':'<span class="badge badge-warning">Premium</span>')+'</div><div class="stem-controls"><input type="range" min="0" max="1" step="0.05" value="'+s.volume+'" oninput="updateStemVolume('+i+',this.value)" '+(s.available?'':'disabled')+'><button class="btn btn-sm" onclick="toggleStemMute('+i+')" '+(s.available?'':'disabled')+'>'+(s.muted?'🔇':'🔊')+'</button><span>'+Math.round(s.volume*100)+'%</span></div><div class="stem-waveform">📈 Waveform '+s.name+'</div></div>';
+    }
+    grid.innerHTML = html;
+  }
+  function updateStemVolume(i,v) { if (window._separatedStems) window._separatedStems[i].volume = parseFloat(v); }
+  function toggleStemMute(i) { if (window._separatedStems) { window._separatedStems[i].muted = !window._separatedStems[i].muted; renderStemResults(window._separatedStems); } }
+
+  // ========== MIXER ==========
+  function loadCurrentProjectTracks() { showToast('Trek dimuat ke mixer', 'info'); }
+  function updateMaster() { document.getElementById('masterValue').textContent = Math.round(document.getElementById('masterMixerVolume').value*100)+'%'; }
+  function setMixerVolume(i,v) { showToast('Volume trek '+i+': '+Math.round(v*100)+'%', 'info'); }
+  function toggleMixerMute(i) { showToast('Mute trek '+i+' toggled', 'info'); }
+  function setMixerPan(i,v) { showToast('Pan trek '+i+': '+v, 'info'); }
+  function toggleReverb(i) { showToast('Reverb (simulasi Premium)', 'info'); }
+  function toggleDelay(i) { showToast('Delay (simulasi Premium)', 'info'); }
+
+  // ========== LIRIK ==========
+  function startSyncProcess() { showToast('Sinkronisasi lirik dimulai', 'info'); }
+  function saveLirikToProject() { showToast('Lirik disimpan ke proyek', 'success'); }
+  function copyLRC() { var el = document.getElementById('lrcOutput'); if (el) { navigator.clipboard.writeText(el.textContent); showToast('LRC disalin!', 'success'); } }
+  function loadProjectLyrics() { showToast('Lirik proyek dimuat', 'info'); }
+
+  // ========== TRANSPOSE ==========
+  function prosesTranspose() {
+    var input = document.getElementById('chordInput').value.trim();
+    if (!input) { showToast('Masukkan chord!', 'error'); return; }
+    document.getElementById('transposedChords').textContent = input + ' (transposed)';
+    document.getElementById('transposeResult').style.display = 'block';
+  }
+  function copyTransposeResult() { navigator.clipboard.writeText(document.getElementById('transposedChords').textContent); showToast('Hasil disalin!', 'success'); }
+
+  // ========== MODIFIKASI GENRE ==========
+  function previewModifFile(input) { showToast('File dipilih', 'info'); }
+  function prosesModifikasi() { showToast('Modifikasi genre (simulasi)', 'info'); document.getElementById('modifResult').style.display='block'; }
+  function simpanHasilModifikasi() { showToast('Hasil modifikasi disimpan ke proyek', 'success'); }
+</script>
+
 <!-- ============================================================
-     BLOK 22 – TEMPLATE ADMIN PANEL (modul-admin-panel)
-     ============================================================ -->
-<template id="modul-admin-panel">
-  <div class="admin-page">
-    <div class="section-header">
-      <h2>👑 Panel Super Admin</h2>
-      <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
-    </div>
-
-    <div class="admin-container">
-      <div class="admin-tabs">
-        <button class="admin-tab active" onclick="switchAdminTab('users')">👥 User</button>
-        <button class="admin-tab" onclick="switchAdminTab('codes')">🔑 Kode</button>
-        <button class="admin-tab" onclick="switchAdminTab('packages')">📦 Paket</button>
-        <button class="admin-tab" onclick="switchAdminTab('chat')">💬 Chat</button>
-        <button class="admin-tab" onclick="switchAdminTab('backup')">💾 Backup</button>
-      </div>
-
-      <div id="adminTabContent" class="admin-tab-content">
-        <!-- Diisi oleh switchAdminTab() -->
-      </div>
-    </div>
-
-    <div style="text-align:center;margin:30px 0;">
-      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_admin.html')">
-        ⬇️ Copy HTML (Download Halaman)
-      </button>
-      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-    </div>
-  </div>
-</template>
-
-<!-- ============================================================
-     BLOK 23 – TEMPLATE CHAT (modul-chat) - VERSI FINAL
+     BLOK 23 – TEMPLATE CHAT (modul-chat) - FINAL
      ============================================================ -->
 <template id="modul-chat">
   <div class="chat-page">
@@ -1230,30 +1327,21 @@
       <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
     </div>
 
-    <div class="chat-container" style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:16px;">
-      <!-- Area Pesan -->
-      <div id="chatMessages" style="height:350px;overflow-y:auto;background:var(--bg-tertiary);border-radius:8px;padding:10px;margin-bottom:12px;">
-        <p style="color:var(--text-secondary);text-align:center;padding:20px;">Memuat pesan...</p>
+    <div style="background:var(--bg-secondary);padding:16px;border-radius:12px;">
+      <div id="chatMessages" style="height:300px;overflow-y:auto;background:var(--bg-tertiary);padding:10px;border-radius:8px;margin-bottom:10px;">
+        <p style="text-align:center;color:gray;">Memuat...</p>
       </div>
-
-      <!-- Input Chat -->
       <div style="display:flex;gap:8px;">
-        <input type="text" id="chatInput" placeholder="Ketik pesan Anda..." style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border-color-strong);background:var(--bg-tertiary);color:var(--text-primary);">
-        <button class="btn btn-primary" onclick="sendChatMessage()" style="padding:10px 20px;white-space:nowrap;">Kirim</button>
+        <input type="text" id="chatInput" placeholder="Ketik pesan..." style="flex:1;padding:10px;border-radius:8px;border:1px solid gray;">
+        <button class="btn btn-primary" onclick="chatSend()">Kirim</button>
       </div>
-
-      <!-- Tombol Admin -->
-      <div id="adminChatActions" style="display:none;margin-top:12px;text-align:right;">
-        <button class="btn btn-sm btn-danger" onclick="clearAllChat()">🗑 Hapus Semua Chat</button>
+      <div id="adminChatActions" style="display:none;margin-top:8px;text-align:right;">
+        <button class="btn btn-sm btn-danger" onclick="chatClear()">🗑 Hapus Semua Chat</button>
       </div>
     </div>
 
-    <!-- Tombol Copy HTML -->
     <div style="text-align:center;margin:30px 0;">
-      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_chat.html')">
-        ⬇️ Copy HTML (Download Halaman)
-      </button>
-      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_chat.html')">⬇️ Copy HTML</button>
     </div>
   </div>
 </template>
@@ -1837,82 +1925,77 @@
     function saveProfile() { var s = MS.getSession(); if (!s) return; var n = document.getElementById('editProfileNama').value.trim(), e = document.getElementById('editProfileEmail').value.trim(), hp = document.getElementById('editProfileHp').value.trim(); var err = document.getElementById('profileError'), suc = document.getElementById('profileSuccess'); err.textContent=''; suc.textContent=''; if (!n||!e||!hp) { err.textContent='Semua field wajib!'; err.classList.add('show'); return; } s.nama=n; s.email=e; s.hp=hp; MS.saveSession(s); var users = MS.getAllUsers(); for (var i=0;i<users.length;i++) { if (users[i].id===s.id) { users[i].nama=n; users[i].email=e; users[i].hp=hp; break; } } MS.saveAllUsers(users); updateHeader(); suc.textContent='Profil tersimpan!'; suc.classList.add('show'); setTimeout(function() { MS.navigate('dashboard'); }, 1500); }
     function deleteAccount() { var s = MS.getSession(); if (!s||s.role==='superadmin') { showToast('Super Admin tidak bisa dihapus.','error'); return; } if (confirm('Hapus akun permanen?')) { var users = MS.getAllUsers(); var newUsers = []; for (var i=0;i<users.length;i++) { if (users[i].id!==s.id) newUsers.push(users[i]); } MS.saveAllUsers(newUsers); MS.clearSession(); updateHeader(); MS.navigate('landing'); showToast('Akun dihapus.','warning'); } }
 
-    // ========== CHAT ==========
-    function loadChatMessages() {
-      var allMessages = MS.getChatMessages();
+    // ========== CHAT (FINAL) ==========
+    function chatLoad() {
+      var all = MS.getChatMessages();
       var session = MS.getSession();
-      var currentUser = session ? session.username : 'guest';
+      var user = session ? session.username : 'guest';
       var isAdmin = session && session.role === 'superadmin';
 
       var filtered = [];
       if (isAdmin) {
-        filtered = allMessages;
+        filtered = all;
       } else {
-        for (var i=0;i<allMessages.length;i++) {
-          var m = allMessages[i];
-          if ((m.from === currentUser && m.to === 'admin') ||
-              (m.from === 'admin' && m.to === currentUser) ||
-              (m.from === 'admin' && m.to === 'all')) {
+        for (var i=0;i<all.length;i++) {
+          var m = all[i];
+          if ((m.from === user && m.to === 'admin') || (m.from === 'admin' && m.to === user) || (m.from === 'admin' && m.to === 'all')) {
             filtered.push(m);
           }
         }
       }
 
-      var container = document.getElementById('chatMessages');
-      if (!container) return;
+      var box = document.getElementById('chatMessages');
+      if (!box) return;
 
       if (filtered.length === 0) {
-        container.innerHTML = '<p style="color:gray;text-align:center;padding:20px;">Belum ada pesan. Kirim pesan pertama!</p>';
+        box.innerHTML = '<p style="text-align:center;color:gray;padding:20px;">Belum ada pesan.</p>';
         return;
       }
 
-      filtered.sort(function(a, b) { return new Date(a.time) - new Date(b.time); });
+      filtered.sort(function(a,b) { return new Date(a.time) - new Date(b.time); });
 
-      var html = '';
+      var h = '';
       for (var i=0;i<filtered.length;i++) {
         var m = filtered[i];
-        var isMe = (m.from === currentUser) || (isAdmin && m.from === 'admin');
-        var bg = isMe ? 'var(--accent-primary)' : 'var(--bg-hover)';
-        var color = isMe ? '#fff' : 'var(--text-primary)';
-        var align = isMe ? 'right' : 'left';
-        html += '<div style="margin-bottom:8px;text-align:'+align+';">';
-        html += '<div style="font-size:0.7rem;color:gray;margin-bottom:2px;"><strong>'+MS.escapeHTML(m.from)+'</strong> &middot; '+new Date(m.time).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'})+'</div>';
-        html += '<div style="display:inline-block;max-width:80%;padding:8px 14px;border-radius:16px;background:'+bg+';color:'+color+';">'+MS.escapeHTML(m.text)+'</div>';
-        html += '</div>';
+        var me = (m.from === user) || (isAdmin && m.from === 'admin');
+        h += '<div style="margin:4px 0;text-align:'+(me?'right':'left')+';">';
+        h += '<small style="color:gray;">'+m.from+'</small><br>';
+        h += '<span style="display:inline-block;padding:6px 12px;border-radius:12px;'+(me?'background:#e94560;color:#fff;':'background:#222240;color:#ddd;')+'">'+m.text+'</span>';
+        h += '</div>';
       }
-      container.innerHTML = html;
-      container.scrollTop = container.scrollHeight;
+      box.innerHTML = h;
+      box.scrollTop = box.scrollHeight;
     }
 
-    function sendChatMessage() {
+    function chatSend() {
       var input = document.getElementById('chatInput');
       if (!input) return;
       var text = input.value.trim();
       if (!text) return;
 
       var session = MS.getSession();
-      var currentUser = session ? session.username : 'guest';
+      var user = session ? session.username : 'guest';
       var isAdmin = session && session.role === 'superadmin';
 
-      var newMsg = {
-        from: isAdmin ? 'admin' : currentUser,
+      var msg = {
+        from: isAdmin ? 'admin' : user,
         to: isAdmin ? 'all' : 'admin',
         text: text,
         time: new Date().toISOString()
       };
 
       var msgs = MS.getChatMessages();
-      msgs.push(newMsg);
+      msgs.push(msg);
       MS.saveChatMessages(msgs);
       input.value = '';
-      loadChatMessages();
+      chatLoad();
       showToast('Pesan terkirim!', 'success');
     }
 
-    function clearAllChat() {
+    function chatClear() {
       if (confirm('Hapus semua chat?')) {
         MS.saveChatMessages([]);
-        loadChatMessages();
+        chatLoad();
         showToast('Chat dihapus.', 'warning');
       }
     }
@@ -1931,30 +2014,11 @@
       if (page === 'auth') { var mode=params&&params.mode?params.mode:'login'; switchAuthTab(mode); }
       if (page === 'admin-panel') { var s=MS.getSession(); if (!s||s.role!=='superadmin') { MS.navigate('dashboard'); showToast('Akses ditolak.','error'); return; } switchAdminTab('users'); }
       if (page === 'profile') loadProfile();
-      if (page === 'premium') {
-        renderPremiumPackages();
-        var s = MS.getSession();
-        if (s) {
-          var prem = MS.isPremium();
-          var statusEl = document.getElementById('premiumStatusText');
-          var expEl = document.getElementById('premiumExpiryText');
-          if (prem) {
-            if (statusEl) { statusEl.textContent = '⭐ Premium Aktif'; statusEl.style.color = 'var(--color-success)'; }
-            if (expEl) { expEl.textContent = s.premiumExpiry ? 'Berlaku hingga ' + MS.formatDate(s.premiumExpiry) : 'Akses Penuh (Super Admin)'; }
-          } else {
-            if (statusEl) { statusEl.textContent = 'Free (Terbatas)'; statusEl.style.color = 'var(--color-warning)'; }
-            if (expEl) expEl.textContent = 'Anda belum mengaktifkan Premium.';
-          }
-        }
-      }
+      if (page === 'premium') { renderPremiumPackages(); var s=MS.getSession(); if (s) { var prem=MS.isPremium(); var statusEl=document.getElementById('premiumStatusText'); var expEl=document.getElementById('premiumExpiryText'); if (prem) { if (statusEl) { statusEl.textContent='⭐ Premium Aktif'; statusEl.style.color='var(--color-success)'; } if (expEl) { expEl.textContent=s.premiumExpiry?'Berlaku hingga '+MS.formatDate(s.premiumExpiry):'Akses Penuh (Super Admin)'; } } else { if (statusEl) { statusEl.textContent='Free (Terbatas)'; statusEl.style.color='var(--color-warning)'; } if (expEl) expEl.textContent='Anda belum mengaktifkan Premium.'; } } }
       if (page === 'ai-voice-select') renderVoiceGrid();
       if (page === 'hasil-generate') { var stored=localStorage.getItem('ms_last_generated'); if (stored) { try { renderHasil(JSON.parse(stored)); } catch(e) { document.getElementById('hasilContainer').innerHTML='<p class="text-warning">Data tidak valid.</p>'; } } else { document.getElementById('hasilContainer').innerHTML='<p class="text-secondary">Belum ada hasil.</p>'; } }
       if (page === 'download-manager') { var session=MS.getSession(); var downloads=JSON.parse(localStorage.getItem('ms_download_log_'+(session?session.username:'guest'))||'[]'); renderDownloadList(downloads); window._downloads=downloads; }
-      if (page === 'chat') {
-        setTimeout(function() {
-          loadChatMessages();
-        }, 200);
-      }
+      if (page === 'chat') { setTimeout(function() { chatLoad(); }, 200); }
     };
   </script>
 </body>
