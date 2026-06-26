@@ -1204,7 +1204,7 @@
 </template>
 
 <!-- ============================================================
-     BLOK 23 – TEMPLATE CHAT (modul-chat) - REVISI TOTAL
+     BLOK 23 – TEMPLATE CHAT (modul-chat) - REVISI FINAL
      ============================================================ -->
 <template id="modul-chat">
   <div class="chat-page">
@@ -1214,18 +1214,22 @@
     </div>
 
     <div class="chat-container">
-      <!-- Tab hanya untuk admin -->
-      <div class="chat-tabs" id="chatTabsContainer">
-        <button class="chat-tab active" id="chatTabAll" onclick="switchChatTab('all')">📢 Semua</button>
-        <button class="chat-tab" id="chatTabAdmin" onclick="switchChatTab('admin')">👑 Admin</button>
-        <button class="chat-tab" id="chatTabUsers" onclick="switchChatTab('users')">👥 User</button>
+      <!-- Tab untuk admin -->
+      <div class="chat-tabs" id="chatTabsContainer" style="display:flex;gap:4px;margin-bottom:12px;">
+        <button class="chat-tab active" id="chatTabAdmin" onclick="switchChatTab('admin')">👑 Chat Admin</button>
+        <button class="chat-tab" id="chatTabUsers" onclick="switchChatTab('users')">👥 Chat User</button>
+        <button class="chat-tab" id="chatTabMass" onclick="switchChatTab('mass')">📢 Chat Massal</button>
       </div>
 
-      <!-- Select user untuk admin -->
-      <div id="chatUserSelect" style="display:none;margin-bottom:12px;">
-        <select id="adminChatTarget" onchange="loadChatMessages()" style="width:100%;padding:8px;border-radius:var(--radius-sm);background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color-strong);">
-          <option value="all">-- Semua User --</option>
+      <!-- Dropdown pilih user (untuk admin) -->
+      <div id="chatTargetContainer" style="display:none;margin-bottom:12px;">
+        <label style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:4px;display:block;">Pilih Tujuan:</label>
+        <select id="chatTargetSelect" onchange="loadChatMessages()" style="width:100%;padding:10px;border-radius:var(--radius-sm);background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color-strong);">
+          <option value="">-- Pilih User --</option>
         </select>
+        <div id="massChatInfo" style="display:none;margin-top:8px;padding:8px;background:var(--color-warning);color:#000;border-radius:var(--radius-sm);font-size:0.85rem;">
+          📢 Pesan akan dikirim ke <strong>semua user</strong>.
+        </div>
       </div>
 
       <!-- Area pesan -->
@@ -1428,718 +1432,391 @@
   </div>
 </template>
 
-<!-- ============================================================
-     BLOK 2 – PENUTUP + SEMUA JAVASCRIPT (REVISI TOTAL)
-     Letakkan paling akhir setelah semua template modul
-     ============================================================ -->
-  <!-- ========== AKHIR TEMPLATE MODUL ========== -->
+<!-- ========== AKHIR TEMPLATE MODUL ========== -->
+
+<script>
+  // ========== FUNGSI GLOBAL ==========
+  function toggleTheme() {
+    document.body.classList.toggle('light-theme');
+    localStorage.setItem('ms_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+  }
+  (function() { if (localStorage.getItem('ms_theme') === 'light') document.body.classList.add('light-theme'); })();
+
+  function showToast(msg, type) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const t = document.createElement('div'); t.className = 'toast toast-' + (type||'info'); t.textContent = msg;
+    container.appendChild(t); requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+  }
+
+  // ========== CORE ENGINE ==========
+  (function() {
+    const MS = window.MS || {};
+    const PREFIX = 'ms_';
+    const DEFAULT_ADMIN = { id:'sa', username:'superadmin', password:btoa('admin123'), nama:'Super Admin', email:'admin@musikplus.com', hp:'081220285226', role:'superadmin', premium:true, premiumExpiry:null, locked:false };
+    const DEFAULT_PACKAGES = [
+      { id:'1bulan', name:'Basic', price:25000, days:30, label:'1 Bulan' },
+      { id:'3bulan', name:'Premium', price:50000, days:90, label:'3 Bulan' },
+      { id:'6bulan', name:'Enterprise', price:75000, days:180, label:'6 Bulan' }
+    ];
+
+    function storageGet(key, def) { try { const v = localStorage.getItem(PREFIX + key); return v ? JSON.parse(v) : def; } catch(e) { return def; } }
+    function storageSet(key, val) { localStorage.setItem(PREFIX + key, JSON.stringify(val)); }
+    function getAllUsers() { return storageGet('users', []); }
+    function saveAllUsers(u) { storageSet('users', u); }
+    function getSession() { return storageGet('session', null); }
+    function saveSession(s) { storageSet('session', s); }
+    function clearSession() { localStorage.removeItem(PREFIX + 'session'); }
+    function getValidCodes() { return storageGet('validCodes', {}); }
+    function saveValidCodes(c) { storageSet('validCodes', c); }
+    function getPackages() { return storageGet('packages', DEFAULT_PACKAGES); }
+    function savePackages(p) { storageSet('packages', p); }
+    function getChatMessages() { return storageGet('chatMessages', []); }
+    function saveChatMessages(m) { storageSet('chatMessages', m); }
+    function getProjects(username) { const all = storageGet('projects', {}); return all[username] || []; }
+    function saveProjects(username, proj) { const all = storageGet('projects', {}); all[username] = proj; storageSet('projects', all); }
+
+    function escapeHTML(s) { return s ? s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]) : ''; }
+    function formatDate(iso) { return iso ? new Date(iso).toLocaleDateString('id-ID', { year:'numeric', month:'short', day:'numeric' }) : '-'; }
+    function formatPrice(p) { return 'Rp ' + p.toLocaleString('id-ID'); }
+
+    function navigate(page, params) {
+      const container = document.getElementById('appContainer');
+      if (!container) return;
+      const template = document.getElementById('modul-' + page);
+      if (template) {
+        container.innerHTML = template.innerHTML;
+        if (typeof MS.pageInit === 'function') setTimeout(() => MS.pageInit(page, params), 10);
+      } else {
+        container.innerHTML = '<div class="text-center" style="padding:40px;"><h2>⚠️ Halaman tidak ditemukan</h2><button class="btn btn-primary" onclick="MS.navigate(\'dashboard\')">Kembali</button></div>';
+      }
+    }
+
+    function isPremium() {
+      const s = getSession(); if (!s) return false;
+      if (s.role === 'superadmin') return true;
+      if (!s.premium) return false;
+      if (s.premiumExpiry && new Date(s.premiumExpiry) < new Date()) {
+        s.premium = false; s.premiumExpiry = null; saveSession(s);
+        const users = getAllUsers(); const idx = users.findIndex(u => u.id === s.id);
+        if (idx !== -1) { users[idx].premium = false; users[idx].premiumExpiry = null; saveAllUsers(users); }
+        return false;
+      }
+      return true;
+    }
+
+    function activatePremium(code) {
+      const s = getSession(); if (!s) return { success: false, message: 'Login dulu!' };
+      const codes = getValidCodes(); const cd = codes[code];
+      if (!cd) return { success: false, message: 'Kode tidak valid.' };
+      if (cd.used) return { success: false, message: 'Kode sudah digunakan.' };
+      const pkg = getPackages().find(p => p.id === cd.packageId) || getPackages()[0];
+      const exp = new Date(Date.now() + pkg.days * 86400000);
+      const users = getAllUsers(); const idx = users.findIndex(u => u.id === s.id);
+      if (idx === -1) return { success: false, message: 'User tidak valid.' };
+      users[idx].premium = true; users[idx].premiumExpiry = exp.toISOString(); saveAllUsers(users);
+      cd.used = true; cd.usedBy = s.username; cd.usedAt = new Date().toISOString(); codes[code] = cd; saveValidCodes(codes);
+      s.premium = true; s.premiumExpiry = exp.toISOString(); saveSession(s);
+      return { success: true, message: `Premium aktif hingga ${formatDate(exp.toISOString())}.` };
+    }
+
+    function logout() { clearSession(); updateHeader(); navigate('landing'); showToast('Logout berhasil.', 'info'); }
+
+    Object.assign(MS, { navigate, escapeHTML, formatDate, formatPrice, storageGet, storageSet, getAllUsers, saveAllUsers, getSession, saveSession, clearSession, getValidCodes, saveValidCodes, getPackages, savePackages, getChatMessages, saveChatMessages, getProjects, saveProjects, isPremium, activatePremium, logout });
+    window.MS = MS;
+
+    function init() {
+      const users = getAllUsers();
+      if (!users.find(u => u.role === 'superadmin')) { users.push(DEFAULT_ADMIN); saveAllUsers(users); }
+      document.getElementById('initialLoader').remove();
+      const session = getSession();
+      updateHeader();
+      if (session) navigate('dashboard'); else navigate('landing');
+    }
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+
+  // ========== UPDATE HEADER ==========
+  function updateHeader() {
+    const session = MS.getSession();
+    const guestEl = document.getElementById('headerGuest');
+    const userEl = document.getElementById('headerUser');
+    const adminBtn = document.getElementById('headerAdminBtn');
+    if (session) {
+      if (guestEl) guestEl.classList.add('hidden');
+      if (userEl) userEl.classList.remove('hidden');
+      document.getElementById('headerAvatar').textContent = session.nama.charAt(0).toUpperCase();
+      document.getElementById('headerUserName').textContent = session.nama;
+      if (adminBtn) adminBtn.classList.toggle('hidden', session.role !== 'superadmin');
+    } else {
+      if (guestEl) guestEl.classList.remove('hidden');
+      if (userEl) userEl.classList.add('hidden');
+    }
+  }
+
+  // ========== DOWNLOAD ==========
+  function downloadCurrentPage(filename) {
+    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+    showToast('✅ Halaman di-download!', 'success');
+  }
+
+  // ========== AUTH ==========
+  function switchAuthTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.add('hidden'));
+    const tabEl = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    const formEl = document.getElementById('form' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    if (tabEl) tabEl.classList.add('active'); if (formEl) formEl.classList.remove('hidden');
+    document.querySelectorAll('.form-error,.form-success').forEach(e => { e.textContent = ''; e.classList.remove('show'); });
+  }
+  function handleLogin() {
+    const u = document.getElementById('loginUsername').value.trim(), p = document.getElementById('loginPassword').value;
+    const err = document.getElementById('loginError'); err.textContent = ''; err.classList.remove('show');
+    if (!u || !p) { err.textContent = 'Isi semua field!'; err.classList.add('show'); return; }
+    if (u === 'superadmin' && p === 'admin123') {
+      MS.saveSession({ id:'sa', username:'superadmin', nama:'Super Admin', role:'superadmin', premium:true });
+      updateHeader(); MS.navigate('dashboard'); showToast('Login Super Admin!', 'success'); return;
+    }
+    const user = MS.getAllUsers().find(x => (x.username===u||x.email===u) && p===atob(x.password));
+    if (!user) { err.textContent = 'Username/password salah!'; err.classList.add('show'); return; }
+    if (user.locked) { err.textContent = 'Akun terkunci!'; err.classList.add('show'); return; }
+    MS.saveSession(user); updateHeader(); MS.navigate('dashboard'); showToast('Selamat datang!', 'success');
+  }
+  function handleRegister() {
+    const n = document.getElementById('regNama').value.trim(), e = document.getElementById('regEmail').value.trim();
+    const hp = document.getElementById('regHp').value.trim(), un = document.getElementById('regUsername').value.trim();
+    const pw = document.getElementById('regPassword').value, cp = document.getElementById('regPasswordConfirm').value;
+    const err = document.getElementById('regError'), suc = document.getElementById('regSuccess');
+    err.textContent = ''; err.classList.remove('show'); suc.textContent = ''; suc.classList.remove('show');
+    if (!n||!e||!hp||!un||!pw||!cp) { err.textContent = 'Semua field wajib!'; err.classList.add('show'); return; }
+    if (pw !== cp) { err.textContent = 'Password tidak cocok!'; err.classList.add('show'); return; }
+    const users = MS.getAllUsers();
+    if (users.find(x => x.username===un)) { err.textContent = 'Username sudah dipakai!'; err.classList.add('show'); return; }
+    users.push({ id:Date.now().toString(), nama:n, email:e, hp, username:un, password:btoa(pw), role:'user', premium:false, premiumExpiry:null, locked:false });
+    MS.saveAllUsers(users); suc.textContent = 'Pendaftaran berhasil!'; suc.classList.add('show');
+    setTimeout(() => switchAuthTab('login'), 2000);
+  }
+  function handleForgotPassword() {
+    const n = document.getElementById('forgotNama').value.trim();
+    if (!n) { showToast('Isi nama!', 'error'); return; }
+    const msgs = MS.getChatMessages();
+    msgs.push({ from:'guest', to:'admin', text:'[RESET PASSWORD] ' + n, time:new Date().toISOString() });
+    MS.saveChatMessages(msgs); showToast('Permintaan dikirim.', 'success'); switchAuthTab('login');
+  }
+</script>
+
+<script>
+  // ========== PROYEK ==========
+  function openProyekForm(editId) { document.getElementById('proyekFormModal').style.display='flex'; setTimeout(()=>document.getElementById('proyekFormModal').classList.add('show'),10); }
+  function closeProyekForm() { document.getElementById('proyekFormModal').classList.remove('show'); setTimeout(()=>document.getElementById('proyekFormModal').style.display='none',300); }
+  function saveProyek() {
+    const nama = document.getElementById('proyekNama').value.trim();
+    if (!nama) { document.getElementById('proyekError').textContent='Nama wajib!'; document.getElementById('proyekError').classList.add('show'); return; }
+    const projects = MS.getProjects(MS.getSession().username);
+    projects.push({ id:Date.now().toString(), nama, desc:document.getElementById('proyekDesc').value, tracks:[], createdAt:new Date().toISOString() });
+    MS.saveProjects(MS.getSession().username, projects); closeProyekForm(); renderProyekList(); showToast('Proyek disimpan!', 'success');
+  }
+  function renderProyekList() {
+    const projects = MS.getProjects(MS.getSession().username);
+    const grid = document.getElementById('proyekGrid');
+    if (projects.length===0) { grid.innerHTML=''; document.getElementById('emptyProyek').classList.remove('hidden'); return; }
+    document.getElementById('emptyProyek').classList.add('hidden');
+    grid.innerHTML = projects.map(p => `<div class="proyek-card"><h4>${p.nama}</h4><small>${(p.tracks||[]).length} trek</small><div class="proyek-actions"><button class="btn btn-sm btn-primary" onclick="MS.navigate('proyek-editor',{proyekId:'${p.id}'})">Buka</button><button class="btn btn-sm btn-warning" onclick="openProyekForm('${p.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="hapusProyek('${p.id}')">Hapus</button></div></div>`).join('');
+  }
+  function hapusProyek(id) { if (confirm('Hapus proyek ini?')) { MS.saveProjects(MS.getSession().username, MS.getProjects(MS.getSession().username).filter(p=>p.id!==id)); renderProyekList(); showToast('Proyek dihapus.','warning'); } }
+
+  // ========== PROYEK EDITOR ==========
+  function renderTracks() {
+    const project = window._editorProject; if (!project) return;
+    const container = document.getElementById('trackListContainer'), empty = document.getElementById('emptyTracks');
+    const tracks = project.tracks || [];
+    if (tracks.length===0) { container.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    container.innerHTML = tracks.map((t,i) => `
+      <div class="track-item"><div class="track-header"><span class="track-name">🎧 ${MS.escapeHTML(t.name)}</span><span class="track-type">${t.type||'audio'}</span><div class="track-controls"><button class="btn btn-sm" onclick="toggleMute(${i})">${t.muted?'🔇':'🔊'}</button><button class="btn btn-sm" onclick="toggleSolo(${i})" style="background:${t.solo?'var(--color-warning)':''}">S</button><input type="range" min="0" max="1" step="0.05" value="${t.volume!==undefined?t.volume:0.8}" oninput="setTrackVolume(${i},this.value)" class="track-slider"><input type="range" min="-1" max="1" step="0.1" value="${t.pan!==undefined?t.pan:0}" oninput="setTrackPan(${i},this.value)" class="track-slider"><button class="btn btn-sm btn-danger" onclick="deleteTrack(${i})">🗑</button></div></div><div class="track-waveform"><div class="waveform-placeholder">📈 Waveform</div></div></div>
+    `).join('');
+    document.getElementById('editorTrackCount').textContent = tracks.length + ' trek';
+  }
+  function saveCurrentProject() { if (window._editorProject) { const projects = MS.getProjects(window._editorUsername); const idx = projects.findIndex(p=>p.id===window._editorProject.id); if (idx!==-1) { projects[idx]=window._editorProject; MS.saveProjects(window._editorUsername, projects); showToast('Proyek disimpan!','success'); } } }
+  function addNewTrack() { const choice = confirm('Pilih sumber trek:\nOK = Upload file audio\nCancel = Rekam audio'); if (choice) MS.navigate('upload-media', {proyekId:window._editorProject.id}); else MS.navigate('rekam-audio', {proyekId:window._editorProject.id}); }
+  function toggleMute(i) { const t = window._editorProject.tracks[i]; if (t) { t.muted = !t.muted; renderTracks(); } }
+  function toggleSolo(i) { const t = window._editorProject.tracks[i]; if (t) { t.solo = !t.solo; renderTracks(); } }
+  function setTrackVolume(i,v) { const t = window._editorProject.tracks[i]; if (t) t.volume = parseFloat(v); }
+  function setTrackPan(i,v) { const t = window._editorProject.tracks[i]; if (t) t.pan = parseFloat(v); }
+  function deleteTrack(i) { if (confirm('Hapus trek ini?')) { window._editorProject.tracks.splice(i,1); renderTracks(); showToast('Trek dihapus.','warning'); } }
+  function togglePlay() { showToast('Play (simulasi)', 'info'); }
+  function stopAll() { showToast('Stop (simulasi)', 'info'); }
+  function setMasterVolume(v) {}
+
+  // ========== UPLOAD & REKAM ==========
+  function kembaliKeEditor() { MS.navigate('proyek-list'); }
+  function addToProject() { showToast('File ditambahkan (simulasi)', 'success'); }
+  function clearFiles() { document.getElementById('fileList').innerHTML=''; document.getElementById('btnAddToProject').disabled=true; }
+  function toggleRecording() { showToast('Rekaman dimulai (simulasi)', 'info'); }
+  function stopRecording() { showToast('Rekaman dihentikan', 'info'); }
+  function addRecordingToProject() { showToast('Rekaman disimpan ke proyek', 'success'); }
+  function resetRecording() { showToast('Perekam direset', 'info'); }
+
+  // ========== STEM SEPARATION ==========
+  function previewStemFile(input) { showToast('File dipilih', 'info'); }
+  function startSeparation() { showToast('Pemisahan dimulai (simulasi)', 'info'); }
+  function saveStemsToProject() { showToast('Stem disimpan ke proyek', 'success'); }
+  function renderStemResults(stems) {
+    const grid = document.getElementById('stemGrid');
+    if (grid) grid.innerHTML = stems.map((s,i) => `<div class="stem-item ${s.available?'':'locked'}"><div class="stem-header"><span>${s.available?'🎵':'🔒'} ${s.name.toUpperCase()}</span>${!s.available?'<span class="badge badge-warning">Premium</span>':''}</div><div class="stem-controls"><input type="range" min="0" max="1" step="0.05" value="${s.volume}" oninput="updateStemVolume(${i},this.value)" ${s.available?'':'disabled'}><button class="btn btn-sm" onclick="toggleStemMute(${i})" ${s.available?'':'disabled'}>${s.muted?'🔇':'🔊'}</button><span>${Math.round(s.volume*100)}%</span></div><div class="stem-waveform">📈 Waveform ${s.name}</div></div>`).join('');
+  }
+  function updateStemVolume(i,v) { if (window._separatedStems) window._separatedStems[i].volume = parseFloat(v); }
+  function toggleStemMute(i) { if (window._separatedStems) { window._separatedStems[i].muted = !window._separatedStems[i].muted; renderStemResults(window._separatedStems); } }
+
+  // ========== MIXER ==========
+  function loadCurrentProjectTracks() { showToast('Trek dimuat ke mixer', 'info'); }
+  function updateMaster() { document.getElementById('masterValue').textContent = Math.round(document.getElementById('masterMixerVolume').value*100)+'%'; }
+  function setMixerVolume(i,v) { showToast('Volume trek '+i+': '+Math.round(v*100)+'%', 'info'); }
+  function toggleMixerMute(i) { showToast('Mute trek '+i+' toggled', 'info'); }
+  function setMixerPan(i,v) { showToast('Pan trek '+i+': '+v, 'info'); }
+  function toggleReverb(i) { showToast('Reverb (simulasi Premium)', 'info'); }
+  function toggleDelay(i) { showToast('Delay (simulasi Premium)', 'info'); }
+
+  // ========== LIRIK ==========
+  function startSyncProcess() { showToast('Sinkronisasi lirik dimulai', 'info'); }
+  function saveLirikToProject() { showToast('Lirik disimpan ke proyek', 'success'); }
+  function copyLRC() { const el = document.getElementById('lrcOutput'); if (el) { navigator.clipboard.writeText(el.textContent); showToast('LRC disalin!', 'success'); } }
+  function loadProjectLyrics() { showToast('Lirik proyek dimuat', 'info'); }
+
+  // ========== TRANSPOSE ==========
+  function prosesTranspose() {
+    const input = document.getElementById('chordInput').value.trim();
+    if (!input) { showToast('Masukkan chord!', 'error'); return; }
+    document.getElementById('transposedChords').textContent = input + ' (transposed)';
+    document.getElementById('transposeResult').style.display = 'block';
+  }
+  function copyTransposeResult() { navigator.clipboard.writeText(document.getElementById('transposedChords').textContent); showToast('Hasil disalin!', 'success'); }
+
+  // ========== MODIFIKASI GENRE ==========
+  function previewModifFile(input) { showToast('File dipilih', 'info'); }
+  function prosesModifikasi() { showToast('Modifikasi genre (simulasi)', 'info'); document.getElementById('modifResult').style.display='block'; }
+  function simpanHasilModifikasi() { showToast('Hasil modifikasi disimpan ke proyek', 'success'); }
+</script>
 
   <script>
-    // ========== FUNGSI GLOBAL ==========
-    function toggleTheme() {
-      document.body.classList.toggle('light-theme');
-      localStorage.setItem('ms_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-    }
-    (function() { if (localStorage.getItem('ms_theme') === 'light') document.body.classList.add('light-theme'); })();
-
-    function showToast(msg, type) {
-      const container = document.getElementById('toastContainer');
-      if (!container) return;
-      const t = document.createElement('div'); t.className = 'toast toast-' + (type||'info'); t.textContent = msg;
-      container.appendChild(t); requestAnimationFrame(() => t.classList.add('show'));
-      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
-    }
-
-    // ========== CORE ENGINE ==========
-    (function() {
-      const MS = window.MS || {};
-      const PREFIX = 'ms_';
-      const DEFAULT_ADMIN = { id:'sa', username:'superadmin', password:btoa('admin123'), nama:'Super Admin', email:'admin@musikplus.com', hp:'081220285226', role:'superadmin', premium:true, premiumExpiry:null, locked:false };
-      const DEFAULT_PACKAGES = [
-        { id:'1bulan', name:'Basic', price:25000, days:30, label:'1 Bulan' },
-        { id:'3bulan', name:'Premium', price:50000, days:90, label:'3 Bulan' },
-        { id:'6bulan', name:'Enterprise', price:75000, days:180, label:'6 Bulan' }
-      ];
-
-      function storageGet(key, def) { try { const v = localStorage.getItem(PREFIX + key); return v ? JSON.parse(v) : def; } catch(e) { return def; } }
-      function storageSet(key, val) { localStorage.setItem(PREFIX + key, JSON.stringify(val)); }
-      function getAllUsers() { return storageGet('users', []); }
-      function saveAllUsers(u) { storageSet('users', u); }
-      function getSession() { return storageGet('session', null); }
-      function saveSession(s) { storageSet('session', s); }
-      function clearSession() { localStorage.removeItem(PREFIX + 'session'); }
-      function getValidCodes() { return storageGet('validCodes', {}); }
-      function saveValidCodes(c) { storageSet('validCodes', c); }
-      function getPackages() { return storageGet('packages', DEFAULT_PACKAGES); }
-      function savePackages(p) { storageSet('packages', p); }
-      function getChatMessages() { return storageGet('chatMessages', []); }
-      function saveChatMessages(m) { storageSet('chatMessages', m); }
-      function getProjects(username) { const all = storageGet('projects', {}); return all[username] || []; }
-      function saveProjects(username, proj) { const all = storageGet('projects', {}); all[username] = proj; storageSet('projects', all); }
-
-      function escapeHTML(s) { return s ? s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]) : ''; }
-      function formatDate(iso) { return iso ? new Date(iso).toLocaleDateString('id-ID', { year:'numeric', month:'short', day:'numeric' }) : '-'; }
-      function formatPrice(p) { return 'Rp ' + p.toLocaleString('id-ID'); }
-
-      function navigate(page, params) {
-        const container = document.getElementById('appContainer');
-        if (!container) return;
-        const template = document.getElementById('modul-' + page);
-        if (template) {
-          container.innerHTML = template.innerHTML;
-          if (typeof MS.pageInit === 'function') setTimeout(() => MS.pageInit(page, params), 10);
-        } else {
-          container.innerHTML = '<div class="text-center" style="padding:40px;"><h2>⚠️ Halaman tidak ditemukan</h2><button class="btn btn-primary" onclick="MS.navigate(\'dashboard\')">Kembali</button></div>';
-        }
-      }
-
-      function isPremium() {
-        const s = getSession(); if (!s) return false;
-        if (s.role === 'superadmin') return true;
-        if (!s.premium) return false;
-        if (s.premiumExpiry && new Date(s.premiumExpiry) < new Date()) {
-          s.premium = false; s.premiumExpiry = null; saveSession(s);
-          const users = getAllUsers(); const idx = users.findIndex(u => u.id === s.id);
-          if (idx !== -1) { users[idx].premium = false; users[idx].premiumExpiry = null; saveAllUsers(users); }
-          return false;
-        }
-        return true;
-      }
-
-      function activatePremium(code) {
-        const s = getSession(); if (!s) return { success: false, message: 'Login dulu!' };
-        const codes = getValidCodes(); const cd = codes[code];
-        if (!cd) return { success: false, message: 'Kode tidak valid.' };
-        if (cd.used) return { success: false, message: 'Kode sudah digunakan.' };
-        const pkg = getPackages().find(p => p.id === cd.packageId) || getPackages()[0];
-        const exp = new Date(Date.now() + pkg.days * 86400000);
-        const users = getAllUsers(); const idx = users.findIndex(u => u.id === s.id);
-        if (idx === -1) return { success: false, message: 'User tidak valid.' };
-        users[idx].premium = true; users[idx].premiumExpiry = exp.toISOString(); saveAllUsers(users);
-        cd.used = true; cd.usedBy = s.username; cd.usedAt = new Date().toISOString(); codes[code] = cd; saveValidCodes(codes);
-        s.premium = true; s.premiumExpiry = exp.toISOString(); saveSession(s);
-        return { success: true, message: `Premium aktif hingga ${formatDate(exp.toISOString())}.` };
-      }
-
-      function logout() {
-        clearSession();
-        updateHeader();
-        navigate('landing');
-        showToast('Logout berhasil.', 'info');
-      }
-
-      Object.assign(MS, {
-        navigate, escapeHTML, formatDate, formatPrice,
-        storageGet, storageSet, getAllUsers, saveAllUsers, getSession, saveSession, clearSession,
-        getValidCodes, saveValidCodes, getPackages, savePackages, getChatMessages, saveChatMessages,
-        getProjects, saveProjects, isPremium, activatePremium, logout
-      });
-      window.MS = MS;
-
-      function init() {
-        const users = getAllUsers();
-        if (!users.find(u => u.role === 'superadmin')) { users.push(DEFAULT_ADMIN); saveAllUsers(users); }
-        document.getElementById('initialLoader').remove();
-        const session = getSession();
-        updateHeader();
-        if (session) navigate('dashboard');
-        else navigate('landing');
-      }
-      document.addEventListener('DOMContentLoaded', init);
-    })();
-
-    // ========== UPDATE HEADER ==========
-    function updateHeader() {
-      const session = MS.getSession();
-      const guestEl = document.getElementById('headerGuest');
-      const userEl = document.getElementById('headerUser');
-      const adminBtn = document.getElementById('headerAdminBtn');
-      if (session) {
-        if (guestEl) guestEl.classList.add('hidden');
-        if (userEl) userEl.classList.remove('hidden');
-        const avatarEl = document.getElementById('headerAvatar');
-        const nameEl = document.getElementById('headerUserName');
-        if (avatarEl) avatarEl.textContent = session.nama.charAt(0).toUpperCase();
-        if (nameEl) nameEl.textContent = session.nama;
-        if (adminBtn) adminBtn.classList.toggle('hidden', session.role !== 'superadmin');
-      } else {
-        if (guestEl) guestEl.classList.remove('hidden');
-        if (userEl) userEl.classList.add('hidden');
-      }
-    }
-
-    // ========== FUNGSI DOWNLOAD ==========
-    function downloadCurrentPage(filename) {
-      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-      const blob = new Blob([html], { type: 'text/html' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = filename; a.click();
-      showToast('✅ Halaman di-download!', 'success');
-    }
-
-    // ========== FUNGSI AUTH ==========
-    function switchAuthTab(tab) {
-      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.auth-form').forEach(f => f.classList.add('hidden'));
-      const tabEl = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
-      const formEl = document.getElementById('form' + tab.charAt(0).toUpperCase() + tab.slice(1));
-      if (tabEl) tabEl.classList.add('active');
-      if (formEl) formEl.classList.remove('hidden');
-      document.querySelectorAll('.form-error,.form-success').forEach(e => { e.textContent = ''; e.classList.remove('show'); });
-    }
-    function handleLogin() {
-      const u = document.getElementById('loginUsername').value.trim();
-      const p = document.getElementById('loginPassword').value;
-      const err = document.getElementById('loginError'); err.textContent = ''; err.classList.remove('show');
-      if (!u || !p) { err.textContent = 'Isi semua field!'; err.classList.add('show'); return; }
-      if (u === 'superadmin' && p === 'admin123') {
-        MS.saveSession({ id:'sa', username:'superadmin', nama:'Super Admin', role:'superadmin', premium:true });
-        updateHeader(); MS.navigate('dashboard'); showToast('Login Super Admin!', 'success'); return;
-      }
-      const users = MS.getAllUsers();
-      const user = users.find(x => (x.username===u||x.email===u) && p===atob(x.password));
-      if (!user) { err.textContent = 'Username/password salah!'; err.classList.add('show'); return; }
-      if (user.locked) { err.textContent = 'Akun terkunci!'; err.classList.add('show'); return; }
-      MS.saveSession(user); updateHeader(); MS.navigate('dashboard'); showToast('Selamat datang!', 'success');
-    }
-    function handleRegister() {
-      const n = document.getElementById('regNama').value.trim();
-      const e = document.getElementById('regEmail').value.trim();
-      const hp = document.getElementById('regHp').value.trim();
-      const un = document.getElementById('regUsername').value.trim();
-      const pw = document.getElementById('regPassword').value;
-      const cp = document.getElementById('regPasswordConfirm').value;
-      const err = document.getElementById('regError'); const suc = document.getElementById('regSuccess');
-      err.textContent = ''; err.classList.remove('show'); suc.textContent = ''; suc.classList.remove('show');
-      if (!n||!e||!hp||!un||!pw||!cp) { err.textContent = 'Semua field wajib!'; err.classList.add('show'); return; }
-      if (pw !== cp) { err.textContent = 'Password tidak cocok!'; err.classList.add('show'); return; }
-      const users = MS.getAllUsers();
-      if (users.find(x => x.username===un)) { err.textContent = 'Username sudah dipakai!'; err.classList.add('show'); return; }
-      users.push({ id:Date.now().toString(), nama:n, email:e, hp, username:un, password:btoa(pw), role:'user', premium:false, premiumExpiry:null, locked:false });
-      MS.saveAllUsers(users);
-      suc.textContent = 'Pendaftaran berhasil!'; suc.classList.add('show');
-      setTimeout(() => switchAuthTab('login'), 2000);
-    }
-    function handleForgotPassword() {
-      const n = document.getElementById('forgotNama').value.trim();
-      if (!n) { showToast('Isi nama!', 'error'); return; }
-      const msgs = MS.getChatMessages();
-      msgs.push({ from:'guest', to:'admin', text:'[RESET PASSWORD] ' + n, time:new Date().toISOString() });
-      MS.saveChatMessages(msgs);
-      showToast('Permintaan dikirim.', 'success'); switchAuthTab('login');
-    }
-
-    // ========== FUNGSI PROYEK ==========
-    function openProyekForm(editId) {
-      document.getElementById('proyekFormModal').style.display = 'flex';
-      setTimeout(() => document.getElementById('proyekFormModal').classList.add('show'), 10);
-    }
-    function closeProyekForm() {
-      document.getElementById('proyekFormModal').classList.remove('show');
-      setTimeout(() => document.getElementById('proyekFormModal').style.display = 'none', 300);
-    }
-    function saveProyek() {
-      const nama = document.getElementById('proyekNama').value.trim();
-      if (!nama) { document.getElementById('proyekError').textContent = 'Nama wajib!'; document.getElementById('proyekError').classList.add('show'); return; }
-      const projects = MS.getProjects(MS.getSession().username);
-      projects.push({ id:Date.now().toString(), nama, desc:document.getElementById('proyekDesc').value, tracks:[], createdAt:new Date().toISOString() });
-      MS.saveProjects(MS.getSession().username, projects);
-      closeProyekForm(); renderProyekList(); showToast('Proyek disimpan!', 'success');
-    }
-    function renderProyekList() {
-      const projects = MS.getProjects(MS.getSession().username);
-      const grid = document.getElementById('proyekGrid');
-      if (projects.length === 0) { grid.innerHTML = ''; document.getElementById('emptyProyek').classList.remove('hidden'); return; }
-      document.getElementById('emptyProyek').classList.add('hidden');
-      grid.innerHTML = projects.map(p => `<div class="proyek-card"><h4>${p.nama}</h4><small>${(p.tracks||[]).length} trek</small><div class="proyek-actions"><button class="btn btn-sm btn-primary" onclick="MS.navigate('proyek-editor',{proyekId:'${p.id}'})">Buka</button><button class="btn btn-sm btn-warning" onclick="openProyekForm('${p.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="hapusProyek('${p.id}')">Hapus</button></div></div>`).join('');
-    }
-    function hapusProyek(id) {
-      if (confirm('Hapus proyek ini?')) {
-        const projects = MS.getProjects(MS.getSession().username).filter(p => p.id !== id);
-        MS.saveProjects(MS.getSession().username, projects);
-        renderProyekList(); showToast('Proyek dihapus.', 'warning');
-      }
-    }
-
-    // ========== FUNGSI PROYEK EDITOR ==========
-    function saveCurrentProject() { showToast('Proyek disimpan (simulasi)', 'success'); }
-    function addNewTrack() { showToast('Tambah trek (simulasi)', 'info'); }
-    function togglePlay() { showToast('Play (simulasi)', 'info'); }
-    function stopAll() { showToast('Stop (simulasi)', 'info'); }
-    function setMasterVolume(v) { /* simulasi */ }
-    function toggleMute(i) { showToast('Mute toggled', 'info'); }
-    function toggleSolo(i) { showToast('Solo toggled', 'info'); }
-    function setTrackVolume(i,v) {}
-    function setTrackPan(i,v) {}
-    function deleteTrack(i) { showToast('Trek dihapus (simulasi)', 'warning'); }
-
-    // ========== FUNGSI UPLOAD & REKAM ==========
-    function kembaliKeEditor() { MS.navigate('proyek-list'); }
-    function addToProject() { showToast('File ditambahkan (simulasi)', 'success'); }
-    function clearFiles() { document.getElementById('fileList').innerHTML = ''; document.getElementById('btnAddToProject').disabled = true; }
-    function toggleRecording() { showToast('Rekaman dimulai (simulasi)', 'info'); }
-    function stopRecording() { showToast('Rekaman dihentikan', 'info'); }
-    function addRecordingToProject() { showToast('Rekaman disimpan ke proyek', 'success'); }
-    function resetRecording() { showToast('Perekam direset', 'info'); }
-
-    // ========== STEM, MIXER, LIRIK, TRANSPOSE, MODIFIKASI ==========
-    function previewStemFile(input) { showToast('File dipilih', 'info'); }
-    function startSeparation() { showToast('Pemisahan dimulai (simulasi)', 'info'); }
-    function saveStemsToProject() { showToast('Stem disimpan ke proyek', 'success'); }
-    function loadCurrentProjectTracks() { showToast('Trek dimuat ke mixer', 'info'); }
-    function updateMaster() { document.getElementById('masterValue').textContent = Math.round(document.getElementById('masterMixerVolume').value*100)+'%'; }
-    function startSyncProcess() { showToast('Sinkronisasi lirik dimulai', 'info'); }
-    function saveLirikToProject() { showToast('Lirik disimpan ke proyek', 'success'); }
-    function copyLRC() { navigator.clipboard.writeText(document.getElementById('lrcOutput').textContent); showToast('LRC disalin!', 'success'); }
-    function loadProjectLyrics() { showToast('Lirik proyek dimuat', 'info'); }
-    function prosesTranspose() {
-      const input = document.getElementById('chordInput').value.trim();
-      if (!input) { showToast('Masukkan chord!', 'error'); return; }
-      document.getElementById('transposedChords').textContent = input + ' (transposed)';
-      document.getElementById('transposeResult').style.display = 'block';
-    }
-    function copyTransposeResult() {
-      navigator.clipboard.writeText(document.getElementById('transposedChords').textContent);
-      showToast('Hasil disalin!', 'success');
-    }
-    function previewModifFile(input) { showToast('File dipilih', 'info'); }
-    function prosesModifikasi() { showToast('Modifikasi genre (simulasi)', 'info'); document.getElementById('modifResult').style.display = 'block'; }
-    function simpanHasilModifikasi() { showToast('Hasil modifikasi disimpan ke proyek', 'success'); }
-
-    // ========== AI GENERATOR & VOICE ==========
+    // ========== AI GENERATOR ==========
     function generateSong() {
-      document.getElementById('aiProgress').style.display = 'block';
-      document.getElementById('aiResults').style.display = 'none';
+      document.getElementById('aiProgress').style.display='block'; document.getElementById('aiResults').style.display='none';
       setTimeout(() => {
-        document.getElementById('aiProgress').style.display = 'none';
-        document.getElementById('aiResults').style.display = 'grid';
-        document.getElementById('aiResults').innerHTML = '<div class="result-card"><h4>Lagu 1</h4><p>Simulasi</p></div>';
+        document.getElementById('aiProgress').style.display='none'; document.getElementById('aiResults').style.display='grid';
+        const results = [{ id:1, name:'Lagu 1', desc:'Pop - Wanita Muda' },{ id:2, name:'Lagu 2', desc:'Pop - Wanita Muda (Alternate)' },{ id:3, name:'Lagu 3', desc:'Pop - Wanita Muda (Remix)' }];
+        window._aiResults = results; renderAIResults(results);
         showToast('Lagu berhasil di-generate (simulasi)', 'success');
       }, 2000);
     }
-    function pilihSuara() { showToast('Suara dipilih!', 'success'); MS.navigate('ai-generator'); }
+    function renderAIResults(results) {
+      const container = document.getElementById('aiResults');
+      if (container) container.innerHTML = results.map((r,i) => `<div class="result-card"><h4>🎵 ${r.name}</h4><p>${r.desc}</p><div class="result-actions"><button class="btn btn-sm" onclick="previewAIResult(${i})">▶ Preview</button><button class="btn btn-sm btn-success" onclick="saveAIResult(${i})">💾 Simpan ke Proyek</button><button class="btn btn-sm btn-primary" onclick="downloadAIResult(${i})">⬇ Download</button></div></div>`).join('');
+    }
+    function previewAIResult(i) { showToast('Preview: simulasi', 'info'); }
+    function saveAIResult(i) { const r = window._aiResults[i]; if (r) { const projects = MS.getProjects(MS.getSession().username); if (projects.length===0) { showToast('Buat proyek dulu!', 'error'); return; } projects[projects.length-1].tracks.push({ id:Date.now().toString(), name:r.name, type:'ai-generated', data:null, volume:0.8, pan:0, muted:false, solo:false }); MS.saveProjects(MS.getSession().username, projects); showToast(r.name+' disimpan ke proyek!', 'success'); } }
+    function downloadAIResult(i) { const r = window._aiResults[i]; if (r) { const blob = new Blob(['Judul: '+r.name+'\nDeskripsi: '+r.desc], {type:'text/plain'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=r.name.replace(/\s+/g,'_')+'.txt'; a.click(); showToast('Lirik di-download!', 'success'); } }
+
+    // ========== AI VOICE SELECT ==========
+    function renderVoiceGrid() {
+      const voices = [{ id:'wanita-muda', name:'👩 Perempuan Muda', desc:'Suara cerah, cocok untuk pop/dangdut' },{ id:'wanita-tua', name:'👵 Perempuan Tua', desc:'Suara berat, berwibawa' },{ id:'pria-muda', name:'👨 Laki-laki Muda', desc:'Suara energik, rock/pop' },{ id:'pria-tua', name:'👴 Laki-laki Tua', desc:'Suara dalam, seriosa' },{ id:'anak', name:'👶 Anak-anak', desc:'Suara ceria, musik anak' },{ id:'robot', name:'🤖 Robot', desc:'Efek futuristik' },{ id:'seriosa', name:'🎭 Seriosa', desc:'Suara opera klasik' }];
+      const grid = document.getElementById('voiceGrid');
+      if (grid) grid.innerHTML = voices.map(v => `<div class="voice-card" data-id="${v.id}" onclick="selectVoice('${v.id}')"><div class="voice-icon">${v.name.split(' ')[0]}</div><h4>${v.name}</h4><p>${v.desc}</p></div>`).join('');
+    }
+    function selectVoice(id) { document.querySelectorAll('.voice-card').forEach(c => c.classList.toggle('selected', c.dataset.id===id)); window._selectedVoice = id; }
+    function pilihSuara() { if (window._selectedVoice) { localStorage.setItem('ms_selected_voice', window._selectedVoice); showToast('Suara dipilih!', 'success'); MS.navigate('ai-generator'); } else { showToast('Pilih suara dulu!', 'error'); } }
+
+    // ========== AI LYRICS GENERATOR ==========
     function generateLyrics() {
-      document.getElementById('lyricProgress').style.display = 'block';
-      document.getElementById('lyricResults').style.display = 'none';
+      document.getElementById('lyricProgress').style.display='block'; document.getElementById('lyricResults').style.display='none';
       setTimeout(() => {
-        document.getElementById('lyricProgress').style.display = 'none';
-        document.getElementById('lyricResults').style.display = 'block';
-        document.getElementById('lyricVersions').innerHTML = '<div class="lyric-version"><pre>Lirik simulasi...</pre></div>';
+        document.getElementById('lyricProgress').style.display='none'; document.getElementById('lyricResults').style.display='block';
+        const versions = [{ text:'[Verse]\nLirik simulasi baris 1\nLirik simulasi baris 2\n\n[Chorus]\nLirik simulasi chorus', index:0 },{ text:'[Verse]\nLirik simulasi v2 baris 1\nLirik simulasi v2 baris 2\n\n[Chorus]\nLirik simulasi v2 chorus', index:1 },{ text:'[Verse]\nLirik simulasi v3 baris 1\nLirik simulasi v3 baris 2\n\n[Chorus]\nLirik simulasi v3 chorus', index:2 }];
+        window._generatedLyrics = versions; renderLyricVersions(versions);
         showToast('Lirik di-generate!', 'success');
       }, 1500);
     }
+    function renderLyricVersions(versions) {
+      const container = document.getElementById('lyricVersions');
+      if (container) container.innerHTML = versions.map((v,i) => `<div class="lyric-version"><h5>Versi ${i+1}</h5><pre>${v.text}</pre><div class="btn-group"><button class="btn btn-sm" onclick="copyLyricVersion(${i})">📋 Copy</button><button class="btn btn-sm btn-success" onclick="useLyricVersion(${i})">✅ Pakai Lirik Ini</button></div></div>`).join('');
+    }
+    function copyLyricVersion(i) { const l = window._generatedLyrics[i]?.text || ''; navigator.clipboard.writeText(l); showToast('Lirik disalin!', 'success'); }
+    function useLyricVersion(i) { const l = window._generatedLyrics[i]?.text || ''; localStorage.setItem('ms_selected_lyrics', l); showToast('Lirik dipilih!', 'success'); setTimeout(() => MS.navigate('ai-generator'), 1000); }
+
+    // ========== HASIL GENERATE & DOWNLOAD MANAGER ==========
+    function renderHasil(results) { const container = document.getElementById('hasilContainer'); if (container) container.innerHTML = results.map((r,i) => `<div class="hasil-card"><h4>${r.name}</h4><p>${r.desc}</p></div>`).join(''); }
+    function previewHasil(i) { showToast('Preview: simulasi', 'info'); }
+    function simpanKeProyek(i) { showToast('Disimpan ke proyek (simulasi)', 'success'); }
+    function downloadHasil(i) { showToast('Lirik di-download (simulasi)', 'success'); }
+    function renderDownloadList(list) { const container = document.getElementById('downloadList'); if (container) container.innerHTML = list.length===0 ? '<p class="text-secondary">Belum ada file.</p>' : list.map((item,i) => `<div class="download-item">${item.name}</div>`).join(''); }
+    function hapusDownload(i) { showToast('Log dihapus.', 'info'); }
 
     // ========== PREMIUM ==========
     function aktivasiPremium() {
       const code = document.getElementById('activationCode').value.trim();
       if (!code) { showToast('Masukkan kode!', 'error'); return; }
       const result = MS.activatePremium(code);
-      if (result.success) {
-        document.getElementById('activationSuccess').textContent = result.message;
-        document.getElementById('activationSuccess').classList.add('show');
-        document.getElementById('activationError').classList.remove('show');
-        updateHeader();
-      } else {
-        document.getElementById('activationError').textContent = result.message;
-        document.getElementById('activationError').classList.add('show');
-        document.getElementById('activationSuccess').classList.remove('show');
-      }
+      if (result.success) { document.getElementById('activationSuccess').textContent = result.message; document.getElementById('activationSuccess').classList.add('show'); updateHeader(); }
+      else { document.getElementById('activationError').textContent = result.message; document.getElementById('activationError').classList.add('show'); }
     }
 
-    // ========== SUPER ADMIN PANEL (LENGKAP) ==========
+    // ========== ADMIN PANEL ==========
     function switchAdminTab(tab) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.admin-tab').forEach(t => {
-        if (t.textContent.toLowerCase().includes(tab)) t.classList.add('active');
-      });
-      const content = document.getElementById('adminTabContent');
-      if (!content) return;
-      if (tab === 'users') {
-        const users = MS.getAllUsers();
-        content.innerHTML = `
-          <h3>Daftar User</h3>
-          <table class="admin-table">
-            <tr><th>Nama</th><th>Username</th><th>Email</th><th>Premium</th><th>Aksi</th></tr>
-            ${users.map(u => `
-              <tr>
-                <td>${u.nama}</td><td>${u.username}</td><td>${u.email}</td>
-                <td>${u.premium ? 'Ya' : 'Tidak'}</td>
-                <td>
-                  <button class="btn btn-sm btn-warning" onclick="toggleLockUser('${u.id}')">${u.locked ? 'Buka' : 'Kunci'}</button>
-                  ${u.role !== 'superadmin' ? `<button class="btn btn-sm btn-danger" onclick="hapusUser('${u.id}')">Hapus</button>` : ''}
-                </td>
-              </tr>
-            `).join('')}
-          </table>
-        `;
-      } else if (tab === 'codes') {
-        content.innerHTML = `
-          <h3>Buat Kode Aktivasi</h3>
-          <div class="form-group"><input id="adminCodeUser" placeholder="Username"></div>
-          <div class="form-group">
-            <select id="adminCodePackage">
-              ${MS.getPackages().map(p => `<option value="${p.id}">${p.name} - ${p.label}</option>`).join('')}
-            </select>
-          </div>
-          <button class="btn btn-success" onclick="buatKode()">Buat Kode</button>
-          <div id="codeResult" style="margin-top:8px;"></div>
-          <h4 style="margin-top:16px;">Kode Aktif</h4>
-          <div id="activeCodes"></div>
-        `;
-        renderActiveCodes();
-      } else if (tab === 'packages') {
-        content.innerHTML = `
-          <h3>Paket Premium</h3>
-          <div id="packageList"></div>
-          <button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="tambahPaket()">+ Paket Baru</button>
-        `;
-        renderPackageList();
-      } else if (tab === 'chat') {
-        content.innerHTML = `<p class="text-secondary">Gunakan menu Chat untuk berkomunikasi dengan user.</p>`;
-      } else if (tab === 'backup') {
-        content.innerHTML = `
-          <h3>Backup / Restore</h3>
-          <button class="btn btn-primary" onclick="MS.navigate('backup-restore')">Buka Halaman Backup</button>
-        `;
-      }
+      document.querySelectorAll('.admin-tab').forEach(t => { if (t.textContent.toLowerCase().includes(tab)) t.classList.add('active'); });
+      const content = document.getElementById('adminTabContent'); if (!content) return;
+      if (tab === 'users') { const users = MS.getAllUsers(); content.innerHTML = `<h3>Daftar User</h3><table class="admin-table"><tr><th>Nama</th><th>Username</th><th>Email</th><th>Premium</th><th>Aksi</th></tr>${users.map(u => `<tr><td>${u.nama}</td><td>${u.username}</td><td>${u.email}</td><td>${u.premium?'Ya':'Tidak'}</td><td><button class="btn btn-sm btn-warning" onclick="toggleLockUser('${u.id}')">${u.locked?'Buka':'Kunci'}</button>${u.role!=='superadmin'?`<button class="btn btn-sm btn-danger" onclick="hapusUser('${u.id}')">Hapus</button>`:''}</td></tr>`).join('')}</table>`; }
+      else if (tab === 'codes') { content.innerHTML = `<h3>Buat Kode Aktivasi</h3><div class="form-group"><input id="adminCodeUser" placeholder="Username"></div><div class="form-group"><select id="adminCodePackage">${MS.getPackages().map(p => `<option value="${p.id}">${p.name} - ${p.label}</option>`).join('')}</select></div><button class="btn btn-success" onclick="buatKode()">Buat Kode</button><div id="codeResult"></div><h4>Kode Aktif</h4><div id="activeCodes"></div>`; renderActiveCodes(); }
+      else if (tab === 'packages') { content.innerHTML = `<h3>Paket Premium</h3><div id="packageList"></div><button class="btn btn-primary btn-sm" onclick="tambahPaket()">+ Paket Baru</button>`; renderPackageList(); }
+      else if (tab === 'backup') { content.innerHTML = `<h3>💾 Backup & Restore</h3><button class="btn btn-primary btn-block" onclick="backupAllDataJSON()">⬇ Backup Data (JSON)</button><label class="btn btn-warning btn-block" style="cursor:pointer;">📤 Restore Data (JSON)<input type="file" accept=".json" onchange="restoreAllDataJSON(this)" hidden></label><hr><button class="btn btn-success btn-block" onclick="downloadOfflineHTML()">⬇ Download HTML (Offline)</button><label class="btn btn-warning btn-block" style="cursor:pointer;">📤 Restore HTML<input type="file" accept=".html" onchange="restoreFromHTML(this)" hidden></label>`; }
     }
-    function toggleLockUser(userId) {
-      const users = MS.getAllUsers();
-      const user = users.find(u => u.id === userId);
-      if (user) { user.locked = !user.locked; MS.saveAllUsers(users); switchAdminTab('users'); }
-    }
-    function hapusUser(userId) {
-      if (confirm('Hapus user ini? Data proyeknya juga akan dihapus.')) {
-        const user = MS.getAllUsers().find(u => u.id === userId);
-        MS.saveAllUsers(MS.getAllUsers().filter(u => u.id !== userId));
-        if (user) {
-          const allProjects = MS.storageGet('projects', {});
-          delete allProjects[user.username];
-          MS.storageSet('projects', allProjects);
-        }
-        switchAdminTab('users');
-        showToast('User dihapus.', 'warning');
-      }
-    }
-    function buatKode() {
-      const userField = document.getElementById('adminCodeUser').value.trim();
-      const pkgId = document.getElementById('adminCodePackage').value;
-      if (!userField) { showToast('Masukkan username!', 'error'); return; }
-      const code = 'MK-' + Date.now().toString(36).toUpperCase();
-      const codes = MS.getValidCodes();
-      codes[code] = { packageId: pkgId, used: false, createdAt: new Date().toISOString() };
-      MS.saveValidCodes(codes);
-      document.getElementById('codeResult').innerHTML = `<p class="form-success show">✅ Kode: <strong>${code}</strong></p>`;
-      renderActiveCodes();
-    }
-    function renderActiveCodes() {
-      const codes = MS.getValidCodes();
-      const el = document.getElementById('activeCodes');
-      if (el) el.innerHTML = Object.keys(codes).length === 0 ? '<p class="text-muted">Belum ada kode.</p>' :
-        Object.keys(codes).map(c => `<div style="margin-bottom:4px;">${c} - ${codes[c].packageId} (${codes[c].used ? '<span style="color:var(--color-danger);">Terpakai</span>' : '<span style="color:var(--color-success);">Aktif</span>'})</div>`).join('');
-    }
-    function renderPackageList() {
-      const el = document.getElementById('packageList');
-      if (el) el.innerHTML = MS.getPackages().map((p,i) => `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span>${p.name} - ${MS.formatPrice(p.price)} (${p.label})</span></div>`).join('');
-    }
-    function tambahPaket() {
-      const pkgs = MS.getPackages();
-      pkgs.push({ id: 'pkg_' + Date.now(), name: 'Paket Baru', price: 0, days: 30, label: '1 Bulan' });
-      MS.savePackages(pkgs);
-      renderPackageList();
-      showToast('Paket baru ditambahkan.', 'success');
-    }
+    function toggleLockUser(uid) { const users = MS.getAllUsers(); const u = users.find(x=>x.id===uid); if (u) { u.locked=!u.locked; MS.saveAllUsers(users); switchAdminTab('users'); } }
+    function hapusUser(uid) { if (confirm('Hapus user ini?')) { MS.saveAllUsers(MS.getAllUsers().filter(u=>u.id!==uid)); switchAdminTab('users'); showToast('User dihapus.','warning'); } }
+    function buatKode() { const uf = document.getElementById('adminCodeUser').value.trim(), pid = document.getElementById('adminCodePackage').value; if (!uf) { showToast('Masukkan username!','error'); return; } const code = 'MK-'+Date.now().toString(36).toUpperCase(); const codes = MS.getValidCodes(); codes[code] = { packageId:pid, used:false, createdAt:new Date().toISOString() }; MS.saveValidCodes(codes); document.getElementById('codeResult').innerHTML = `<p class="form-success show">✅ Kode: <strong>${code}</strong></p>`; renderActiveCodes(); }
+    function renderActiveCodes() { const el = document.getElementById('activeCodes'); if (el) { const codes = MS.getValidCodes(); el.innerHTML = Object.keys(codes).length===0 ? '<p class="text-muted">Belum ada kode.</p>' : Object.keys(codes).map(c => `<div>${c} - ${codes[c].packageId} (${codes[c].used?'Terpakai':'Aktif'})</div>`).join(''); } }
+    function renderPackageList() { const el = document.getElementById('packageList'); if (el) el.innerHTML = MS.getPackages().map(p => `<div>${p.name} - ${MS.formatPrice(p.price)} (${p.label})</div>`).join(''); }
+    function tambahPaket() { const pkgs = MS.getPackages(); pkgs.push({ id:'pkg_'+Date.now(), name:'Paket Baru', price:0, days:30, label:'1 Bulan' }); MS.savePackages(pkgs); renderPackageList(); showToast('Paket baru ditambahkan.','success'); }
 
-    // ========== FUNGSI PROFIL ==========
-    function loadProfile() {
-      const s = MS.getSession();
-      if (!s) return;
-      document.getElementById('profileAvatarBig').textContent = s.nama.charAt(0).toUpperCase();
-      document.getElementById('profileName').textContent = s.nama;
-      document.getElementById('profileRole').textContent = s.role === 'superadmin' ? 'Super Admin' : (s.premium ? 'User Premium' : 'User Biasa');
-      document.getElementById('editProfileNama').value = s.nama || '';
-      document.getElementById('editProfileEmail').value = s.email || '';
-      document.getElementById('editProfileHp').value = s.hp || '';
-    }
-    function saveProfile() {
-      const s = MS.getSession();
-      if (!s) return;
-      const n = document.getElementById('editProfileNama').value.trim();
-      const e = document.getElementById('editProfileEmail').value.trim();
-      const hp = document.getElementById('editProfileHp').value.trim();
-      const err = document.getElementById('profileError');
-      const suc = document.getElementById('profileSuccess');
-      err.textContent = ''; err.classList.remove('show');
-      suc.textContent = ''; suc.classList.remove('show');
-      if (!n || !e || !hp) { err.textContent = 'Semua field wajib diisi!'; err.classList.add('show'); return; }
-      s.nama = n; s.email = e; s.hp = hp;
-      MS.saveSession(s);
-      const users = MS.getAllUsers();
-      const idx = users.findIndex(u => u.id === s.id);
-      if (idx !== -1) { users[idx].nama = n; users[idx].email = e; users[idx].hp = hp; MS.saveAllUsers(users); }
-      updateHeader();
-      suc.textContent = 'Profil berhasil disimpan!'; suc.classList.add('show');
-      setTimeout(() => MS.navigate('dashboard'), 1500);
-    }
-    function deleteAccount() {
-      const s = MS.getSession();
-      if (!s || s.role === 'superadmin') { showToast('Super Admin tidak bisa dihapus.', 'error'); return; }
-      if (confirm('Hapus akun Anda secara permanen? Semua data proyek akan hilang.')) {
-        MS.saveAllUsers(MS.getAllUsers().filter(u => u.id !== s.id));
-        const allProjects = MS.storageGet('projects', {});
-        delete allProjects[s.username];
-        MS.storageSet('projects', allProjects);
-        MS.clearSession();
-        updateHeader();
-        MS.navigate('landing');
-        showToast('Akun berhasil dihapus.', 'warning');
-      }
-    }
+    // ========== BACKUP RESTORE ==========
+    function backupAllDataJSON() { const allData = {}; for (let i=0;i<localStorage.length;i++) { const key = localStorage.key(i); allData[key] = localStorage.getItem(key); } const blob = new Blob([JSON.stringify(allData,null,2)], {type:'application/json'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_full_backup_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); showToast('✅ Backup JSON berhasil!','success'); }
+    function restoreAllDataJSON(input) { const file = input.files[0]; if (!file) return; if (!confirm('⚠️ SEMUA data akan ditimpa. Lanjutkan?')) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); localStorage.clear(); Object.keys(data).forEach(key => localStorage.setItem(key, data[key])); showToast('✅ Data di-restore! Refresh...','success'); setTimeout(()=>location.reload(),2000); } catch(err) { showToast('❌ File JSON tidak valid.','error'); } }; reader.readAsText(file); }
+    function downloadOfflineHTML() { const html = '<!DOCTYPE html>\n'+document.documentElement.outerHTML; const blob = new Blob([html], {type:'text/html'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_offline_'+new Date().toISOString().slice(0,10)+'.html'; a.click(); showToast('⬇ HTML didownload!','success'); }
+    function restoreFromHTML(input) { const file = input.files[0]; if (!file) return; if (!confirm('⚠️ Halaman akan diganti. Lanjutkan?')) return; const reader = new FileReader(); reader.onload = function(e) { const match = e.target.result.match(/<html[^>]*>([\s\S]*)<\/html>/i); if (match) { document.documentElement.innerHTML = match[1]; showToast('✅ Dipulihkan! Refresh...','success'); setTimeout(()=>location.reload(),1500); } else { document.open(); document.write(e.target.result); document.close(); showToast('✅ Dipulihkan! Refresh...','success'); setTimeout(()=>location.reload(),1500); } }; reader.readAsText(file); }
 
-    // ========== CHAT (REVISI TOTAL) ==========
-    let currentChatFilter = 'all';
+    // ========== PROFIL ==========
+    function loadProfile() { const s = MS.getSession(); if (!s) return; document.getElementById('profileAvatarBig').textContent = s.nama.charAt(0).toUpperCase(); document.getElementById('profileName').textContent = s.nama; document.getElementById('profileRole').textContent = s.role==='superadmin'?'Super Admin':(s.premium?'User Premium':'User Biasa'); document.getElementById('editProfileNama').value = s.nama||''; document.getElementById('editProfileEmail').value = s.email||''; document.getElementById('editProfileHp').value = s.hp||''; }
+    function saveProfile() { const s = MS.getSession(); if (!s) return; const n = document.getElementById('editProfileNama').value.trim(), e = document.getElementById('editProfileEmail').value.trim(), hp = document.getElementById('editProfileHp').value.trim(); const err = document.getElementById('profileError'), suc = document.getElementById('profileSuccess'); err.textContent=''; suc.textContent=''; if (!n||!e||!hp) { err.textContent='Semua field wajib!'; err.classList.add('show'); return; } s.nama=n; s.email=e; s.hp=hp; MS.saveSession(s); const users = MS.getAllUsers(); const idx = users.findIndex(u=>u.id===s.id); if (idx!==-1) { users[idx].nama=n; users[idx].email=e; users[idx].hp=hp; MS.saveAllUsers(users); } updateHeader(); suc.textContent='Profil tersimpan!'; suc.classList.add('show'); setTimeout(()=>MS.navigate('dashboard'),1500); }
+    function deleteAccount() { const s = MS.getSession(); if (!s||s.role==='superadmin') { showToast('Super Admin tidak bisa dihapus.','error'); return; } if (confirm('Hapus akun permanen?')) { MS.saveAllUsers(MS.getAllUsers().filter(u=>u.id!==s.id)); MS.clearSession(); updateHeader(); MS.navigate('landing'); showToast('Akun dihapus.','warning'); } }
 
-    function switchChatTab(tab) {
-      currentChatFilter = tab;
-      document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
-      const tabEl = document.getElementById('chatTab' + tab.charAt(0).toUpperCase() + tab.slice(1));
-      if (tabEl) tabEl.classList.add('active');
+    // ========== CHAT ==========
+    let currentChatTab = 'admin', selectedChatTarget = '';
+    function switchChatTab(tab) { currentChatTab = tab; document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active')); const tabEl = document.getElementById('chatTab'+tab.charAt(0).toUpperCase()+tab.slice(1)); if (tabEl) tabEl.classList.add('active'); const session = MS.getSession(), isAdmin = session && session.role==='superadmin'; const targetContainer = document.getElementById('chatTargetContainer'), massInfo = document.getElementById('massChatInfo'), select = document.getElementById('chatTargetSelect'), adminActions = document.getElementById('adminChatActions'), tabsContainer = document.getElementById('chatTabsContainer'); if (isAdmin) { if (tabsContainer) tabsContainer.style.display='flex'; if (adminActions) adminActions.style.display='block'; if (tab==='admin') { if (targetContainer) targetContainer.style.display='block'; if (massInfo) massInfo.style.display='none'; if (select) { const all=MS.getChatMessages(); const ulist=[...new Set(all.filter(m=>m.to==='admin'||m.from==='admin').map(m=>m.from==='admin'?m.to:m.from))]; const users=MS.getAllUsers().filter(u=>ulist.includes(u.username)&&u.role!=='superadmin'); select.innerHTML='<option value="">-- Pilih User --</option>'+users.map(u=>`<option value="${u.username}">${u.nama} (${u.username})</option>`).join(''); } selectedChatTarget=select?select.value:''; } else if (tab==='users') { if (targetContainer) targetContainer.style.display='block'; if (massInfo) massInfo.style.display='none'; if (select) { const all=MS.getChatMessages(); const ulist=[...new Set(all.filter(m=>m.from!=='admin'&&m.to!=='admin').flatMap(m=>[m.from,m.to]))]; const users=MS.getAllUsers().filter(u=>ulist.includes(u.username)&&u.role!=='superadmin'); select.innerHTML='<option value="">-- Pilih User --</option>'+users.map(u=>`<option value="${u.username}">${u.nama} (${u.username})</option>`).join(''); } selectedChatTarget=select?select.value:''; } else if (tab==='mass') { if (targetContainer) targetContainer.style.display='block'; if (massInfo) massInfo.style.display='block'; if (select) select.innerHTML='<option value="all">Semua User</option>'; selectedChatTarget='all'; } } else { if (tabsContainer) tabsContainer.style.display='none'; if (targetContainer) targetContainer.style.display='none'; if (adminActions) adminActions.style.display='none'; selectedChatTarget='admin'; } loadChatMessages(); }
+    function loadChatMessages() { const all = MS.getChatMessages(), session = MS.getSession(), currentUser = session?session.username:'guest', isAdmin = session&&session.role==='superadmin'; let filtered = []; if (isAdmin) { if (currentChatTab==='admin') { if (selectedChatTarget&&selectedChatTarget!=='all') filtered=all.filter(m=>(m.from==='admin'&&m.to===selectedChatTarget)||(m.from===selectedChatTarget&&m.to==='admin')); else filtered=all.filter(m=>m.to==='admin'||m.from==='admin'); } else if (currentChatTab==='users') { filtered=all.filter(m=>m.from!=='admin'&&m.to!=='admin'); if (selectedChatTarget&&selectedChatTarget!=='all') filtered=filtered.filter(m=>m.from===selectedChatTarget||m.to===selectedChatTarget); } else if (currentChatTab==='mass') filtered=all.filter(m=>m.to==='all'&&m.from==='admin'); } else filtered=all.filter(m=>(m.from===currentUser&&m.to==='admin')||(m.from==='admin'&&m.to===currentUser)||(m.from==='admin'&&m.to==='all')); const container = document.getElementById('chatMessages'); if (!container) return; if (filtered.length===0) { container.innerHTML='<p class="text-secondary" style="padding:20px;">Belum ada pesan.</p>'; return; } filtered.sort((a,b)=>new Date(a.time)-new Date(b.time)); container.innerHTML = filtered.map(m => { const isMe = (m.from===currentUser)||(isAdmin&&m.from==='admin'); return `<div class="chat-bubble ${isMe?'me':'other'}"><div style="font-size:0.75rem;opacity:0.8;"><strong>${MS.escapeHTML(m.from)}</strong>${m.to!=='all'?' → '+MS.escapeHTML(m.to):' (semua)'}</div><div>${MS.escapeHTML(m.text)}</div><div class="chat-time">${new Date(m.time).toLocaleString('id-ID',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'})}</div></div>`; }).join(''); container.scrollTop = container.scrollHeight; }
+    function kirimPesan() { const input = document.getElementById('chatInput'); if (!input||!input.value.trim()) return; const session = MS.getSession(), currentUser = session?session.username:'guest', isAdmin = session&&session.role==='superadmin'; let target = 'admin'; if (isAdmin) { if (currentChatTab==='mass') target='all'; else { const select=document.getElementById('chatTargetSelect'); target=select&&select.value?select.value:'admin'; } } const newMsg = { from:isAdmin?'admin':currentUser, to:target, text:input.value.trim(), time:new Date().toISOString() }; const msgs = MS.getChatMessages(); msgs.push(newMsg); MS.saveChatMessages(msgs); input.value=''; if (isAdmin&&target!=='all') { selectedChatTarget=target; const select=document.getElementById('chatTargetSelect'); if (select) select.value=target; } loadChatMessages(); showToast(target==='all'?'Pesan massal terkirim!':'Pesan terkirim!','success'); }
+    function hapusSemuaChat() { if (confirm('Hapus SEMUA chat?')) { MS.saveChatMessages([]); loadChatMessages(); showToast('Semua chat dihapus.','warning'); } }
 
-      const session = MS.getSession();
-      const isAdmin = session && session.role === 'superadmin';
-      const userSelect = document.getElementById('chatUserSelect');
-      const adminActions = document.getElementById('adminChatActions');
-
-      if (isAdmin) {
-        if (userSelect) userSelect.style.display = 'block';
-        if (adminActions) adminActions.style.display = 'block';
-        const users = MS.getAllUsers().filter(u => u.role !== 'superadmin');
-        const select = document.getElementById('adminChatTarget');
-        if (select) {
-          select.innerHTML = '<option value="all">-- Semua User --</option>' +
-            users.map(u => `<option value="${u.username}">${u.nama} (${u.username})</option>`).join('');
-        }
-      } else {
-        if (userSelect) userSelect.style.display = 'none';
-        if (adminActions) adminActions.style.display = 'none';
-      }
-
-      loadChatMessages();
-    }
-
-    function loadChatMessages() {
-      const allMessages = MS.getChatMessages();
-      const session = MS.getSession();
-      const currentUser = session ? session.username : 'guest';
-      const isAdmin = session && session.role === 'superadmin';
-
-      let filtered = [];
-
-      if (isAdmin) {
-        if (currentChatFilter === 'all') {
-          filtered = allMessages;
-        } else if (currentChatFilter === 'admin') {
-          filtered = allMessages.filter(m => m.to === 'admin' || m.from === 'admin');
-        } else if (currentChatFilter === 'users') {
-          filtered = allMessages.filter(m => m.from !== 'admin' && m.to !== 'admin');
-        }
-        const select = document.getElementById('adminChatTarget');
-        if (select && select.value !== 'all') {
-          const targetUser = select.value;
-          filtered = filtered.filter(m => m.from === targetUser || m.to === targetUser);
-        }
-      } else {
-        filtered = allMessages.filter(m =>
-          (m.from === currentUser && m.to === 'admin') ||
-          (m.from === 'admin' && m.to === currentUser) ||
-          m.to === 'all'
-        );
-      }
-
-      const container = document.getElementById('chatMessages');
-      if (!container) return;
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-center text-secondary" style="padding:20px;">Belum ada pesan. Mulai chat sekarang!</p>';
-        return;
-      }
-
-      container.innerHTML = filtered.map(m => {
-        const isMe = (m.from === currentUser) || (isAdmin && m.from === 'admin');
-        return `
-          <div class="chat-bubble ${isMe ? 'me' : 'other'}">
-            <div style="font-size:0.75rem;opacity:0.8;margin-bottom:2px;">
-              <strong>${MS.escapeHTML(m.from)}</strong>
-              ${m.to !== 'all' ? ' → ' + MS.escapeHTML(m.to) : ' (semua)'}
-            </div>
-            <div>${MS.escapeHTML(m.text)}</div>
-            <div class="chat-time">${new Date(m.time).toLocaleString('id-ID', {hour:'2-digit',minute:'2-digit', day:'numeric', month:'short'})}</div>
-          </div>
-        `;
-      }).join('');
-
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function kirimPesan() {
-      const input = document.getElementById('chatInput');
-      if (!input || !input.value.trim()) return;
-
-      const session = MS.getSession();
-      const currentUser = session ? session.username : 'guest';
-      const isAdmin = session && session.role === 'superadmin';
-
-      let target = 'admin';
-
-      if (isAdmin) {
-        const select = document.getElementById('adminChatTarget');
-        if (currentChatFilter === 'all') {
-          target = 'all';
-        } else if (select && select.value !== 'all') {
-          target = select.value;
-        } else {
-          target = 'all';
-        }
-      }
-
-      const newMsg = {
-        from: isAdmin ? 'admin' : currentUser,
-        to: target,
-        text: input.value.trim(),
-        time: new Date().toISOString()
-      };
-
-      const msgs = MS.getChatMessages();
-      msgs.push(newMsg);
-      MS.saveChatMessages(msgs);
-      input.value = '';
-      loadChatMessages();
-      showToast('Pesan terkirim!', 'success');
-    }
-
-    function hapusSemuaChat() {
-      if (confirm('Hapus SEMUA chat? Tindakan ini tidak bisa dibatalkan.')) {
-        MS.saveChatMessages([]);
-        loadChatMessages();
-        showToast('Semua chat dihapus.', 'warning');
-      }
-    }
-
-    // ========== BACKUP ==========
-    function exportData() {
-      const s = MS.getSession(); if (!s) return;
-      const data = { username: s.username, projects: MS.getProjects(s.username), exportedAt: new Date().toISOString() };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = 'musikplus_backup_' + s.username + '.json'; a.click();
-      showToast('Data diekspor!', 'success');
-    }
-    function restoreData(input) {
-      if (!input.files[0]) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const data = JSON.parse(e.target.result);
-          if (data.projects) {
-            const s = MS.getSession(); if (!s) return;
-            MS.saveProjects(s.username, data.projects);
-            showToast('Data berhasil dipulihkan!', 'success');
-          }
-        } catch(ex) { showToast('File JSON tidak valid!', 'error'); }
-      };
-      reader.readAsText(input.files[0]);
-    }
+    // ========== EXPORT USER ==========
+    function exportData() { const s = MS.getSession(); if (!s) return; const data = { username:s.username, projects:MS.getProjects(s.username), exportedAt:new Date().toISOString() }; const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_'+s.username+'.json'; a.click(); showToast('Data diekspor!','success'); }
+    function restoreData(input) { if (!input.files[0]) return; const reader = new FileReader(); reader.onload = function(e) { try { const data=JSON.parse(e.target.result); if (data.projects) { MS.saveProjects(MS.getSession().username, data.projects); showToast('Data dipulihkan!','success'); } } catch(ex) { showToast('File tidak valid!','error'); } }; reader.readAsText(input.files[0]); }
 
     // ========== PAGE INIT ==========
     MS.pageInit = function(page, params) {
       updateHeader();
-      if (page === 'landing') {
-        const grid = document.getElementById('landingPriceGrid');
-        if (grid) {
-          grid.innerHTML = MS.getPackages().map((pkg, i) => `
-            <div class="price-card ${i === 1 ? 'featured' : ''}" onclick="MS.navigate('auth', {mode:'register'})">
-              ${i === 1 ? '<div class="featured-badge">POPULER</div>' : ''}
-              <div class="price-icon">💎</div>
-              <div class="price-name">${pkg.name}</div>
-              <div class="price-value">${MS.formatPrice(pkg.price)}</div>
-              <div class="price-duration">${pkg.label}</div>
-            </div>
-          `).join('');
-        }
-      }
-      if (page === 'dashboard') {
-        const s = MS.getSession(); if (!s) return;
-        document.getElementById('dashAvatar').textContent = s.nama.charAt(0).toUpperCase();
-        document.getElementById('dashGreeting').textContent = 'Selamat datang, ' + s.nama + '!';
-        const prem = MS.isPremium();
-        document.getElementById('dashStatus').textContent = prem ? '⭐ Premium' : 'Free';
-        document.getElementById('premiumExpiryBanner').classList.toggle('hidden', !prem);
-        if (prem && s.premiumExpiry) {
-          document.getElementById('premiumExpiryText').textContent = ' Berlaku hingga ' + MS.formatDate(s.premiumExpiry);
-        }
-        const proj = MS.getProjects(s.username);
-        document.getElementById('statProjects').textContent = proj.length;
-        document.getElementById('statTracks').textContent = proj.reduce((a,p) => a + (p.tracks||[]).length, 0);
-        document.getElementById('statPremiumDays').textContent = prem ? (s.role==='superadmin'?'∞':Math.max(0, Math.ceil((new Date(s.premiumExpiry)-new Date())/86400000))+' hari') : '0';
-      }
+      if (page === 'landing') { const grid=document.getElementById('landingPriceGrid'); if (grid) grid.innerHTML=MS.getPackages().map((p,i)=>`<div class="price-card ${i===1?'featured':''}" onclick="MS.navigate('auth',{mode:'register'})">${i===1?'<div class="featured-badge">POPULER</div>':''}<div class="price-icon">💎</div><div class="price-name">${p.name}</div><div class="price-value">${MS.formatPrice(p.price)}</div><div class="price-duration">${p.label}</div></div>`).join(''); }
+      if (page === 'dashboard') { const s=MS.getSession(); if (!s) return; document.getElementById('dashAvatar').textContent=s.nama.charAt(0).toUpperCase(); document.getElementById('dashGreeting').textContent='Selamat datang, '+s.nama+'!'; const prem=MS.isPremium(); document.getElementById('dashStatus').textContent=prem?'⭐ Premium':'Free'; document.getElementById('premiumExpiryBanner').classList.toggle('hidden',!prem); if (prem&&s.premiumExpiry) document.getElementById('premiumExpiryText').textContent=' Berlaku hingga '+MS.formatDate(s.premiumExpiry); const proj=MS.getProjects(s.username); document.getElementById('statProjects').textContent=proj.length; document.getElementById('statTracks').textContent=proj.reduce((a,p)=>a+(p.tracks||[]).length,0); document.getElementById('statPremiumDays').textContent=prem?(s.role==='superadmin'?'∞':Math.max(0,Math.ceil((new Date(s.premiumExpiry)-new Date())/86400000))+' hari'):'0'; }
       if (page === 'proyek-list') renderProyekList();
-      if (page === 'proyek-editor') {
-        const s = MS.getSession(); if (!s) return;
-        const p = MS.getProjects(s.username).find(x => x.id === params.proyekId);
-        if (!p) return;
-        document.getElementById('editorProjectName').textContent = p.nama;
-        document.getElementById('editorTrackCount').textContent = (p.tracks||[]).length + ' trek';
-      }
-      if (page === 'auth') {
-        const mode = params && params.mode ? params.mode : 'login';
-        switchAuthTab(mode);
-      }
-      if (page === 'admin-panel') {
-        const s = MS.getSession();
-        if (!s || s.role !== 'superadmin') { MS.navigate('dashboard'); showToast('Akses ditolak.', 'error'); return; }
-        switchAdminTab('users');
-      }
-      if (page === 'profile') {
-        loadProfile();
-      }
-      if (page === 'premium') {
-        const grid = document.getElementById('premiumPriceGrid');
-        if (grid) {
-          grid.innerHTML = MS.getPackages().map((pkg, i) => `
-            <div class="price-card ${i === 1 ? 'featured' : ''}">
-              ${i === 1 ? '<div class="featured-badge">POPULER</div>' : ''}
-              <div class="price-icon">💎</div>
-              <div class="price-name">${pkg.name}</div>
-              <div class="price-value">${MS.formatPrice(pkg.price)}</div>
-              <div class="price-duration">${pkg.label}</div>
-            </div>
-          `).join('');
-        }
-      }
-      if (page === 'chat') {
-        const session = MS.getSession();
-        const isAdmin = session && session.role === 'superadmin';
-        const tabsContainer = document.getElementById('chatTabsContainer');
-        if (tabsContainer) {
-          tabsContainer.style.display = isAdmin ? 'flex' : 'none';
-        }
-        if (!isAdmin) {
-          currentChatFilter = 'admin';
-        } else {
-          currentChatFilter = 'all';
-          const userSelect = document.getElementById('chatUserSelect');
-          const adminActions = document.getElementById('adminChatActions');
-          if (userSelect) userSelect.style.display = 'block';
-          if (adminActions) adminActions.style.display = 'block';
-          const users = MS.getAllUsers().filter(u => u.role !== 'superadmin');
-          const select = document.getElementById('adminChatTarget');
-          if (select) {
-            select.innerHTML = '<option value="all">-- Semua User --</option>' +
-              users.map(u => `<option value="${u.username}">${u.nama} (${u.username})</option>`).join('');
-          }
-        }
-        loadChatMessages();
-      }
+      if (page === 'proyek-editor') { const s=MS.getSession(); if (!s) return; const p=MS.getProjects(s.username).find(x=>x.id===params.proyekId); if (!p) return; window._editorProject=p; window._editorUsername=s.username; document.getElementById('editorProjectName').textContent=p.nama; document.getElementById('editorTrackCount').textContent=(p.tracks||[]).length+' trek'; renderTracks(); }
+      if (page === 'auth') { const mode=params&&params.mode?params.mode:'login'; switchAuthTab(mode); }
+      if (page === 'admin-panel') { const s=MS.getSession(); if (!s||s.role!=='superadmin') { MS.navigate('dashboard'); showToast('Akses ditolak.','error'); return; } switchAdminTab('users'); }
+      if (page === 'profile') loadProfile();
+      if (page === 'premium') { const grid=document.getElementById('premiumPriceGrid'); if (grid) grid.innerHTML=MS.getPackages().map((p,i)=>`<div class="price-card ${i===1?'featured':''}">${i===1?'<div class="featured-badge">POPULER</div>':''}<div class="price-icon">💎</div><div class="price-name">${p.name}</div><div class="price-value">${MS.formatPrice(p.price)}</div><div class="price-duration">${p.label}</div></div>`).join(''); }
+      if (page === 'ai-voice-select') renderVoiceGrid();
+      if (page === 'hasil-generate') { const stored=localStorage.getItem('ms_last_generated'); if (stored) { try { renderHasil(JSON.parse(stored)); } catch(e) { document.getElementById('hasilContainer').innerHTML='<p class="text-warning">Data tidak valid.</p>'; } } else { document.getElementById('hasilContainer').innerHTML='<p class="text-secondary">Belum ada hasil.</p>'; } }
+      if (page === 'download-manager') { const session=MS.getSession(); const downloads=JSON.parse(localStorage.getItem('ms_download_log_'+(session?session.username:'guest'))||'[]'); renderDownloadList(downloads); window._downloads=downloads; }
+      if (page === 'chat') { const session=MS.getSession(); const isAdmin=session&&session.role==='superadmin'; const tabsContainer=document.getElementById('chatTabsContainer'), targetContainer=document.getElementById('chatTargetContainer'), adminActions=document.getElementById('adminChatActions'), massInfo=document.getElementById('massChatInfo'); if (isAdmin) { if (tabsContainer) tabsContainer.style.display='flex'; if (adminActions) adminActions.style.display='block'; currentChatTab='admin'; document.querySelectorAll('.chat-tab').forEach(t=>t.classList.remove('active')); const tabAdmin=document.getElementById('chatTabAdmin'); if (tabAdmin) tabAdmin.classList.add('active'); if (targetContainer) targetContainer.style.display='block'; if (massInfo) massInfo.style.display='none'; const all=MS.getChatMessages(); const ulist=[...new Set(all.filter(m=>m.to==='admin'||m.from==='admin').map(m=>m.from==='admin'?m.to:m.from))]; const users=MS.getAllUsers().filter(u=>ulist.includes(u.username)&&u.role!=='superadmin'); const select=document.getElementById('chatTargetSelect'); if (select) select.innerHTML='<option value="">-- Pilih User --</option>'+users.map(u=>`<option value="${u.username}">${u.nama} (${u.username})</option>`).join(''); } else { if (tabsContainer) tabsContainer.style.display='none'; if (targetContainer) targetContainer.style.display='none'; if (adminActions) adminActions.style.display='none'; currentChatTab='admin'; } loadChatMessages(); }
     };
   </script>
 </body>
