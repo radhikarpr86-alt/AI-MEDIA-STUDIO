@@ -1224,7 +1224,7 @@
 </template>
 
 <!-- ============================================================
-     BLOK 23 – TEMPLATE CHAT (modul-chat)
+     BLOK 23 – TEMPLATE CHAT (modul-chat) - REVISI LENGKAP
      ============================================================ -->
 <template id="modul-chat">
   <div class="chat-page">
@@ -1234,18 +1234,37 @@
     </div>
 
     <div class="chat-container" style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:16px;">
-      <!-- Area Pesan -->
-      <div id="chatMessages" style="height:350px;overflow-y:auto;background:var(--bg-tertiary);border-radius:8px;padding:10px;margin-bottom:12px;">
+
+      <!-- ========== TAB CHAT (HANYA UNTUK ADMIN) ========== -->
+      <div id="chatTabsContainer" style="display:none;gap:4px;margin-bottom:12px;">
+        <button class="chat-tab active" id="chatTabAdmin" onclick="chatSwitchTab('admin')">👑 Chat Admin</button>
+        <button class="chat-tab" id="chatTabUsers" onclick="chatSwitchTab('users')">👥 Chat User</button>
+        <button class="chat-tab" id="chatTabMass" onclick="chatSwitchTab('mass')">📢 Chat Massal</button>
+      </div>
+
+      <!-- ========== PILIH USER (HANYA UNTUK ADMIN) ========== -->
+      <div id="chatUserSelect" style="display:none;margin-bottom:12px;">
+        <label style="font-size:0.85rem;color:var(--text-secondary);display:block;margin-bottom:4px;">Pilih Tujuan:</label>
+        <select id="chatTargetSelect" onchange="chatLoad()" style="width:100%;padding:8px;border-radius:var(--radius-sm);background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color-strong);">
+          <option value="">-- Pilih User --</option>
+        </select>
+        <div id="massChatInfo" style="display:none;margin-top:8px;padding:8px;background:var(--color-warning);color:#000;border-radius:var(--radius-sm);font-size:0.85rem;">
+          📢 Pesan akan dikirim ke <strong>semua user</strong>.
+        </div>
+      </div>
+
+      <!-- ========== AREA PESAN ========== -->
+      <div id="chatMessages" style="height:300px;overflow-y:auto;background:var(--bg-tertiary);border-radius:8px;padding:10px;margin-bottom:12px;">
         <p style="color:var(--text-secondary);text-align:center;padding:20px;">Memuat pesan...</p>
       </div>
 
-      <!-- Input Chat -->
+      <!-- ========== INPUT CHAT ========== -->
       <div style="display:flex;gap:8px;">
         <input type="text" id="chatInput" placeholder="Ketik pesan Anda..." style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border-color-strong);background:var(--bg-tertiary);color:var(--text-primary);">
         <button class="btn btn-primary" onclick="chatSend()" style="padding:10px 20px;white-space:nowrap;">Kirim</button>
       </div>
 
-      <!-- Tombol Admin -->
+      <!-- ========== TOMBOL ADMIN ========== -->
       <div id="adminChatActions" style="display:none;margin-top:12px;text-align:right;">
         <button class="btn btn-sm btn-danger" onclick="chatClear()">🗑 Hapus Semua Chat</button>
       </div>
@@ -2148,7 +2167,79 @@
       }
     }
 
-    // ========== CHAT (FINAL - PASTI BERFUNGSI) ==========
+    // ========== CHAT (LENGKAP: ADMIN + USER + MASSAL) ==========
+    var chatCurrentTab = 'admin';
+    var chatSelectedTarget = '';
+
+    function chatSwitchTab(tab) {
+      chatCurrentTab = tab;
+
+      var tabs = document.querySelectorAll('.chat-tab');
+      for (var i=0;i<tabs.length;i++) { tabs[i].classList.remove('active'); }
+      var tabEl = document.getElementById('chatTab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+      if (tabEl) tabEl.classList.add('active');
+
+      var session = MS.getSession();
+      var isAdmin = session && session.role === 'superadmin';
+      var targetContainer = document.getElementById('chatUserSelect');
+      var massInfo = document.getElementById('massChatInfo');
+      var select = document.getElementById('chatTargetSelect');
+
+      if (isAdmin) {
+        if (targetContainer) targetContainer.style.display = 'block';
+
+        if (tab === 'admin') {
+          if (massInfo) massInfo.style.display = 'none';
+          if (select) {
+            var allMessages = MS.getChatMessages();
+            var userList = [];
+            for (var i=0;i<allMessages.length;i++) {
+              var m = allMessages[i];
+              var other = (m.from === 'admin') ? m.to : m.from;
+              if (other !== 'admin' && other !== 'all' && userList.indexOf(other)===-1) userList.push(other);
+            }
+            var users = MS.getAllUsers();
+            var opts = '<option value="">-- Pilih User --</option>';
+            for (var i=0;i<users.length;i++) {
+              if (users[i].role !== 'superadmin' && userList.indexOf(users[i].username)!==-1) {
+                opts += '<option value="'+users[i].username+'">'+users[i].nama+' ('+users[i].username+')</option>';
+              }
+            }
+            select.innerHTML = opts;
+          }
+          chatSelectedTarget = select ? select.value : '';
+        } else if (tab === 'users') {
+          if (massInfo) massInfo.style.display = 'none';
+          if (select) {
+            var allMessages = MS.getChatMessages();
+            var userList = [];
+            for (var i=0;i<allMessages.length;i++) {
+              var m = allMessages[i];
+              if (m.from !== 'admin' && m.to !== 'admin') {
+                if (userList.indexOf(m.from)===-1) userList.push(m.from);
+                if (userList.indexOf(m.to)===-1) userList.push(m.to);
+              }
+            }
+            var users = MS.getAllUsers();
+            var opts = '<option value="">-- Pilih User --</option>';
+            for (var i=0;i<users.length;i++) {
+              if (users[i].role !== 'superadmin' && userList.indexOf(users[i].username)!==-1) {
+                opts += '<option value="'+users[i].username+'">'+users[i].nama+' ('+users[i].username+')</option>';
+              }
+            }
+            select.innerHTML = opts;
+          }
+          chatSelectedTarget = select ? select.value : '';
+        } else if (tab === 'mass') {
+          if (massInfo) massInfo.style.display = 'block';
+          if (select) select.innerHTML = '<option value="all">Semua User</option>';
+          chatSelectedTarget = 'all';
+        }
+      }
+
+      chatLoad();
+    }
+
     function chatLoad() {
       var allMessages = MS.getChatMessages();
       var session = MS.getSession();
@@ -2156,8 +2247,37 @@
       var isAdmin = session && session.role === 'superadmin';
 
       var filtered = [];
+
       if (isAdmin) {
-        filtered = allMessages;
+        if (chatCurrentTab === 'admin') {
+          if (chatSelectedTarget && chatSelectedTarget !== 'all') {
+            for (var i=0;i<allMessages.length;i++) {
+              var m = allMessages[i];
+              if ((m.from === 'admin' && m.to === chatSelectedTarget) || (m.from === chatSelectedTarget && m.to === 'admin')) {
+                filtered.push(m);
+              }
+            }
+          } else {
+            for (var i=0;i<allMessages.length;i++) {
+              if (allMessages[i].to === 'admin' || allMessages[i].from === 'admin') filtered.push(allMessages[i]);
+            }
+          }
+        } else if (chatCurrentTab === 'users') {
+          for (var i=0;i<allMessages.length;i++) {
+            if (allMessages[i].from !== 'admin' && allMessages[i].to !== 'admin') filtered.push(allMessages[i]);
+          }
+          if (chatSelectedTarget && chatSelectedTarget !== 'all') {
+            var temp = [];
+            for (var i=0;i<filtered.length;i++) {
+              if (filtered[i].from === chatSelectedTarget || filtered[i].to === chatSelectedTarget) temp.push(filtered[i]);
+            }
+            filtered = temp;
+          }
+        } else if (chatCurrentTab === 'mass') {
+          for (var i=0;i<allMessages.length;i++) {
+            if (allMessages[i].to === 'all' && allMessages[i].from === 'admin') filtered.push(allMessages[i]);
+          }
+        }
       } else {
         for (var i=0;i<allMessages.length;i++) {
           var m = allMessages[i];
@@ -2186,8 +2306,14 @@
         var bg = isMe ? 'var(--accent-primary)' : 'var(--bg-hover)';
         var color = isMe ? '#fff' : 'var(--text-primary)';
         var align = isMe ? 'right' : 'left';
+        var targetInfo = '';
+        if (m.to !== 'all' && m.to !== 'admin') {
+          targetInfo = ' → ' + MS.escapeHTML(m.to);
+        } else if (m.to === 'all') {
+          targetInfo = ' (semua)';
+        }
         html += '<div style="margin-bottom:8px;text-align:'+align+';">';
-        html += '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:2px;"><strong>'+MS.escapeHTML(m.from)+'</strong> &middot; '+new Date(m.time).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'})+'</div>';
+        html += '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:2px;"><strong>'+MS.escapeHTML(m.from)+'</strong>'+targetInfo+' &middot; '+new Date(m.time).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'})+'</div>';
         html += '<div style="display:inline-block;max-width:80%;padding:8px 14px;border-radius:16px;background:'+bg+';color:'+color+';">'+MS.escapeHTML(m.text)+'</div>';
         html += '</div>';
       }
@@ -2205,9 +2331,20 @@
       var currentUser = session ? session.username : 'guest';
       var isAdmin = session && session.role === 'superadmin';
 
+      var target = 'admin';
+
+      if (isAdmin) {
+        if (chatCurrentTab === 'mass') {
+          target = 'all';
+        } else {
+          var select = document.getElementById('chatTargetSelect');
+          target = (select && select.value) ? select.value : 'admin';
+        }
+      }
+
       var newMsg = {
         from: isAdmin ? 'admin' : currentUser,
-        to: isAdmin ? 'all' : 'admin',
+        to: target,
         text: text,
         time: new Date().toISOString()
       };
@@ -2216,8 +2353,19 @@
       msgs.push(newMsg);
       MS.saveChatMessages(msgs);
       input.value = '';
+
+      if (isAdmin && target !== 'all') {
+        chatSelectedTarget = target;
+        var select = document.getElementById('chatTargetSelect');
+        if (select) select.value = target;
+      }
+
       chatLoad();
-      showToast('✅ Pesan terkirim!', 'success');
+      if (target === 'all') {
+        showToast('📢 Pesan massal terkirim ke semua user!', 'success');
+      } else {
+        showToast('✅ Pesan terkirim!', 'success');
+      }
     }
 
     function chatClear() {
@@ -2330,9 +2478,46 @@
       if (page === 'chat') {
         var session = MS.getSession();
         var isAdmin = session && session.role === 'superadmin';
+        var tabsContainer = document.getElementById('chatTabsContainer');
+        var targetContainer = document.getElementById('chatUserSelect');
         var adminActions = document.getElementById('adminChatActions');
-        if (isAdmin) { if (adminActions) adminActions.style.display = 'block'; }
-        else { if (adminActions) adminActions.style.display = 'none'; }
+        var massInfo = document.getElementById('massChatInfo');
+
+        if (isAdmin) {
+          if (tabsContainer) tabsContainer.style.display = 'flex';
+          if (adminActions) adminActions.style.display = 'block';
+          chatCurrentTab = 'admin';
+          var allTabs = document.querySelectorAll('.chat-tab');
+          for (var i=0;i<allTabs.length;i++) { allTabs[i].classList.remove('active'); }
+          var tabAdmin = document.getElementById('chatTabAdmin');
+          if (tabAdmin) tabAdmin.classList.add('active');
+          if (targetContainer) targetContainer.style.display = 'block';
+          if (massInfo) massInfo.style.display = 'none';
+          var allMessages = MS.getChatMessages();
+          var userList = [];
+          for (var i=0;i<allMessages.length;i++) {
+            var m = allMessages[i];
+            var other = (m.from === 'admin') ? m.to : m.from;
+            if (other !== 'admin' && other !== 'all' && userList.indexOf(other)===-1) userList.push(other);
+          }
+          var users = MS.getAllUsers();
+          var select = document.getElementById('chatTargetSelect');
+          if (select) {
+            var opts = '<option value="">-- Pilih User --</option>';
+            for (var i=0;i<users.length;i++) {
+              if (users[i].role !== 'superadmin' && userList.indexOf(users[i].username)!==-1) {
+                opts += '<option value="'+users[i].username+'">'+users[i].nama+' ('+users[i].username+')</option>';
+              }
+            }
+            select.innerHTML = opts;
+          }
+        } else {
+          if (tabsContainer) tabsContainer.style.display = 'none';
+          if (targetContainer) targetContainer.style.display = 'none';
+          if (adminActions) adminActions.style.display = 'none';
+          chatCurrentTab = 'admin';
+        }
+
         setTimeout(function() { chatLoad(); }, 200);
       }
     };
