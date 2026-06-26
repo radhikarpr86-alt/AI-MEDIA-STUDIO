@@ -1,1321 +1,1683 @@
-<script>
-  // Pastikan core.js sudah di-include sebelumnya (blok 2),
-  // lalu panggil MS.init() langsung
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    if (typeof MS !== 'undefined' && typeof MS.init === 'function') {
-      MS.init();
-    } else {
-      document.getElementById('initialLoader').innerHTML = '<p style="color:red;">Gagal memuat core.js. Muat ulang.</p>';
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Musik+ Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231a1a2e'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-size='60' fill='%23ff6b9d'%3E🎵%3C/text%3E%3C/svg%3E">
+  <style>
+    /* ========== SEMUA CSS GLOBAL ========== */
+    :root {
+      --bg-primary: #1a1a2e; --bg-secondary: #16213e; --bg-tertiary: #0f3460;
+      --text-primary: #e0e0ff; --text-secondary: #a0a0c0; --text-muted: #6a6a8a;
+      --accent-primary: #e94560; --accent-hover: #c23152; --accent-light: #ff6b9d;
+      --color-success: #2ecc71; --color-danger: #e74c3c; --color-warning: #f39c12;
+      --color-info: #3498db; --color-pink: #fd79a8;
+      --border-color: rgba(255,255,255,0.08); --border-color-strong: rgba(255,255,255,0.15);
+      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+      --spacing-sm: 8px; --spacing-md: 12px; --spacing-lg: 16px; --spacing-xl: 20px;
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.6);
     }
-  } else {
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof MS !== 'undefined' && typeof MS.init === 'function') {
-        MS.init();
-      }
-    });
-  }
-</script>
-
-// ============================================================
-// MUSIK+ STUDIO v1.0 - CORE ENGINE (core.js) - BLOK 2 REVISI
-// Diletakkan SEBELUM script pemanggil MS.init() di index.html
-// ============================================================
-(function() {
-  'use strict';
-
-  window.MS = window.MS || {};
-
-  const CONFIG = {
-    APP_NAME: 'Musik+ Studio',
-    VERSION: '1.0',
-    STORAGE_PREFIX: 'ms_',
-    MODULES_PATH: 'modules/',
-    DEFAULT_ADMIN: {
-      id: 'sa',
-      username: 'superadmin',
-      password: btoa('admin123'),
-      nama: 'Super Admin',
-      email: 'admin@musikplus.com',
-      hp: '081220285226',
-      role: 'superadmin',
-      premium: true,
-      premiumExpiry: null,
-      locked: false
-    },
-    DEFAULT_PACKAGES: [
-      { id: '1bulan', name: 'Basic', price: 25000, days: 30, label: '1 Bulan' },
-      { id: '3bulan', name: 'Premium', price: 50000, days: 90, label: '3 Bulan' },
-      { id: '6bulan', name: 'Enterprise', price: 75000, days: 180, label: '6 Bulan' }
-    ]
-  };
-
-  // ========== STORAGE HELPERS ==========
-  function storageGet(key, defaultValue) {
-    try {
-      const value = localStorage.getItem(CONFIG.STORAGE_PREFIX + key);
-      return value ? JSON.parse(value) : defaultValue;
-    } catch (e) {
-      return defaultValue;
+    body.light-theme {
+      --bg-primary: #f5f5fa; --bg-secondary: #ffffff; --bg-tertiary: #e8e8f0;
+      --text-primary: #1e1e2f; --text-secondary: #4a4a6a; --text-muted: #7a7a9a;
+      --border-color: rgba(0,0,0,0.08); --border-color-strong: rgba(0,0,0,0.12);
     }
-  }
-
-  function storageSet(key, value) {
-    localStorage.setItem(CONFIG.STORAGE_PREFIX + key, JSON.stringify(value));
-  }
-
-  function storageRemove(key) {
-    localStorage.removeItem(CONFIG.STORAGE_PREFIX + key);
-  }
-
-  // ========== DATA ACCESS ==========
-  function getAllUsers() { return storageGet('users', []); }
-  function saveAllUsers(users) { storageSet('users', users); }
-  function getSession() { return storageGet('session', null); }
-  function saveSession(session) { storageSet('session', session); }
-  function clearSession() { storageRemove('session'); }
-  function getValidCodes() { return storageGet('validCodes', {}); }
-  function saveValidCodes(codes) { storageSet('validCodes', codes); }
-  function getPackages() { return storageGet('packages', CONFIG.DEFAULT_PACKAGES); }
-  function savePackages(pkg) { storageSet('packages', pkg); }
-  function getChatMessages() { return storageGet('chatMessages', []); }
-  function saveChatMessages(msgs) { storageSet('chatMessages', msgs); }
-
-  function getProjects(username) {
-    const all = storageGet('projects', {});
-    return all[username] || [];
-  }
-  function saveProjects(username, projects) {
-    const all = storageGet('projects', {});
-    all[username] = projects;
-    storageSet('projects', all);
-  }
-
-  // ========== UTILITIES ==========
-  function escapeHTML(str) {
-    if (!str) return '';
-    return str.replace(/[&<>"']/g, function(m) {
-      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-      return map[m];
-    });
-  }
-
-  function formatDate(isoString) {
-    if (!isoString) return '-';
-    return new Date(isoString).toLocaleDateString('id-ID', {
-      year: 'numeric', month: 'short', day: 'numeric'
-    });
-  }
-
-  function formatPrice(price) {
-    return 'Rp ' + price.toLocaleString('id-ID');
-  }
-
-  function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
-  // ========== NAVIGATION ==========
-  let currentPage = null;
-
-  async function navigate(page, params = {}) {
-    const container = document.getElementById('appContainer');
-    if (!container) return;
-
-    container.innerHTML = `
-      <div class="loader-container">
-        <div class="loader-spinner"></div>
-        <div class="loader-text">Memuat ${page}...</div>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary); color: var(--text-primary);
+      min-height: 100vh; transition: background 0.3s, color 0.3s;
+    }
+    .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+    .app-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--spacing-md) var(--spacing-xl); background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 10;
+    }
+    .app-logo { font-size: 1.3rem; font-weight: 700; }
+    .main-content { flex: 1; padding: var(--spacing-xl); animation: fadeIn 0.3s; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+      border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; border: none;
+      font-size: 0.85rem; background: var(--bg-tertiary); color: var(--text-primary);
+    }
+    .btn-primary { background: var(--accent-primary); color: #fff; }
+    .btn-sm { padding: 4px 12px; font-size: 0.8rem; }
+    .btn-lg { padding: 12px 28px; font-size: 1rem; }
+    .btn-block { width: 100%; justify-content: center; }
+    .toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none; }
+    .toast {
+      background: var(--bg-secondary); color: var(--text-primary); padding: 10px 20px;
+      border-radius: var(--radius-sm); border: 1px solid var(--border-color);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.7); font-size: 0.9rem; opacity: 0;
+      transform: translateY(20px); transition: 0.3s; margin-bottom: 8px;
+      border-left: 4px solid var(--accent-primary); pointer-events: auto;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .hidden { display: none !important; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .section-header h2 { font-size: 1.5rem; font-weight: 700; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 10px 14px; border: 1px solid var(--border-color-strong);
+      border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);
+      font-size: 0.9rem; font-family: inherit;
+    }
+    .form-error, .form-success { font-size: 0.85rem; padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 8px; display: none; }
+    .form-error.show { display: block; background: rgba(231,76,60,0.1); color: var(--color-danger); }
+    .form-success.show { display: block; background: rgba(46,204,113,0.1); color: var(--color-success); }
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center;
+      z-index: 998; padding: var(--spacing-lg);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-content {
+      background: var(--bg-secondary); border-radius: var(--radius-lg); max-width: 500px; width: 100%;
+      padding: 24px; border: 1px solid var(--border-color); max-height: 85vh; overflow-y: auto;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h3 { font-size: 1.2rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; color: var(--text-secondary); cursor: pointer; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+    /* tambahan CSS modul (sebagian besar sudah ada di atas) */
+    .landing-page, .auth-page, .dashboard-page, .proyek-list-page, .editor-page,
+    .upload-page, .rekam-page, .stem-page, .mixer-page, .lirik-sync-page,
+    .lirik-display-page, .transpose-page, .modifikasi-page, .ai-generator-page,
+    .voice-select-page, .lyrics-gen-page, .hasil-page, .download-page,
+    .premium-page, .admin-page, .chat-page, .backup-page, .settings-page, .help-page {
+      max-width: 900px; margin: 0 auto;
+    }
+    .hero { text-align: center; padding: 40px 20px; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 30px; }
+    .hero-icon { font-size: 4rem; margin-bottom: 16px; }
+    .gradient-text { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-light), #ff9a9e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-description { color: var(--text-secondary); max-width: 600px; margin: 0 auto 24px; }
+    .hero-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .feature-card { background: var(--bg-secondary); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center; }
+    .feature-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .feature-card h4 { font-size: 1.1rem; margin-bottom: 8px; }
+    .feature-card p { font-size: 0.85rem; color: var(--text-secondary); }
+    .price-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-bottom: 20px; }
+    .price-card { background: var(--bg-secondary); padding: 30px 20px; border-radius: var(--radius-lg); border: 2px solid var(--border-color); text-align: center; cursor: pointer; position: relative; }
+    .price-card.featured { border-color: var(--accent-primary); }
+    .featured-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent-primary); color: #fff; padding: 3px 16px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+    .price-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .price-name { font-size: 1.2rem; font-weight: 700; }
+    .price-value { font-size: 2rem; font-weight: 800; color: var(--color-success); margin: 10px 0; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center; }
+    .stat-icon { font-size: 1.5rem; } .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--accent-light); } .stat-label { font-size: 0.8rem; color: var(--text-secondary); }
+    .quick-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .action-card { background: var(--bg-secondary); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); cursor: pointer; text-align: center; }
+    .action-icon { font-size: 2rem; } .action-card h4 { font-size: 0.95rem; margin: 8px 0 4px; } .action-card p { font-size: 0.8rem; color: var(--text-secondary); }
+    .dashboard-welcome { display: flex; align-items: center; gap: 20px; padding: 24px; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 24px; }
+    .welcome-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-light)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; font-weight: 700; }
+    .welcome-text h2 { font-size: 1.3rem; font-weight: 700; }
+    .welcome-text p { color: var(--text-secondary); }
+    .proyek-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .proyek-card { background: var(--bg-secondary); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+    .proyek-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .editor-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .transport-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-bottom: 20px; }
+    .track-list { margin-bottom: 20px; }
+    .track-item { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px; }
+    .track-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .track-name { font-weight: 600; min-width: 120px; }
+    .track-controls { display: flex; align-items: center; gap: 8px; }
+    .auth-container { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 30px; max-width: 420px; margin: 0 auto; }
+    .auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 4px; }
+    .auth-tab { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; font-size: 0.85rem; border-radius: var(--radius-sm); cursor: pointer; }
+    .auth-tab.active { background: var(--accent-primary); color: #fff; }
+    .auth-form h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; text-align: center; }
+    .auth-switch { text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-secondary); }
+    .auth-switch span { color: var(--accent-light); cursor: pointer; font-weight: 600; }
+    .chat-messages { height: 300px; overflow-y: auto; margin-bottom: 12px; padding: 8px; background: var(--bg-tertiary); border-radius: var(--radius-sm); }
+    .chat-bubble { margin-bottom: 8px; padding: 8px 12px; border-radius: var(--radius-sm); max-width: 80%; }
+    .chat-bubble.me { background: var(--accent-primary); color: #fff; margin-left: auto; }
+    .chat-bubble.other { background: var(--bg-hover); color: var(--text-primary); }
+    .chat-input-row { display: flex; gap: 8px; } .chat-input-row input { flex: 1; }
+    .admin-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+    .admin-tab { padding: 8px 16px; border: 2px solid var(--accent-primary); background: transparent; color: var(--accent-light); border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; }
+    .admin-tab.active { background: var(--accent-primary); color: #fff; }
+    .admin-table { width: 100%; border-collapse: collapse; } .admin-table th, .admin-table td { padding: 6px 10px; border: 1px solid var(--border-color); }
+    .badge { display: inline-flex; padding: 2px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: var(--accent-primary); color: #fff; }
+    .empty-state { text-align: center; padding: 40px; color: var(--text-secondary); }
+    .empty-icon { font-size: 3rem; }
+    .premium-banner { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-light)); border-radius: var(--radius-md); color: #fff; margin-bottom: 24px; }
+    .premium-action { opacity: 0.8; }
+    .spinner { width: 30px; height: 30px; border: 3px solid var(--border-color); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-logo">🎵 Musik+ Studio</div>
+      <div>
+        <button class="btn btn-sm" onclick="toggleTheme()">🌓</button>
       </div>
-    `;
+    </header>
+    <main class="main-content" id="appContainer">
+      <div id="initialLoader" style="text-align:center;padding:40px;">Memuat...</div>
+    </main>
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
 
-    try {
-      const response = await fetch(CONFIG.MODULES_PATH + page + '.html');
-      if (!response.ok) throw new Error('Modul tidak ditemukan (404)');
-      const html = await response.text();
-      container.innerHTML = html;
-      currentPage = page;
-
-      if (typeof MS.pageInit === 'function') {
-        MS.pageInit(page, params);
-      }
-    } catch (error) {
-      console.error('Gagal memuat modul:', error);
-      container.innerHTML = `
-        <div style="text-align:center;padding:40px;">
-          <div style="font-size:3rem;">⚠️</div>
-          <h2>Gagal Memuat Halaman</h2>
-          <p style="color:var(--text-secondary);">${escapeHTML(error.message)}</p>
-          <button class="btn btn-primary" style="margin-top:16px;" onclick="MS.navigate('dashboard')">
-            Kembali ke Dashboard
-          </button>
-        </div>
-      `;
-    }
-  }
-
-  // ========== TOAST ==========
-  function toast(message, type = 'info') {
-    if (typeof showToast === 'function') {
-      showToast(message, type);
-    } else {
-      console.log('TOAST:', message);
-    }
-  }
-
-  // ========== MODAL ==========
-  function showModal(id) {
-    const modal = document.getElementById(id);
-    if (!modal) return;
-    modal.style.display = 'flex';
-    void modal.offsetWidth;
-    modal.classList.add('show');
-  }
-
-  function hideModal(id) {
-    const modal = document.getElementById(id);
-    if (!modal) return;
-    modal.classList.remove('show');
-    setTimeout(() => { modal.style.display = 'none'; }, 300);
-  }
-
-  // ========== PREMIUM CHECK ==========
-  function isPremium() {
-    const session = getSession();
-    if (!session) return false;
-    if (session.role === 'superadmin') return true;
-    if (!session.premium) return false;
-    if (session.premiumExpiry) {
-      const exp = new Date(session.premiumExpiry);
-      if (exp < new Date()) {
-        session.premium = false;
-        session.premiumExpiry = null;
-        saveSession(session);
-        const users = getAllUsers();
-        const idx = users.findIndex(u => u.id === session.id);
-        if (idx !== -1) {
-          users[idx].premium = false;
-          users[idx].premiumExpiry = null;
-          saveAllUsers(users);
-        }
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function getPremiumStatusText() {
-    const session = getSession();
-    if (!session) return 'Tidak login';
-    if (session.role === 'superadmin') return 'Super Admin (Akses Penuh)';
-    if (session.premium && session.premiumExpiry && new Date(session.premiumExpiry) > new Date()) {
-      return `Premium hingga ${formatDate(session.premiumExpiry)}`;
-    }
-    return 'Free (Terbatas)';
-  }
-
-  // ========== AKTIVASI PREMIUM ==========
-  function activatePremium(code) {
-    const session = getSession();
-    if (!session) return { success: false, message: 'Login terlebih dahulu!' };
-
-    const codes = getValidCodes();
-    const codeData = codes[code];
-    if (!codeData) return { success: false, message: 'Kode aktivasi tidak ditemukan.' };
-    if (codeData.used) return { success: false, message: 'Kode sudah digunakan oleh pengguna lain.' };
-
-    const pkg = getPackages().find(p => p.id === codeData.packageId) || getPackages()[0];
-    const exp = new Date(Date.now() + pkg.days * 86400000);
-
-    const users = getAllUsers();
-    const idx = users.findIndex(u => u.id === session.id);
-    if (idx === -1) return { success: false, message: 'Data pengguna tidak valid.' };
-
-    users[idx].premium = true;
-    users[idx].premiumExpiry = exp.toISOString();
-    saveAllUsers(users);
-
-    codeData.used = true;
-    codeData.usedBy = session.username;
-    codeData.usedAt = new Date().toISOString();
-    codes[code] = codeData;
-    saveValidCodes(codes);
-
-    session.premium = true;
-    session.premiumExpiry = exp.toISOString();
-    saveSession(session);
-
-    return {
-      success: true,
-      message: `Selamat! Premium aktif hingga ${formatDate(exp.toISOString())}.`
-    };
-  }
-
-  // ========== LOGOUT ==========
-  function logout() {
-    clearSession();
-    navigate('landing');
-    toast('Anda telah logout.', 'info');
-  }
-
-  // ========== INISIALISASI ==========
-  function init() {
-    console.log('Musik+ Studio v' + CONFIG.VERSION + ' initializing...');
-
-    // Pastikan superadmin ada
-    const users = getAllUsers();
-    if (!users.find(u => u.role === 'superadmin')) {
-      users.push(CONFIG.DEFAULT_ADMIN);
-      saveAllUsers(users);
-      console.log('Super admin default dibuat.');
-    }
-
-    // Hapus loader awal
-    const loader = document.getElementById('initialLoader');
-    if (loader) loader.remove();
-
-    // Arahkan ke halaman sesuai sesi
-    const session = getSession();
-    if (session) {
-      navigate('dashboard');
-      toast(`Selamat datang, ${session.nama}!`, 'success');
-    } else {
-      navigate('landing');
-    }
-  }
-
-  // ========== PUBLIC API ==========
-  Object.assign(MS, {
-    CONFIG,
-    navigate,
-    getCurrentPage: () => currentPage,
-    storageGet,
-    storageSet,
-    storageRemove,
-    getAllUsers,
-    saveAllUsers,
-    getSession,
-    saveSession,
-    clearSession,
-    getValidCodes,
-    saveValidCodes,
-    getPackages,
-    savePackages,
-    getChatMessages,
-    saveChatMessages,
-    getProjects,
-    saveProjects,
-    isPremium,
-    getPremiumStatusText,
-    activatePremium,
-    toast,
-    showModal,
-    hideModal,
-    escapeHTML,
-    formatDate,
-    formatPrice,
-    isValidEmail,
-    logout,
-    init
-  });
-
-  // ⚠️ TIDAK memanggil MS.init() di sini.
-  // Pemanggilan dilakukan oleh script di index.html setelah semua siap.
-})();
+  <!-- ========== TEMPLATE MODUL DISISIPKAN DI SINI ========== -->
 
 <!-- ============================================================
-     BLOK 3 - MODUL LANDING (modules/landing.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 3 – TEMPLATE LANDING (modul-landing)
+     Salin ke dalam index.html di antara template lainnya
      ============================================================ -->
-<div class="landing-page">
-  <section class="hero">
-    <div class="hero-icon">🎵</div>
-    <h1 class="gradient-text">Musik+ Studio</h1>
-    <p class="hero-description">
-      Rekam, pisahkan instrumen, buat lagu dengan AI, dan kelola proyek musik Anda. <strong>Offline, multi‑user, dan premium.</strong>
-    </p>
-    <div class="hero-buttons">
-      <button class="btn btn-primary btn-lg" onclick="MS.navigate('auth')">🔐 Masuk</button>
-      <button class="btn btn-outline btn-lg" onclick="MS.navigate('auth', {mode:'register'})">📝 Daftar</button>
-      <button class="btn btn-lg" style="background:#25D366;color:#fff;" onclick="MS.navigate('chat', {guest:true})">💬 Chat Admin</button>
-    </div>
-  </section>
-
-  <h2 class="section-title">Fitur Unggulan</h2>
-  <div class="features-grid">
-    <div class="feature-card"><div class="feature-icon">🎤</div><h4>Rekam & Upload</h4><p>Rekam suara/instrumen langsung atau upload dari HP.</p></div>
-    <div class="feature-card"><div class="feature-icon">🎛️</div><h4>Pemisahan Instrumen</h4><p>Pisahkan vokal, drum, bass, gitar, dan lainnya.</p></div>
-    <div class="feature-card"><div class="feature-icon">🤖</div><h4>AI Generator</h4><p>Buat lagu lengkap dengan lirik dan vokal AI.</p></div>
-    <div class="feature-card"><div class="feature-icon">🎹</div><h4>Karaoke Project</h4><p>Lirik berjalan, ubah kunci, modifikasi genre.</p></div>
-    <div class="feature-card"><div class="feature-icon">💾</div><h4>Backup & Offline</h4><p>Simpan proyek, akses tanpa internet.</p></div>
-    <div class="feature-card"><div class="feature-icon">💬</div><h4>Chat Internal</h4><p>Hubungi admin & sesama pengguna.</p></div>
-  </div>
-
-  <h2 class="section-title">Paket Premium</h2>
-  <div class="price-grid" id="landingPriceGrid">
-    <!-- Diisi oleh JS global (renderLandingPackages) -->
-  </div>
-  <div style="text-align:center;margin:20px 0;">
-    <button class="btn btn-primary" onclick="MS.navigate('auth', {mode:'register'})">Daftar & Coba Premium</button>
-  </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadLandingHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 4 - MODUL AUTH (modules/auth.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="auth-page">
-  <div class="auth-container">
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">🔐 Login</button>
-      <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">📝 Daftar</button>
-      <button class="auth-tab" id="tabForgot" onclick="switchAuthTab('forgot')">❓ Lupa</button>
-    </div>
-
-    <!-- Form Login -->
-    <div class="auth-form" id="formLogin">
-      <h3>Masuk ke Musik+</h3>
-      <div class="form-group"><label>Username/Email</label><input type="text" id="loginUsername"></div>
-      <div class="form-group"><label>Password</label><input type="password" id="loginPassword"></div>
-      <div class="form-error" id="loginError"></div>
-      <button class="btn btn-primary btn-block" onclick="handleLogin()">Masuk</button>
-      <p class="auth-switch">Belum punya akun? <span onclick="switchAuthTab('register')">Daftar</span></p>
-    </div>
-
-    <!-- Form Register -->
-    <div class="auth-form hidden" id="formRegister">
-      <h3>Daftar Akun Baru</h3>
-      <div class="form-group"><label>Nama Lengkap</label><input type="text" id="regNama"></div>
-      <div class="form-group"><label>Email</label><input type="email" id="regEmail"></div>
-      <div class="form-group"><label>No HP</label><input type="text" id="regHp"></div>
-      <div class="form-group"><label>Username</label><input type="text" id="regUsername"></div>
-      <div class="form-group"><label>Password (min 6)</label><input type="password" id="regPassword"></div>
-      <div class="form-group"><label>Konfirmasi Password</label><input type="password" id="regPasswordConfirm"></div>
-      <div class="form-error" id="regError"></div>
-      <div class="form-success" id="regSuccess"></div>
-      <button class="btn btn-primary btn-block" onclick="handleRegister()">Daftar</button>
-      <p class="auth-switch">Sudah punya akun? <span onclick="switchAuthTab('login')">Login</span></p>
-    </div>
-
-    <!-- Form Lupa Password -->
-    <div class="auth-form hidden" id="formForgot">
-      <h3>Lupa Password</h3>
-      <p style="color:var(--text-secondary);margin-bottom:16px;">Masukkan data, admin akan mereset via chat.</p>
-      <div class="form-group"><label>Nama</label><input type="text" id="forgotNama"></div>
-      <div class="form-group"><label>Email</label><input type="email" id="forgotEmail"></div>
-      <div class="form-group"><label>No HP</label><input type="text" id="forgotHp"></div>
-      <button class="btn btn-warning btn-block" onclick="handleForgotPassword()">Kirim Permintaan</button>
-      <p class="auth-switch"><span onclick="switchAuthTab('login')">Kembali ke Login</span></p>
-    </div>
-  </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadAuthHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 5 - MODUL DASHBOARD (modules/dashboard.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="dashboard-page">
-  <div class="dashboard-welcome">
-    <div class="welcome-avatar" id="dashAvatar">U</div>
-    <div class="welcome-text">
-      <h2 id="dashGreeting">Selamat datang!</h2>
-      <p id="dashStatus">Status: Free</p>
-    </div>
-    <button class="btn btn-sm" style="background:var(--color-pink);color:#fff;" onclick="MS.navigate('premium')">🔑 Upgrade</button>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card"><div class="stat-icon">🎹</div><div class="stat-value" id="statProjects">0</div><div class="stat-label">Proyek</div></div>
-    <div class="stat-card"><div class="stat-icon">🎵</div><div class="stat-value" id="statTracks">0</div><div class="stat-label">Trek</div></div>
-    <div class="stat-card"><div class="stat-icon">💾</div><div class="stat-value" id="statStorage">0 KB</div><div class="stat-label">Penyimpanan</div></div>
-    <div class="stat-card"><div class="stat-icon">⬇️</div><div class="stat-value" id="statDownloads">0</div><div class="stat-label">Download</div></div>
-    <div class="stat-card premium-stat"><div class="stat-icon">⭐</div><div class="stat-value" id="statPremiumDays">-</div><div class="stat-label">Sisa Premium</div></div>
-  </div>
-
-  <h3 class="section-title">⚡ Quick Actions</h3>
-  <div class="quick-actions">
-    <div class="action-card" onclick="MS.navigate('proyek-list')"><div class="action-icon">📁</div><h4>Proyek Saya</h4><p>Kelola proyek musik</p></div>
-    <div class="action-card" onclick="MS.navigate('upload-media')"><div class="action-icon">📤</div><h4>Upload Media</h4><p>Upload audio/video</p></div>
-    <div class="action-card" onclick="MS.navigate('rekam-audio')"><div class="action-icon">🎤</div><h4>Rekam Audio</h4><p>Rekam suara/instrumen</p></div>
-    <div class="action-card premium-action" onclick="MS.navigate('ai-generator')"><div class="action-icon">🤖</div><h4>AI Generator ⭐</h4><p>Buat lagu dengan AI</p></div>
-    <div class="action-card" onclick="MS.navigate('lirik-sync')"><div class="action-icon">📝</div><h4>Tulis Lirik</h4><p>Sinkronisasi lirik</p></div>
-    <div class="action-card premium-action" onclick="MS.navigate('stem-separation')"><div class="action-icon">🎛️</div><h4>Pisah Instrumen ⭐</h4><p>Stem separation</p></div>
-    <div class="action-card" onclick="MS.navigate('chat')"><div class="action-icon">💬</div><h4>Chat</h4><p>Hubungi admin/user</p></div>
-    <div class="action-card" onclick="MS.navigate('backup-restore')"><div class="action-icon">💾</div><h4>Backup/Restore</h4><p>Amankan data</p></div>
-  </div>
-
-  <div class="premium-banner hidden" id="premiumExpiryBanner">
-    <div><strong>⭐ Premium Aktif</strong><span id="premiumExpiryText"></span></div>
-    <button class="btn btn-sm" style="background:#fff;color:var(--accent-primary);" onclick="MS.navigate('premium')">Perpanjang</button>
-  </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadDashboardHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 6 - MODUL PROYEK LIST (modules/proyek-list.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="proyek-list-page">
-  <div class="section-header">
-    <h2>📁 Proyek Musik Saya</h2>
-    <button class="btn btn-primary" onclick="openProyekForm()">➕ Proyek Baru</button>
-  </div>
-
-  <div class="search-bar">
-    <input type="text" id="proyekSearch" placeholder="Cari proyek..." oninput="renderProyekList()">
-    <span class="search-icon">🔍</span>
-  </div>
-
-  <div class="proyek-grid" id="proyekGrid">
-    <!-- diisi oleh JS -->
-  </div>
-
-  <div id="emptyProyek" class="empty-state hidden">
-    <div class="empty-icon">🎹</div>
-    <h3>Belum ada proyek</h3>
-    <p>Buat proyek pertama Anda untuk mulai berkarya.</p>
-    <button class="btn btn-primary" onclick="openProyekForm()">➕ Buat Proyek</button>
-  </div>
-
-  <!-- Form Modal Proyek (inline) -->
-  <div class="modal-overlay" id="proyekFormModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="proyekFormTitle">Tambah Proyek Baru</h3>
-        <button class="modal-close" onclick="closeProyekForm()">✕</button>
+<template id="modul-landing">
+  <div class="landing-page">
+    <section class="hero">
+      <div class="hero-icon">🎵</div>
+      <h1 class="gradient-text">Musik+ Studio</h1>
+      <p class="hero-description">Rekam, pisahkan instrumen, buat lagu dengan AI, dan kelola proyek musik Anda. <strong>Offline, multi‑user, dan premium.</strong></p>
+      <div class="hero-buttons">
+        <button class="btn btn-primary btn-lg" onclick="MS.navigate('auth')">🔐 Masuk</button>
+        <button class="btn btn-outline btn-lg" onclick="MS.navigate('auth', {mode:'register'})">📝 Daftar</button>
+        <button class="btn btn-lg" style="background:#25D366;color:#fff;" onclick="MS.navigate('chat', {guest:true})">💬 Chat Admin</button>
       </div>
-      <div class="modal-body">
-        <input type="hidden" id="editProyekId">
+    </section>
+
+    <h2 class="section-title">Fitur Unggulan</h2>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon">🎤</div><h4>Rekam & Upload</h4><p>Rekam suara/instrumen langsung atau upload dari HP.</p></div>
+      <div class="feature-card"><div class="feature-icon">🎛️</div><h4>Pemisahan Instrumen</h4><p>Pisahkan vokal, drum, bass, gitar, dan lainnya.</p></div>
+      <div class="feature-card"><div class="feature-icon">🤖</div><h4>AI Generator</h4><p>Buat lagu lengkap dengan lirik dan vokal AI.</p></div>
+      <div class="feature-card"><div class="feature-icon">🎹</div><h4>Karaoke Project</h4><p>Lirik berjalan, ubah kunci, modifikasi genre.</p></div>
+      <div class="feature-card"><div class="feature-icon">💾</div><h4>Backup & Offline</h4><p>Simpan proyek, akses tanpa internet.</p></div>
+      <div class="feature-card"><div class="feature-icon">💬</div><h4>Chat Internal</h4><p>Hubungi admin & sesama pengguna.</p></div>
+    </div>
+
+    <h2 class="section-title">Paket Premium</h2>
+    <div class="price-grid" id="landingPriceGrid">
+      <div class="price-card" onclick="MS.navigate('auth', {mode:'register'})"><div class="price-icon">💎</div><div class="price-name">Basic</div><div class="price-value">Rp 25.000</div><div class="price-duration">1 Bulan</div></div>
+      <div class="price-card featured" onclick="MS.navigate('auth', {mode:'register'})"><div class="featured-badge">POPULER</div><div class="price-icon">💎</div><div class="price-name">Premium</div><div class="price-value">Rp 50.000</div><div class="price-duration">3 Bulan</div></div>
+      <div class="price-card" onclick="MS.navigate('auth', {mode:'register'})"><div class="price-icon">💎</div><div class="price-name">Enterprise</div><div class="price-value">Rp 75.000</div><div class="price-duration">6 Bulan</div></div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_landing.html')">⬇️ Copy HTML (Download Halaman)</button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================
+     BLOK 4 – TEMPLATE AUTH (modul-auth)
+     ============================================================ -->
+<template id="modul-auth">
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">🔐 Login</button>
+        <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">📝 Daftar</button>
+        <button class="auth-tab" id="tabForgot" onclick="switchAuthTab('forgot')">❓ Lupa</button>
+      </div>
+
+      <!-- Form Login -->
+      <div class="auth-form" id="formLogin">
+        <h3>Masuk ke Musik+</h3>
         <div class="form-group">
-          <label>Nama Proyek</label>
-          <input type="text" id="proyekNama" placeholder="Judul lagu / proyek">
+          <label>Username / Email</label>
+          <input type="text" id="loginUsername" placeholder="Masukkan username atau email">
         </div>
         <div class="form-group">
-          <label>Deskripsi</label>
-          <textarea id="proyekDesc" rows="3" placeholder="Deskripsi singkat..."></textarea>
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Masukkan password">
         </div>
-        <div class="form-error" id="proyekError"></div>
+        <div class="form-error" id="loginError"></div>
+        <button class="btn btn-primary btn-block" onclick="handleLogin()">Masuk</button>
+        <p class="auth-switch">
+          Belum punya akun? <span onclick="switchAuthTab('register')">Daftar sekarang</span>
+        </p>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-gray" onclick="closeProyekForm()">Batal</button>
-        <button class="btn btn-success" onclick="saveProyek()">Simpan</button>
+
+      <!-- Form Register -->
+      <div class="auth-form hidden" id="formRegister">
+        <h3>Daftar Akun Baru</h3>
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" id="regNama" placeholder="Nama lengkap Anda">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="regEmail" placeholder="contoh@email.com">
+        </div>
+        <div class="form-group">
+          <label>Nomor HP</label>
+          <input type="text" id="regHp" placeholder="0812xxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="regUsername" placeholder="Username unik">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="regPassword" placeholder="Minimal 6 karakter">
+        </div>
+        <div class="form-group">
+          <label>Konfirmasi Password</label>
+          <input type="password" id="regPasswordConfirm" placeholder="Ulangi password">
+        </div>
+        <div class="form-error" id="regError"></div>
+        <div class="form-success" id="regSuccess"></div>
+        <button class="btn btn-primary btn-block" onclick="handleRegister()">Daftar</button>
+        <p class="auth-switch">
+          Sudah punya akun? <span onclick="switchAuthTab('login')">Login di sini</span>
+        </p>
       </div>
-    </div>
-  </div>
 
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadProyekListHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 7 - MODUL PROYEK EDITOR (modules/proyek-editor.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="editor-page">
-  <div class="editor-header">
-    <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
-    <div class="editor-title">
-      <h2 id="editorProjectName">Proyek</h2>
-      <span id="editorTrackCount" class="badge">0 trek</span>
-    </div>
-    <div class="editor-header-actions">
-      <button class="btn btn-sm btn-success" onclick="saveCurrentProject()">💾 Simpan</button>
-      <button class="btn btn-sm btn-primary" onclick="addNewTrack()">➕ Tambah Trek</button>
-    </div>
-  </div>
-
-  <div class="transport-bar">
-    <button class="btn btn-sm" id="btnPlay" onclick="togglePlay()">▶ Play</button>
-    <button class="btn btn-sm" id="btnStop" onclick="stopAll()">⏹ Stop</button>
-    <span id="timeDisplay" class="time-display">00:00.0</span>
-    <input type="range" id="masterVolume" min="0" max="1" step="0.01" value="0.8" oninput="setMasterVolume(this.value)" title="Volume Master">
-    <span style="font-size:0.8rem;">🔊 Master</span>
-  </div>
-
-  <div class="track-list" id="trackListContainer">
-    <!-- Diisi oleh JS -->
-  </div>
-
-  <div id="emptyTracks" class="empty-state">
-    <div class="empty-icon">🎵</div>
-    <h3>Belum ada trek</h3>
-    <p>Tambahkan trek audio dari file atau rekaman.</p>
-    <button class="btn btn-primary" onclick="addNewTrack()">➕ Tambah Trek Pertama</button>
-  </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadEditorHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 8 - MODUL UPLOAD MEDIA (modules/upload-media.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="upload-page">
-  <div class="section-header">
-    <button class="btn btn-sm" onclick="kembaliKeEditor()">⬅ Kembali ke Editor</button>
-    <h2>📤 Upload Media</h2>
-    <div></div>
-  </div>
-
-  <div class="upload-area" id="dropZone">
-    <div class="upload-icon">📁</div>
-    <p>Seret & lepas file di sini, atau klik untuk pilih</p>
-    <input type="file" id="fileInput" accept="audio/*,video/*" multiple hidden>
-  </div>
-
-  <div id="fileList" class="file-list">
-    <!-- Daftar file yang dipilih -->
-  </div>
-
-  <div id="previewContainer" class="preview-container hidden">
-    <h4>Pratinjau:</h4>
-    <audio id="audioPreview" controls style="width:100%;max-width:500px;"></audio>
-  </div>
-
-  <div class="action-buttons">
-    <button class="btn btn-success" id="btnAddToProject" disabled onclick="addToProject()">➕ Tambahkan ke Proyek</button>
-    <button class="btn btn-gray" onclick="clearFiles()">🗑 Hapus Semua</button>
-  </div>
-
-  <div class="storage-warning">
-    ⚠️ Maksimal ukuran file 2 MB untuk disimpan offline. Gunakan file pendek atau kompresi.
-  </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadUploadHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 9 - MODUL REKAM AUDIO (modules/rekam-audio.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="rekam-page">
-  <div class="section-header">
-    <button class="btn btn-sm" onclick="kembaliKeEditor()">⬅ Kembali</button>
-    <h2>🎤 Rekam Audio</h2>
-    <div></div>
-  </div>
-
-  <div class="recorder-container">
-    <div class="status-indicator" id="statusIndicator">
-      <span id="statusText">Siap merekam</span>
-    </div>
-    <div class="timer" id="timerDisplay">00:00</div>
-    <div class="controls">
-      <button class="btn btn-danger btn-lg" id="btnRecord" onclick="toggleRecording()">🔴 Mulai Rekam</button>
-      <button class="btn btn-primary btn-lg hidden" id="btnStop" onclick="stopRecording()">⏹ Stop</button>
-    </div>
-    <div id="previewSection" class="hidden">
-      <h4>Hasil Rekaman:</h4>
-      <audio id="recordedAudio" controls></audio>
-      <div class="action-buttons" style="margin-top:12px;">
-        <button class="btn btn-success" onclick="addRecordingToProject()">➕ Tambahkan ke Proyek</button>
-        <button class="btn btn-gray" onclick="resetRecording()">🔄 Rekam Ulang</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="info-text">
-    🎙️ Pastikan izin mikrofon diberikan. Format rekaman: audio/webm.
-  </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadRekamHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 10 - MODUL STEM SEPARATION (modules/stem-separation.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="stem-page">
-  <div class="section-header">
-    <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
-    <h2>🎛️ Pemisahan Instrumen (Stem)</h2>
-    <div></div>
-  </div>
-
-  <div class="stem-container">
-    <!-- Upload file -->
-    <div class="upload-section" id="stemUploadSection">
-      <p>Pilih file audio untuk dipisahkan:</p>
-      <input type="file" id="stemFileInput" accept="audio/*" onchange="previewStemFile(this)">
-      <div class="file-preview" id="stemFilePreview" style="display:none;">
-        <audio id="stemAudioPreview" controls></audio>
-        <button class="btn btn-primary" onclick="startSeparation()">🔄 Proses Pemisahan</button>
-      </div>
-      <div class="info-box" id="stemInfoBox" style="display:none;">
-        <div class="spinner" id="stemSpinner"></div>
-        <p id="stemProgressText">Memproses...</p>
+      <!-- Form Lupa Password -->
+      <div class="auth-form hidden" id="formForgot">
+        <h3>Lupa Password</h3>
+        <p style="color:var(--text-secondary);margin-bottom:16px;">
+          Masukkan data Anda. Admin akan mereset password melalui chat.
+        </p>
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" id="forgotNama" placeholder="Nama Anda">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="forgotEmail" placeholder="contoh@email.com">
+        </div>
+        <div class="form-group">
+          <label>Nomor HP</label>
+          <input type="text" id="forgotHp" placeholder="0812xxxxxxxx">
+        </div>
+        <button class="btn btn-warning btn-block" onclick="handleForgotPassword()">
+          Kirim Permintaan Reset
+        </button>
+        <p class="auth-switch">
+          <span onclick="switchAuthTab('login')">Kembali ke Login</span>
+        </p>
       </div>
     </div>
 
-    <!-- Hasil stem -->
-    <div class="stem-results" id="stemResults" style="display:none;">
-      <h3>Stem Hasil Pemisahan</h3>
-      <div class="stem-grid" id="stemGrid"></div>
-      <div class="action-buttons">
-        <button class="btn btn-success" onclick="saveStemsToProject()">💾 Simpan Semua Stem ke Proyek</button>
+    <!-- Tombol Copy HTML -->
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_auth.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">
+        Simpan halaman ini sebagai file .html untuk offline.
+      </p>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================
+     BLOK 5 – TEMPLATE DASHBOARD (modul-dashboard)
+     ============================================================ -->
+<template id="modul-dashboard">
+  <div class="dashboard-page">
+    <!-- Header Dashboard -->
+    <div class="dashboard-welcome">
+      <div class="welcome-avatar" id="dashAvatar">U</div>
+      <div class="welcome-text">
+        <h2 id="dashGreeting">Selamat datang!</h2>
+        <p id="dashStatus">Status: Free</p>
+      </div>
+      <button class="btn btn-sm" style="background:var(--color-pink);color:#fff;" onclick="MS.navigate('premium')">🔑 Upgrade</button>
+    </div>
+
+    <!-- Statistik -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🎹</div>
+        <div class="stat-value" id="statProjects">0</div>
+        <div class="stat-label">Proyek Musik</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎵</div>
+        <div class="stat-value" id="statTracks">0</div>
+        <div class="stat-label">Trek Audio</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💾</div>
+        <div class="stat-value" id="statStorage">0 KB</div>
+        <div class="stat-label">Penyimpanan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⬇️</div>
+        <div class="stat-value" id="statDownloads">0</div>
+        <div class="stat-label">Download</div>
+      </div>
+      <div class="stat-card premium-stat">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value" id="statPremiumDays">-</div>
+        <div class="stat-label">Sisa Premium</div>
       </div>
     </div>
-  </div>
 
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadStemHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    <!-- Quick Actions -->
+    <h3 class="section-title">⚡ Quick Actions</h3>
+    <div class="quick-actions">
+      <div class="action-card" onclick="MS.navigate('proyek-list')">
+        <div class="action-icon">📁</div>
+        <h4>Proyek Saya</h4>
+        <p>Kelola semua proyek musik Anda</p>
+      </div>
+      <div class="action-card" onclick="MS.navigate('upload-media')">
+        <div class="action-icon">📤</div>
+        <h4>Upload Media</h4>
+        <p>Upload audio/video dari HP</p>
+      </div>
+      <div class="action-card" onclick="MS.navigate('rekam-audio')">
+        <div class="action-icon">🎤</div>
+        <h4>Rekam Audio</h4>
+        <p>Rekam suara atau instrumen</p>
+      </div>
+      <div class="action-card premium-action" onclick="MS.navigate('ai-generator')">
+        <div class="action-icon">🤖</div>
+        <h4>AI Generator ⭐</h4>
+        <p>Buat lagu dengan AI</p>
+      </div>
+      <div class="action-card" onclick="MS.navigate('lirik-sync')">
+        <div class="action-icon">📝</div>
+        <h4>Tulis Lirik</h4>
+        <p>Sinkronisasi lirik dengan lagu</p>
+      </div>
+      <div class="action-card premium-action" onclick="MS.navigate('stem-separation')">
+        <div class="action-icon">🎛️</div>
+        <h4>Pisah Instrumen ⭐</h4>
+        <p>Pisahkan vokal, drum, bass</p>
+      </div>
+      <div class="action-card" onclick="MS.navigate('chat')">
+        <div class="action-icon">💬</div>
+        <h4>Chat</h4>
+        <p>Hubungi admin & sesama user</p>
+      </div>
+      <div class="action-card" onclick="MS.navigate('backup-restore')">
+        <div class="action-icon">💾</div>
+        <h4>Backup/Restore</h4>
+        <p>Amankan data proyek Anda</p>
+      </div>
+    </div>
+
+    <!-- Banner Premium (jika aktif) -->
+    <div class="premium-banner hidden" id="premiumExpiryBanner">
+      <div>
+        <strong>⭐ Premium Aktif</strong>
+        <span id="premiumExpiryText"></span>
+      </div>
+      <button class="btn btn-sm" style="background:#fff;color:var(--accent-primary);" onclick="MS.navigate('premium')">Perpanjang</button>
+    </div>
+
+    <!-- Tombol Copy HTML -->
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_dashboard.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 11 - MODUL MIXER (modules/mixer.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 6 – TEMPLATE PROYEK LIST (modul-proyek-list)
      ============================================================ -->
-<div class="mixer-page">
-  <div class="section-header">
-    <h2>🎚️ Mixer Audio</h2>
-    <button class="btn btn-sm btn-primary" onclick="loadCurrentProjectTracks()">🔄 Muat Trek Proyek</button>
-  </div>
+<template id="modul-proyek-list">
+  <div class="proyek-list-page">
+    <!-- Header -->
+    <div class="section-header">
+      <h2>📁 Proyek Musik Saya</h2>
+      <button class="btn btn-primary" onclick="openProyekForm()">➕ Proyek Baru</button>
+    </div>
 
-  <div class="mixer-container" id="mixerContainer">
-    <p class="text-center text-secondary">Klik "Muat Trek Proyek" untuk memuat trek dari proyek terakhir.</p>
-  </div>
+    <!-- Pencarian -->
+    <div class="search-bar">
+      <input type="text" id="proyekSearch" placeholder="Cari proyek..." oninput="renderProyekList()">
+      <span class="search-icon">🔍</span>
+    </div>
 
-  <div id="masterSection" class="master-section">
-    <h4>🔊 Master</h4>
-    <input type="range" id="masterMixerVolume" min="0" max="1" step="0.01" value="0.8" oninput="updateMaster()">
-    <span id="masterValue">80%</span>
-  </div>
+    <!-- Grid Proyek -->
+    <div class="proyek-grid" id="proyekGrid"></div>
 
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadMixerHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    <!-- Empty State -->
+    <div id="emptyProyek" class="empty-state hidden">
+      <div class="empty-icon">🎹</div>
+      <h3>Belum ada proyek</h3>
+      <p>Buat proyek pertama Anda untuk mulai berkarya.</p>
+      <button class="btn btn-primary" onclick="openProyekForm()">➕ Buat Proyek</button>
+    </div>
+
+    <!-- Modal Form Proyek (inline, disembunyikan default) -->
+    <div class="modal-overlay" id="proyekFormModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="proyekFormTitle">Tambah Proyek Baru</h3>
+          <button class="modal-close" onclick="closeProyekForm()">✕</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editProyekId">
+          <div class="form-group">
+            <label>Nama Proyek</label>
+            <input type="text" id="proyekNama" placeholder="Judul lagu / proyek">
+          </div>
+          <div class="form-group">
+            <label>Deskripsi</label>
+            <textarea id="proyekDesc" rows="3" placeholder="Deskripsi singkat..."></textarea>
+          </div>
+          <div class="form-error" id="proyekError"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-gray" onclick="closeProyekForm()">Batal</button>
+          <button class="btn btn-success" onclick="saveProyek()">Simpan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tombol Copy HTML -->
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_proyek_list.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 12 - MODUL LIRIK SYNC (modules/lirik-sync.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 7 – TEMPLATE PROYEK EDITOR (modul-proyek-editor)
      ============================================================ -->
-<div class="lirik-sync-page">
-  <div class="section-header">
-    <h2>📝 Sinkronisasi Lirik</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
-  </div>
-  <div class="lirik-container">
-    <div class="form-group">
-      <label>Judul Lagu</label>
-      <input type="text" id="songTitle" placeholder="Judul">
+<template id="modul-proyek-editor">
+  <div class="editor-page">
+    <!-- Header Editor -->
+    <div class="editor-header">
+      <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
+      <div class="editor-title">
+        <h2 id="editorProjectName">Proyek</h2>
+        <span id="editorTrackCount" class="badge">0 trek</span>
+      </div>
+      <div class="editor-header-actions">
+        <button class="btn btn-sm btn-success" onclick="saveCurrentProject()">💾 Simpan</button>
+        <button class="btn btn-sm btn-primary" onclick="addNewTrack()">➕ Tambah Trek</button>
+      </div>
     </div>
-    <div class="form-group">
-      <label>Lirik (satu baris per waktu)</label>
-      <textarea id="lyricText" rows="10" placeholder="Baris 1
-Baris 2
-..."></textarea>
-    </div>
-    <div class="sync-controls">
-      <button class="btn btn-primary" onclick="startSyncProcess()">▶ Mulai Sinkronisasi</button>
-      <button class="btn btn-warning" onclick="saveLirikToProject()">💾 Simpan ke Proyek</button>
-    </div>
-    <div class="sync-result" id="syncResult" style="display:none;">
-      <h4>Hasil Sinkronisasi (LRC)</h4>
-      <pre id="lrcOutput"></pre>
-      <button class="btn btn-sm" onclick="copyLRC()">📋 Copy LRC</button>
-    </div>
-  </div>
 
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadLirikSyncHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    <!-- Transport Bar -->
+    <div class="transport-bar">
+      <button class="btn btn-sm" id="btnPlay" onclick="togglePlay()">▶ Play</button>
+      <button class="btn btn-sm" id="btnStop" onclick="stopAll()">⏹ Stop</button>
+      <span id="timeDisplay" class="time-display">00:00.0</span>
+      <input type="range" id="masterVolume" min="0" max="1" step="0.01" value="0.8" oninput="setMasterVolume(this.value)" title="Volume Master">
+      <span style="font-size:0.8rem;">🔊 Master</span>
+    </div>
+
+    <!-- Daftar Trek -->
+    <div class="track-list" id="trackListContainer"></div>
+
+    <!-- Empty State Trek -->
+    <div id="emptyTracks" class="empty-state">
+      <div class="empty-icon">🎵</div>
+      <h3>Belum ada trek</h3>
+      <p>Tambahkan trek audio dari file atau rekaman.</p>
+      <button class="btn btn-primary" onclick="addNewTrack()">➕ Tambah Trek Pertama</button>
+    </div>
+
+    <!-- Tombol Copy HTML -->
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_editor.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 13 - MODUL LIRIK DISPLAY (modules/lirik-display.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 8 – TEMPLATE UPLOAD MEDIA (modul-upload-media)
      ============================================================ -->
-<div class="lirik-display-page">
-  <div class="section-header">
-    <h2>🎤 Tampilan Lirik</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
-  </div>
-  <div class="display-container" id="displayContainer">
-    <p class="text-center text-secondary">Pilih proyek yang memiliki lirik.</p>
-    <div class="project-selector">
-      <select id="projectSelect" onchange="loadProjectLyrics()">
-        <option value="">-- Pilih Proyek --</option>
-      </select>
+<template id="modul-upload-media">
+  <div class="upload-page">
+    <!-- Header -->
+    <div class="section-header">
+      <button class="btn btn-sm" onclick="kembaliKeEditor()">⬅ Kembali ke Editor</button>
+      <h2>📤 Upload Media</h2>
+      <div></div>
     </div>
-    <div class="lyric-screen" id="lyricScreen" style="display:none;">
-      <div id="currentLyricLine" class="lyric-line active">...</div>
-      <div id="nextLyricLine" class="lyric-line next">...</div>
-      <div class="progress-bar"><div id="lyricProgress"></div></div>
-    </div>
-  </div>
 
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadDisplayHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    <!-- Area Upload (Drag & Drop + Klik) -->
+    <div class="upload-area" id="dropZone">
+      <div class="upload-icon">📁</div>
+      <p>Seret &amp; lepas file di sini, atau klik untuk pilih</p>
+      <input type="file" id="fileInput" accept="audio/*,video/*" multiple hidden>
+    </div>
+
+    <!-- Daftar File yang Dipilih -->
+    <div id="fileList" class="file-list"></div>
+
+    <!-- Pratinjau Audio -->
+    <div id="previewContainer" class="preview-container hidden">
+      <h4>Pratinjau:</h4>
+      <audio id="audioPreview" controls style="width:100%;max-width:500px;"></audio>
+    </div>
+
+    <!-- Tombol Aksi -->
+    <div class="action-buttons">
+      <button class="btn btn-success" id="btnAddToProject" disabled onclick="addToProject()">
+        ➕ Tambahkan ke Proyek
+      </button>
+      <button class="btn btn-gray" onclick="clearFiles()">🗑 Hapus Semua</button>
+    </div>
+
+    <!-- Peringatan Batas Ukuran -->
+    <div class="storage-warning">
+      ⚠️ Maksimal ukuran file 2 MB untuk disimpan offline. Gunakan file pendek atau kompresi.
+    </div>
+
+    <!-- Tombol Copy HTML -->
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_upload.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 14 - MODUL TRANSPOSE (modules/transpose.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 9 – TEMPLATE REKAM AUDIO (modul-rekam-audio)
+     Lengkap dengan tombol Copy HTML
      ============================================================ -->
-<div class="transpose-page">
-  <div class="section-header">
-    <h2>🎼 Ubah Kunci (Transpose)</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
-  </div>
+<template id="modul-rekam-audio">
+  <div class="rekam-page">
+    <div class="section-header">
+      <button class="btn btn-sm" onclick="kembaliKeEditor()">⬅ Kembali</button>
+      <h2>🎤 Rekam Audio</h2>
+      <div></div>
+    </div>
 
-  <div class="transpose-container">
-    <div class="form-group">
-      <label>Masukkan Chord (pisahkan dengan spasi/koma)</label>
-      <input type="text" id="chordInput" placeholder="C G Am F">
+    <div class="recorder-container">
+      <div class="status-indicator" id="statusIndicator">
+        <span id="statusText">Siap merekam</span>
+      </div>
+      <div class="timer" id="timerDisplay">00:00</div>
+      <div class="controls">
+        <button class="btn btn-danger btn-lg" id="btnRecord" onclick="toggleRecording()">🔴 Mulai Rekam</button>
+        <button class="btn btn-primary btn-lg hidden" id="btnStop" onclick="stopRecording()">⏹ Stop</button>
+      </div>
+      <div id="previewSection" class="hidden">
+        <h4>Hasil Rekaman:</h4>
+        <audio id="recordedAudio" controls></audio>
+        <div class="action-buttons" style="margin-top:12px;">
+          <button class="btn btn-success" onclick="addRecordingToProject()">➕ Tambahkan ke Proyek</button>
+          <button class="btn btn-gray" onclick="resetRecording()">🔄 Rekam Ulang</button>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label>Dari Kunci</label>
-      <select id="fromKey">
-        <option value="C">C</option><option value="C#">C#</option><option value="D">D</option>
-        <option value="D#">D#</option><option value="E">E</option><option value="F">F</option>
-        <option value="F#">F#</option><option value="G">G</option><option value="G#">G#</option>
-        <option value="A">A</option><option value="A#">A#</option><option value="B">B</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Ke Kunci</label>
-      <select id="toKey">
-        <option value="C">C</option><option value="C#">C#</option><option value="D">D</option>
-        <option value="D#">D#</option><option value="E">E</option><option value="F">F</option>
-        <option value="F#">F#</option><option value="G">G</option><option value="G#">G#</option>
-        <option value="A">A</option><option value="A#">A#</option><option value="B">B</option>
-      </select>
-    </div>
-    <button class="btn btn-primary btn-block" onclick="prosesTranspose()">🔄 Proses Transpose</button>
-    <div id="transposeResult" class="result-box" style="display:none;">
-      <h4>Hasil Transpose:</h4>
-      <div id="transposedChords"></div>
-      <button class="btn btn-sm" onclick="copyTransposeResult()">📋 Copy</button>
-    </div>
-  </div>
 
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadTransposeHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    <div class="info-text">
+      🎙️ Pastikan izin mikrofon diberikan. Format rekaman: audio/webm.
+    </div>
+
+    <!-- Tombol Copy HTML -->
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_rekam.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 15 - MODIFIKASI GENRE (modules/modifikasi-genre.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 10 – TEMPLATE STEM SEPARATION (modul-stem-separation)
      ============================================================ -->
-<div class="modifikasi-page">
-  <div class="section-header">
-    <h2>🎭 Modifikasi Genre</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
-  </div>
+<template id="modul-stem-separation">
+  <div class="stem-page">
+    <div class="section-header">
+      <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
+      <h2>🎛️ Pemisahan Instrumen (Stem)</h2>
+      <div></div>
+    </div>
 
-  <div class="modifikasi-container">
-    <div class="form-group">
-      <label>Pilih File Audio (dari proyek atau upload baru)</label>
-      <select id="audioSelect">
-        <option value="">-- Pilih Audio --</option>
-      </select>
-      <small>atau</small>
-      <input type="file" id="modifFileInput" accept="audio/*" onchange="previewModifFile(this)">
-    </div>
-    <div class="form-group">
-      <label>Genre Target</label>
-      <select id="genreSelect">
-        <option value="dangdut">Dangdut</option>
-        <option value="jazz">Jazz</option>
-        <option value="rock">Rock</option>
-        <option value="pop">Pop</option>
-        <option value="anak">Musik Anak</option>
-        <option value="dangdut-koplo">Dangdut Koplo</option>
-        <option value="reggae">Reggae</option>
-      </select>
-    </div>
-    <button class="btn btn-primary btn-block" onclick="prosesModifikasi()">🎭 Modifikasi (Simulasi)</button>
-    <div id="modifResult" class="result-box" style="display:none;">
-      <h4>Hasil Modifikasi:</h4>
-      <audio id="modifAudio" controls></audio>
-      <p class="text-warning">* Simulasi: audio asli diputar ulang. Fitur sebenarnya memerlukan AI.</p>
-      <button class="btn btn-success btn-sm" onclick="simpanHasilModifikasi()">💾 Simpan ke Proyek</button>
-    </div>
-  </div>
+    <div class="stem-container">
+      <div class="upload-section" id="stemUploadSection">
+        <p>Pilih file audio untuk dipisahkan:</p>
+        <input type="file" id="stemFileInput" accept="audio/*" onchange="previewStemFile(this)">
+        <div class="file-preview" id="stemFilePreview" style="display:none;">
+          <audio id="stemAudioPreview" controls></audio>
+          <button class="btn btn-primary" onclick="startSeparation()">🔄 Proses Pemisahan</button>
+        </div>
+        <div class="info-box" id="stemInfoBox" style="display:none;">
+          <div class="spinner" id="stemSpinner"></div>
+          <p id="stemProgressText">Memproses...</p>
+        </div>
+      </div>
 
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadModifikasiHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+      <div class="stem-results" id="stemResults" style="display:none;">
+        <h3>Stem Hasil Pemisahan</h3>
+        <div class="stem-grid" id="stemGrid"></div>
+        <div class="action-buttons">
+          <button class="btn btn-success" onclick="saveStemsToProject()">💾 Simpan Semua Stem ke Proyek</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_stem.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 16 – AI GENERATOR (modules/ai-generator.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 11 – TEMPLATE MIXER (modul-mixer)
      ============================================================ -->
-<div class="ai-generator-page">
-  <div class="section-header">
-    <h2>🤖 AI Music Generator</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
-  </div>
-
-  <div class="generator-container">
-    <div class="premium-notice" id="premiumNotice" style="display:none;">
-      ⭐ Fitur ini memerlukan akses Premium. <a href="#" onclick="MS.navigate('premium')">Upgrade sekarang</a>
+<template id="modul-mixer">
+  <div class="mixer-page">
+    <div class="section-header">
+      <h2>🎚️ Mixer Audio</h2>
+      <button class="btn btn-sm btn-primary" onclick="loadCurrentProjectTracks()">🔄 Muat Trek Proyek</button>
     </div>
 
-    <div class="form-group">
-      <label>Judul Lagu</label>
-      <input type="text" id="aiSongTitle" placeholder="Masukkan judul lagu">
-    </div>
-    <div class="form-group">
-      <label>Genre Musik</label>
-      <select id="aiGenre">
-        <option value="pop">Pop</option>
-        <option value="rock">Rock</option>
-        <option value="dangdut">Dangdut</option>
-        <option value="jazz">Jazz</option>
-        <option value="anak">Musik Anak</option>
-        <option value="edm">EDM</option>
-        <option value="hiphop">Hip Hop</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Suara Vokal AI</label>
-      <select id="aiVoice">
-        <option value="wanita-muda">Perempuan Muda</option>
-        <option value="wanita-tua">Perempuan Tua</option>
-        <option value="pria-muda">Laki-laki Muda</option>
-        <option value="pria-tua">Laki-laki Tua</option>
-        <option value="anak">Anak-anak</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Lirik (opsional, bisa di-generate otomatis)</label>
-      <textarea id="aiLyrics" rows="4" placeholder="Tulis lirik atau biarkan kosong untuk auto-generate"></textarea>
-      <button class="btn btn-sm btn-outline" onclick="MS.navigate('ai-lyrics-generator')">📝 Generate Lirik Otomatis</button>
-    </div>
-    <button class="btn btn-primary btn-block" id="btnGenerateSong" onclick="generateSong()">🎵 Generate Lagu</button>
-
-    <div id="aiProgress" style="display:none; text-align:center; padding:20px;">
-      <div class="spinner"></div>
-      <p>AI sedang membuat lagu...</p>
+    <div class="mixer-container" id="mixerContainer">
+      <p class="text-center text-secondary">Klik "Muat Trek Proyek" untuk memuat trek dari proyek terakhir.</p>
     </div>
 
-    <div id="aiResults" class="results-grid" style="display:none;">
-      <!-- 3 hasil generate -->
+    <div id="masterSection" class="master-section">
+      <h4>🔊 Master</h4>
+      <input type="range" id="masterMixerVolume" min="0" max="1" step="0.01" value="0.8" oninput="updateMaster()">
+      <span id="masterValue">80%</span>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_mixer.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
     </div>
   </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadAIGeneratorHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 17 - AI VOICE SELECT (modules/ai-voice-select.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 12 – TEMPLATE LIRIK SYNC (modul-lirik-sync)
      ============================================================ -->
-<div class="voice-select-page">
-  <div class="section-header">
-    <h2>🎙️ Pilih Suara AI</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('ai-generator')">⬅ Kembali</button>
-  </div>
-
-  <div class="voice-container">
-    <div class="voice-grid" id="voiceGrid">
-      <!-- Diisi oleh JS global -->
-    </div>
-    <button class="btn btn-primary btn-block" onclick="pilihSuara()">✅ Pilih Suara Ini</button>
-  </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadVoiceHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 18 – AI LYRICS GENERATOR (modules/ai-lyrics-generator.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="lyrics-gen-page">
-  <div class="section-header">
-    <h2>📝 Generator Lirik AI</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('ai-generator')">⬅ Kembali</button>
-  </div>
-
-  <div class="generator-container">
-    <div class="form-group">
-      <label>Judul / Tema Lagu</label>
-      <input type="text" id="lyricTheme" placeholder="Cinta, Persahabatan, Kehidupan...">
-    </div>
-    <div class="form-group">
-      <label>Style</label>
-      <select id="lyricStyle">
-        <option value="romantis">Romantis</option>
-        <option value="semangat">Semangat</option>
-        <option value="sedih">Sedih / Galau</option>
-        <option value="gembira">Gembira / Ceria</option>
-        <option value="religi">Religi</option>
-        <option value="anak">Anak-anak</option>
-      </select>
-    </div>
-    <button class="btn btn-primary btn-block" onclick="generateLyrics()">✨ Generate Lirik</button>
-
-    <div id="lyricProgress" style="display:none; text-align:center; padding:20px;">
-      <div class="spinner"></div>
-      <p>Menghasilkan lirik...</p>
+<template id="modul-lirik-sync">
+  <div class="lirik-sync-page">
+    <div class="section-header">
+      <h2>📝 Sinkronisasi Lirik</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
     </div>
 
-    <div id="lyricResults" style="display:none;">
-      <h4>Hasil Lirik:</h4>
-      <div class="lyric-versions" id="lyricVersions"></div>
-    </div>
-  </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadLyricsGenHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 19 - HASIL GENERATE (modules/hasil-generate.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="hasil-page">
-  <div class="section-header">
-    <h2>🎵 Hasil Generate Lagu</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('ai-generator')">⬅ Kembali ke Generator</button>
-  </div>
-
-  <div id="hasilContainer" class="hasil-container">
-    <p class="text-center text-secondary">Memuat hasil generate terakhir...</p>
-  </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadHasilHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 20 - DOWNLOAD MANAGER (modules/download-manager.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="download-page">
-  <div class="section-header">
-    <h2>⬇️ Download Manager</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
-  </div>
-
-  <div class="download-container">
-    <div id="downloadList">
-      <p class="text-center text-secondary">Memuat daftar download...</p>
-    </div>
-  </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadManagerHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
-
-<!-- ============================================================
-     BLOK 21 - MODUL PREMIUM (modules/premium.html) - REVISI
-     Konten murni, tanpa <style> & <script>
-     ============================================================ -->
-<div class="premium-page">
-  <div class="section-header">
-    <h2>⭐ Premium</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
-  </div>
-
-  <div class="premium-container">
-    <div class="status-card" id="statusCard">
-      <h3>Status Anda</h3>
-      <p id="premiumStatusText">Memuat...</p>
-      <p id="premiumExpiryText" class="text-secondary"></p>
-    </div>
-
-    <div class="activation-card">
-      <h3>🔑 Aktivasi Premium</h3>
+    <div class="lirik-container">
       <div class="form-group">
-        <input type="text" id="activationCode" placeholder="Masukkan kode aktivasi">
+        <label>Judul Lagu</label>
+        <input type="text" id="songTitle" placeholder="Masukkan judul lagu">
       </div>
-      <button class="btn btn-success btn-block" onclick="aktivasiPremium()">Aktifkan</button>
-      <div class="form-error" id="activationError"></div>
-      <div class="form-success" id="activationSuccess"></div>
+
+      <div class="form-group">
+        <label>Lirik (satu baris per waktu)</label>
+        <textarea id="lyricText" rows="10" placeholder="Baris 1&#10;Baris 2&#10;Baris 3&#10;..."></textarea>
+      </div>
+
+      <div class="sync-controls">
+        <button class="btn btn-primary" onclick="startSyncProcess()">▶ Mulai Sinkronisasi</button>
+        <button class="btn btn-warning" onclick="saveLirikToProject()">💾 Simpan ke Proyek</button>
+      </div>
+
+      <div class="sync-result" id="syncResult" style="display:none;">
+        <h4>Hasil Sinkronisasi (format LRC)</h4>
+        <pre id="lrcOutput"></pre>
+        <button class="btn btn-sm" onclick="copyLRC()">📋 Copy LRC</button>
+      </div>
     </div>
 
-    <h3>Paket Tersedia</h3>
-    <div class="price-grid" id="premiumPriceGrid"></div>
+    <!-- Tombol Copy HTML -->
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_lirik_sync.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadPremiumHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 22 - MODUL ADMIN PANEL (modules/admin-panel.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 13 – TEMPLATE LIRIK DISPLAY (modul-lirik-display)
      ============================================================ -->
-<div class="admin-page">
-  <div class="section-header">
-    <h2>👑 Panel Super Admin</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
-  </div>
-
-  <div class="admin-container">
-    <div class="admin-tabs">
-      <button class="admin-tab active" onclick="switchAdminTab('users')">👥 User</button>
-      <button class="admin-tab" onclick="switchAdminTab('codes')">🔑 Kode</button>
-      <button class="admin-tab" onclick="switchAdminTab('packages')">📦 Paket</button>
-      <button class="admin-tab" onclick="switchAdminTab('chat')">💬 Chat</button>
-      <button class="admin-tab" onclick="switchAdminTab('backup')">💾 Backup</button>
+<template id="modul-lirik-display">
+  <div class="lirik-display-page">
+    <div class="section-header">
+      <h2>🎤 Tampilan Lirik</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
     </div>
 
-    <div id="adminTabContent" class="admin-tab-content">
-      <!-- Diisi oleh JS global -->
+    <div class="display-container" id="displayContainer">
+      <p class="text-center text-secondary">Pilih proyek yang memiliki lirik.</p>
+
+      <div class="project-selector">
+        <select id="projectSelect" onchange="loadProjectLyrics()">
+          <option value="">-- Pilih Proyek --</option>
+        </select>
+      </div>
+
+      <div class="lyric-screen" id="lyricScreen" style="display:none;">
+        <div id="currentLyricLine" class="lyric-line active">...</div>
+        <div id="nextLyricLine" class="lyric-line next">...</div>
+        <div class="progress-bar">
+          <div id="lyricProgress"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_lirik_display.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
     </div>
   </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadAdminHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 23 - MODUL CHAT (modules/chat.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 14 – TEMPLATE TRANSPOSE (modul-transpose)
      ============================================================ -->
-<div class="chat-page">
-  <div class="section-header">
-    <h2>💬 Chat</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
-  </div>
-
-  <div class="chat-container">
-    <div class="chat-tabs">
-      <button class="chat-tab active" id="chatTabAdmin" onclick="switchChatTab('admin')">👑 Admin</button>
-      <button class="chat-tab" id="chatTabUsers" onclick="switchChatTab('users')">👥 Sesama User</button>
+<template id="modul-transpose">
+  <div class="transpose-page">
+    <div class="section-header">
+      <h2>🎼 Ubah Kunci (Transpose)</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
     </div>
 
-    <div id="chatMessages" class="chat-messages">
-      <!-- Diisi oleh JS global -->
+    <div class="transpose-container">
+      <div class="form-group">
+        <label>Masukkan Chord (pisahkan dengan spasi atau koma)</label>
+        <input type="text" id="chordInput" placeholder="Contoh: C G Am F">
+      </div>
+
+      <div class="form-group">
+        <label>Dari Kunci</label>
+        <select id="fromKey">
+          <option value="C">C</option>
+          <option value="C#">C#</option>
+          <option value="D">D</option>
+          <option value="D#">D#</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="F#">F#</option>
+          <option value="G">G</option>
+          <option value="G#">G#</option>
+          <option value="A">A</option>
+          <option value="A#">A#</option>
+          <option value="B">B</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Ke Kunci</label>
+        <select id="toKey">
+          <option value="C">C</option>
+          <option value="C#">C#</option>
+          <option value="D">D</option>
+          <option value="D#">D#</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="F#">F#</option>
+          <option value="G">G</option>
+          <option value="G#">G#</option>
+          <option value="A">A</option>
+          <option value="A#">A#</option>
+          <option value="B">B</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary btn-block" onclick="prosesTranspose()">🔄 Proses Transpose</button>
+
+      <div id="transposeResult" class="result-box" style="display:none;">
+        <h4>Hasil Transpose:</h4>
+        <div id="transposedChords"></div>
+        <button class="btn btn-sm" onclick="copyTransposeResult()">📋 Copy</button>
+      </div>
     </div>
 
-    <div class="chat-input-row">
-      <input type="text" id="chatInput" placeholder="Ketik pesan...">
-      <button class="btn btn-primary" onclick="kirimPesan()">Kirim</button>
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_transpose.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
     </div>
   </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadChatHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 24 - MODUL BACKUP RESTORE (modules/backup-restore.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 15 – TEMPLATE MODIFIKASI GENRE (modul-modifikasi-genre)
      ============================================================ -->
-<div class="backup-page">
-  <div class="section-header">
-    <h2>💾 Backup & Restore</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
-  </div>
-
-  <div class="backup-container">
-    <div class="backup-card">
-      <h4>📤 Backup Data</h4>
-      <p>Simpan semua proyek dan data Anda ke file JSON.</p>
-      <button class="btn btn-primary" onclick="exportData()">⬇ Export Semua Proyek</button>
+<template id="modul-modifikasi-genre">
+  <div class="modifikasi-page">
+    <div class="section-header">
+      <h2>🎭 Modifikasi Genre</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
     </div>
-    <div class="backup-card">
-      <h4>📥 Restore Data</h4>
-      <p>Pulihkan proyek dari file JSON.</p>
-      <input type="file" id="restoreFile" accept=".json" onchange="restoreData(this)">
+
+    <div class="modifikasi-container">
+      <div class="form-group">
+        <label>Pilih File Audio (dari proyek atau upload baru)</label>
+        <select id="audioSelect">
+          <option value="">-- Pilih Audio --</option>
+        </select>
+        <small>atau</small>
+        <input type="file" id="modifFileInput" accept="audio/*" onchange="previewModifFile(this)">
+      </div>
+
+      <div class="form-group">
+        <label>Genre Target</label>
+        <select id="genreSelect">
+          <option value="dangdut">Dangdut</option>
+          <option value="jazz">Jazz</option>
+          <option value="rock">Rock</option>
+          <option value="pop">Pop</option>
+          <option value="anak">Musik Anak</option>
+          <option value="dangdut-koplo">Dangdut Koplo</option>
+          <option value="reggae">Reggae</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary btn-block" onclick="prosesModifikasi()">🎭 Modifikasi (Simulasi)</button>
+
+      <div id="modifResult" class="result-box" style="display:none;">
+        <h4>Hasil Modifikasi:</h4>
+        <audio id="modifAudio" controls></audio>
+        <p class="text-warning">* Simulasi: audio asli diputar ulang. Fitur sebenarnya memerlukan AI.</p>
+        <button class="btn btn-success btn-sm" onclick="simpanHasilModifikasi()">💾 Simpan ke Proyek</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_modifikasi.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
     </div>
   </div>
-
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadBackupHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
-  </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 25 - MODUL SETTINGS (modules/settings.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 16 – TEMPLATE AI GENERATOR (modul-ai-generator)
      ============================================================ -->
-<div class="settings-page">
-  <div class="section-header">
-    <h2>⚙️ Pengaturan</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
-  </div>
+<template id="modul-ai-generator">
+  <div class="ai-generator-page">
+    <div class="section-header">
+      <h2>🤖 AI Music Generator</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('proyek-list')">⬅ Kembali</button>
+    </div>
 
-  <div class="settings-container">
-    <div class="setting-card">
-      <h4>🌓 Tema</h4>
-      <button class="btn" onclick="toggleTheme()">Ganti Tema (Gelap/Terang)</button>
-    </div>
-    <div class="setting-card">
-      <h4>📱 Install Aplikasi</h4>
-      <button class="btn btn-success" onclick="installPWA()">Install ke Layar Utama</button>
-    </div>
-    <div class="setting-card">
-      <h4>ℹ️ Tentang</h4>
-      <p>Musik+ Studio v1.0 – Aplikasi manajemen musik, karaoke, dan AI.</p>
-      <p>Super Admin WA: <span id="adminWA">081220285226</span></p>
-    </div>
-    <div class="setting-card">
-      <h4>❓ Bantuan</h4>
-      <p>Kunjungi halaman <a href="#" onclick="MS.navigate('help')">Bantuan</a> untuk panduan lengkap.</p>
-    </div>
-    <div class="setting-card">
-      <h4>🚪 Logout</h4>
-      <button class="btn btn-danger" onclick="MS.logout()">Keluar dari Akun</button>
-    </div>
-  </div>
+    <div class="generator-container">
+      <!-- Peringatan Premium -->
+      <div class="premium-notice" id="premiumNotice" style="display:none;">
+        ⭐ Fitur ini memerlukan akses Premium. <a href="#" onclick="MS.navigate('premium')" style="color:var(--accent-primary);font-weight:700;">Upgrade sekarang</a>
+      </div>
 
-  <!-- Tombol Copy HTML -->
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadSettingsHTML()">
-      ⬇️ Copy HTML (Download Halaman)
-    </button>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+      <div class="form-group">
+        <label>Judul Lagu</label>
+        <input type="text" id="aiSongTitle" placeholder="Masukkan judul lagu yang ingin dibuat">
+      </div>
+
+      <div class="form-group">
+        <label>Genre Musik</label>
+        <select id="aiGenre">
+          <option value="pop">Pop</option>
+          <option value="rock">Rock</option>
+          <option value="dangdut">Dangdut</option>
+          <option value="jazz">Jazz</option>
+          <option value="anak">Musik Anak</option>
+          <option value="edm">EDM</option>
+          <option value="hiphop">Hip Hop</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Suara Vokal AI</label>
+        <select id="aiVoice">
+          <option value="wanita-muda">Perempuan Muda</option>
+          <option value="wanita-tua">Perempuan Tua</option>
+          <option value="pria-muda">Laki-laki Muda</option>
+          <option value="pria-tua">Laki-laki Tua</option>
+          <option value="anak">Anak-anak</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Lirik (opsional, dapat di-generate otomatis)</label>
+        <textarea id="aiLyrics" rows="4" placeholder="Tulis lirik sendiri atau biarkan kosong untuk auto-generate oleh AI..."></textarea>
+        <button class="btn btn-sm btn-outline" onclick="MS.navigate('ai-lyrics-generator')" style="margin-top:8px;">
+          📝 Generate Lirik Otomatis
+        </button>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="btnGenerateSong" onclick="generateSong()">
+        🎵 Generate Lagu
+      </button>
+
+      <!-- Progress -->
+      <div id="aiProgress" style="display:none; text-align:center; padding:20px;">
+        <div class="spinner"></div>
+        <p style="margin-top:12px;color:var(--text-secondary);">AI sedang membuat lagu untuk Anda...</p>
+      </div>
+
+      <!-- Hasil Generate -->
+      <div id="aiResults" class="results-grid" style="display:none;"></div>
+    </div>
+
+    <!-- Tombol Copy HTML -->
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_ai_generator.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-</div>
+</template>
 
 <!-- ============================================================
-     BLOK 26 - MODUL HELP (modules/help.html) - REVISI
-     Konten murni, tanpa <style> & <script>
+     BLOK 17 – TEMPLATE AI VOICE SELECT (modul-ai-voice-select)
      ============================================================ -->
-<div class="help-page">
-  <div class="section-header">
-    <h2>❓ Bantuan</h2>
-    <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
+<template id="modul-ai-voice-select">
+  <div class="voice-select-page">
+    <div class="section-header">
+      <h2>🎙️ Pilih Suara AI</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('ai-generator')">⬅ Kembali</button>
+    </div>
+
+    <div class="voice-container">
+      <div class="voice-grid" id="voiceGrid">
+        <!-- Diisi oleh fungsi renderVoiceGrid() yang akan dipanggil saat pageInit -->
+      </div>
+      <button class="btn btn-primary btn-block" onclick="pilihSuara()">✅ Pilih Suara Ini</button>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_voice_select.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-  <div class="help-container">
-    <h3>🎵 Selamat datang di Musik+ Studio</h3>
-    <p>Aplikasi ini membantu Anda mengelola proyek musik, merekam, memisahkan instrumen, membuat lagu dengan AI, dan masih banyak lagi.</p>
-    <h4>Fitur Utama</h4>
-    <ul>
-      <li>📁 <strong>Proyek:</strong> Buat dan kelola proyek musik.</li>
-      <li>🎤 <strong>Rekam/Upload:</strong> Rekam suara atau upload file audio.</li>
-      <li>🎛️ <strong>Stem Separation:</strong> Pisahkan instrumen (vokal, drum, bass, dll).</li>
-      <li>🎚️ <strong>Mixer:</strong> Atur volume, pan, mute, solo.</li>
-      <li>🤖 <strong>AI Generator:</strong> Buat lagu lengkap dengan AI.</li>
-      <li>📝 <strong>Lirik:</strong> Tulis, sinkronkan, dan tampilkan lirik berjalan.</li>
-      <li>🎼 <strong>Transpose:</strong> Ubah kunci lagu.</li>
-      <li>🎭 <strong>Modifikasi Genre:</strong> Ubah genre lagu.</li>
-      <li>💬 <strong>Chat:</strong> Komunikasi dengan admin dan sesama pengguna.</li>
-      <li>💾 <strong>Backup:</strong> Ekspor/impor data proyek.</li>
-    </ul>
-    <h4>Status Premium</h4>
-    <p>Beberapa fitur (AI, stem lengkap, efek mixer) memerlukan akun Premium. Anda bisa mengaktifkan kode premium di menu <strong>Premium</strong>.</p>
-    <h4>Kontak Admin</h4>
-    <p>Hubungi Super Admin melalui chat atau WhatsApp di nomor yang tertera di Pengaturan.</p>
+</template>
+
+<!-- ============================================================
+     BLOK 18 – TEMPLATE AI LYRICS GENERATOR (modul-ai-lyrics-generator)
+     ============================================================ -->
+<template id="modul-ai-lyrics-generator">
+  <div class="lyrics-gen-page">
+    <div class="section-header">
+      <h2>📝 Generator Lirik AI</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('ai-generator')">⬅ Kembali</button>
+    </div>
+
+    <div class="generator-container">
+      <div class="form-group">
+        <label>Judul / Tema Lagu</label>
+        <input type="text" id="lyricTheme" placeholder="Contoh: Cinta, Persahabatan, Kehidupan...">
+      </div>
+      <div class="form-group">
+        <label>Style Lirik</label>
+        <select id="lyricStyle">
+          <option value="romantis">Romantis</option>
+          <option value="semangat">Semangat</option>
+          <option value="sedih">Sedih / Galau</option>
+          <option value="gembira">Gembira / Ceria</option>
+          <option value="religi">Religi</option>
+          <option value="anak">Anak-anak</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="generateLyrics()">✨ Generate Lirik</button>
+
+      <div id="lyricProgress" style="display:none; text-align:center; padding:20px;">
+        <div class="spinner"></div>
+        <p>Menghasilkan lirik...</p>
+      </div>
+
+      <div id="lyricResults" style="display:none;">
+        <h4>Hasil Lirik:</h4>
+        <div class="lyric-versions" id="lyricVersions"></div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_lyrics_gen.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-  <div style="text-align:center;margin:30px 0;">
-    <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadHelpHTML()">
-      ⬇️ Copy HTML
-    </button>
+</template>
+
+<!-- ============================================================
+     BLOK 19 – TEMPLATE HASIL GENERATE (modul-hasil-generate)
+     ============================================================ -->
+<template id="modul-hasil-generate">
+  <div class="hasil-page">
+    <div class="section-header">
+      <h2>🎵 Hasil Generate Lagu</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('ai-generator')">⬅ Kembali ke Generator</button>
+    </div>
+
+    <div id="hasilContainer" class="hasil-container">
+      <p class="text-center text-secondary">Memuat hasil generate terakhir...</p>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_hasil.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
   </div>
-</div>
+</template>
+
+<!-- ============================================================
+     BLOK 20 – TEMPLATE DOWNLOAD MANAGER (modul-download-manager)
+     ============================================================ -->
+<template id="modul-download-manager">
+  <div class="download-page">
+    <div class="section-header">
+      <h2>⬇️ Download Manager</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
+    </div>
+
+    <div class="download-container">
+      <div id="downloadList">
+        <p class="text-center text-secondary">Memuat daftar download...</p>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_download_manager.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================
+     BLOK 21 – TEMPLATE PREMIUM (modul-premium)
+     ============================================================ -->
+<template id="modul-premium">
+  <div class="premium-page">
+    <div class="section-header">
+      <h2>⭐ Premium</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
+    </div>
+
+    <div class="premium-container">
+      <div class="status-card">
+        <h3>Status Anda</h3>
+        <p id="premiumStatusText">Memuat...</p>
+        <p id="premiumExpiryText" class="text-secondary"></p>
+      </div>
+
+      <div class="activation-card">
+        <h3>🔑 Aktivasi Premium</h3>
+        <div class="form-group">
+          <input type="text" id="activationCode" placeholder="Masukkan kode aktivasi">
+        </div>
+        <button class="btn btn-success btn-block" onclick="aktivasiPremium()">Aktifkan</button>
+        <div class="form-error" id="activationError"></div>
+        <div class="form-success" id="activationSuccess"></div>
+      </div>
+
+      <h3>Paket Tersedia</h3>
+      <div class="price-grid" id="premiumPriceGrid">
+        <!-- Diisi oleh fungsi renderPremiumPackages() -->
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_premium.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================
+     BLOK 22 – TEMPLATE ADMIN PANEL (modul-admin-panel)
+     ============================================================ -->
+<template id="modul-admin-panel">
+  <div class="admin-page">
+    <div class="section-header">
+      <h2>👑 Panel Super Admin</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
+    </div>
+
+    <div class="admin-container">
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchAdminTab('users')">👥 User</button>
+        <button class="admin-tab" onclick="switchAdminTab('codes')">🔑 Kode</button>
+        <button class="admin-tab" onclick="switchAdminTab('packages')">📦 Paket</button>
+        <button class="admin-tab" onclick="switchAdminTab('chat')">💬 Chat</button>
+        <button class="admin-tab" onclick="switchAdminTab('backup')">💾 Backup</button>
+      </div>
+
+      <div id="adminTabContent" class="admin-tab-content">
+        <!-- Diisi oleh switchAdminTab() -->
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_admin.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================
+     BLOK 23 – TEMPLATE CHAT (modul-chat)
+     ============================================================ -->
+<template id="modul-chat">
+  <div class="chat-page">
+    <div class="section-header">
+      <h2>💬 Chat</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
+    </div>
+
+    <div class="chat-container">
+      <div class="chat-tabs">
+        <button class="chat-tab active" id="chatTabAdmin" onclick="switchChatTab('admin')">👑 Admin</button>
+        <button class="chat-tab" id="chatTabUsers" onclick="switchChatTab('users')">👥 Sesama User</button>
+      </div>
+
+      <div id="chatMessages" class="chat-messages"></div>
+
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Ketik pesan...">
+        <button class="btn btn-primary" onclick="kirimPesan()">Kirim</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_chat.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================
+     BLOK 24 – TEMPLATE BACKUP RESTORE (modul-backup-restore)
+     ============================================================ -->
+<template id="modul-backup-restore">
+  <div class="backup-page">
+    <div class="section-header">
+      <h2>💾 Backup & Restore</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
+    </div>
+
+    <div class="backup-container">
+      <div class="backup-card">
+        <h4>📤 Backup Data</h4>
+        <p>Simpan semua proyek dan data Anda ke file JSON.</p>
+        <button class="btn btn-primary" onclick="exportData()">⬇ Export Semua Proyek</button>
+      </div>
+      <div class="backup-card">
+        <h4>📥 Restore Data</h4>
+        <p>Pulihkan proyek dari file JSON.</p>
+        <input type="file" id="restoreFile" accept=".json" onchange="restoreData(this)">
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_backup_restore.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================
+     BLOK 25 – TEMPLATE SETTINGS (modul-settings)
+     ============================================================ -->
+<template id="modul-settings">
+  <div class="settings-page">
+    <div class="section-header">
+      <h2>⚙️ Pengaturan</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
+    </div>
+
+    <div class="settings-container">
+      <div class="setting-card">
+        <h4>🌓 Tema</h4>
+        <button class="btn" onclick="toggleTheme()">Ganti Tema (Gelap/Terang)</button>
+      </div>
+      <div class="setting-card">
+        <h4>📱 Install Aplikasi</h4>
+        <button class="btn btn-success" onclick="installPWA()">Install ke Layar Utama</button>
+      </div>
+      <div class="setting-card">
+        <h4>ℹ️ Tentang</h4>
+        <p>Musik+ Studio v1.0 – Aplikasi manajemen musik, karaoke, dan AI.</p>
+        <p>Super Admin WA: <span id="adminWA">081220285226</span></p>
+      </div>
+      <div class="setting-card">
+        <h4>❓ Bantuan</h4>
+        <p>Kunjungi halaman <a href="#" onclick="MS.navigate('help')">Bantuan</a> untuk panduan lengkap.</p>
+      </div>
+      <div class="setting-card">
+        <h4>🚪 Logout</h4>
+        <button class="btn btn-danger" onclick="MS.logout()">Keluar dari Akun</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_settings.html')">
+        ⬇️ Copy HTML (Download Halaman)
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================
+     BLOK 26 – TEMPLATE HELP (modul-help)
+     ============================================================ -->
+<template id="modul-help">
+  <div class="help-page">
+    <div class="section-header">
+      <h2>❓ Bantuan</h2>
+      <button class="btn btn-sm" onclick="MS.navigate('dashboard')">⬅ Dashboard</button>
+    </div>
+
+    <div class="help-container">
+      <h3>🎵 Selamat datang di Musik+ Studio</h3>
+      <p>Aplikasi ini membantu Anda mengelola proyek musik, merekam, memisahkan instrumen, membuat lagu dengan AI, dan masih banyak lagi.</p>
+
+      <h4>Fitur Utama</h4>
+      <ul>
+        <li>📁 <strong>Proyek:</strong> Buat dan kelola proyek musik.</li>
+        <li>🎤 <strong>Rekam/Upload:</strong> Rekam suara atau upload file audio.</li>
+        <li>🎛️ <strong>Stem Separation:</strong> Pisahkan instrumen (vokal, drum, bass, dll).</li>
+        <li>🎚️ <strong>Mixer:</strong> Atur volume, pan, mute, solo.</li>
+        <li>🤖 <strong>AI Generator:</strong> Buat lagu lengkap dengan AI.</li>
+        <li>📝 <strong>Lirik:</strong> Tulis, sinkronkan, dan tampilkan lirik berjalan.</li>
+        <li>🎼 <strong>Transpose:</strong> Ubah kunci lagu.</li>
+        <li>🎭 <strong>Modifikasi Genre:</strong> Ubah genre lagu.</li>
+        <li>💬 <strong>Chat:</strong> Komunikasi dengan admin dan sesama pengguna.</li>
+        <li>💾 <strong>Backup:</strong> Ekspor/impor data proyek.</li>
+      </ul>
+
+      <h4>Status Premium</h4>
+      <p>Beberapa fitur (AI, stem lengkap, efek mixer) memerlukan akun Premium. Anda bisa mengaktifkan kode premium di menu <strong>Premium</strong>.</p>
+
+      <h4>Kontak Admin</h4>
+      <p>Hubungi Super Admin melalui chat atau WhatsApp di nomor yang tertera di Pengaturan.</p>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;">
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_help.html')">
+        ⬇️ Copy HTML
+      </button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+    </div>
+  </div>
+</template>
+
+  <!-- ========== AKHIR TEMPLATE MODUL ========== -->
+
+  <script>
+    // ========== FUNGSI GLOBAL ==========
+    function toggleTheme() {
+      document.body.classList.toggle('light-theme');
+      localStorage.setItem('ms_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+    }
+    (function() { if (localStorage.getItem('ms_theme') === 'light') document.body.classList.add('light-theme'); })();
+
+    function showToast(msg, type) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const t = document.createElement('div'); t.className = 'toast toast-' + (type||'info'); t.textContent = msg;
+      container.appendChild(t); requestAnimationFrame(() => t.classList.add('show'));
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+    }
+
+    // ========== CORE ENGINE ==========
+    (function() {
+      const MS = window.MS || {};
+      const PREFIX = 'ms_';
+      const DEFAULT_ADMIN = { id:'sa', username:'superadmin', password:btoa('admin123'), nama:'Super Admin', email:'admin@musikplus.com', hp:'081220285226', role:'superadmin', premium:true, premiumExpiry:null, locked:false };
+      const DEFAULT_PACKAGES = [
+        { id:'1bulan', name:'Basic', price:25000, days:30, label:'1 Bulan' },
+        { id:'3bulan', name:'Premium', price:50000, days:90, label:'3 Bulan' },
+        { id:'6bulan', name:'Enterprise', price:75000, days:180, label:'6 Bulan' }
+      ];
+
+      function storageGet(key, def) { try { const v = localStorage.getItem(PREFIX + key); return v ? JSON.parse(v) : def; } catch(e) { return def; } }
+      function storageSet(key, val) { localStorage.setItem(PREFIX + key, JSON.stringify(val)); }
+      function getAllUsers() { return storageGet('users', []); }
+      function saveAllUsers(u) { storageSet('users', u); }
+      function getSession() { return storageGet('session', null); }
+      function saveSession(s) { storageSet('session', s); }
+      function clearSession() { localStorage.removeItem(PREFIX + 'session'); }
+      function getValidCodes() { return storageGet('validCodes', {}); }
+      function saveValidCodes(c) { storageSet('validCodes', c); }
+      function getPackages() { return storageGet('packages', DEFAULT_PACKAGES); }
+      function savePackages(p) { storageSet('packages', p); }
+      function getChatMessages() { return storageGet('chatMessages', []); }
+      function saveChatMessages(m) { storageSet('chatMessages', m); }
+      function getProjects(username) { const all = storageGet('projects', {}); return all[username] || []; }
+      function saveProjects(username, proj) { const all = storageGet('projects', {}); all[username] = proj; storageSet('projects', all); }
+
+      function escapeHTML(s) { return s ? s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]) : ''; }
+      function formatDate(iso) { return iso ? new Date(iso).toLocaleDateString('id-ID', { year:'numeric', month:'short', day:'numeric' }) : '-'; }
+      function formatPrice(p) { return 'Rp ' + p.toLocaleString('id-ID'); }
+
+      function navigate(page, params) {
+        const container = document.getElementById('appContainer');
+        if (!container) return;
+        const template = document.getElementById('modul-' + page);
+        if (template) {
+          container.innerHTML = template.innerHTML;
+          if (typeof MS.pageInit === 'function') setTimeout(() => MS.pageInit(page, params), 10);
+        } else {
+          container.innerHTML = '<div class="text-center" style="padding:40px;"><h2>⚠️ Halaman tidak ditemukan</h2><button class="btn btn-primary" onclick="MS.navigate(\'dashboard\')">Kembali</button></div>';
+        }
+      }
+
+      function isPremium() {
+        const s = getSession(); if (!s) return false;
+        if (s.role === 'superadmin') return true;
+        if (!s.premium) return false;
+        if (s.premiumExpiry && new Date(s.premiumExpiry) < new Date()) {
+          s.premium = false; s.premiumExpiry = null; saveSession(s);
+          const users = getAllUsers(); const idx = users.findIndex(u => u.id === s.id);
+          if (idx !== -1) { users[idx].premium = false; users[idx].premiumExpiry = null; saveAllUsers(users); }
+          return false;
+        }
+        return true;
+      }
+
+      function activatePremium(code) {
+        const s = getSession(); if (!s) return { success: false, message: 'Login dulu!' };
+        const codes = getValidCodes(); const cd = codes[code];
+        if (!cd) return { success: false, message: 'Kode tidak valid.' };
+        if (cd.used) return { success: false, message: 'Kode sudah digunakan.' };
+        const pkg = getPackages().find(p => p.id === cd.packageId) || getPackages()[0];
+        const exp = new Date(Date.now() + pkg.days * 86400000);
+        const users = getAllUsers(); const idx = users.findIndex(u => u.id === s.id);
+        if (idx === -1) return { success: false, message: 'User tidak valid.' };
+        users[idx].premium = true; users[idx].premiumExpiry = exp.toISOString(); saveAllUsers(users);
+        cd.used = true; cd.usedBy = s.username; cd.usedAt = new Date().toISOString(); codes[code] = cd; saveValidCodes(codes);
+        s.premium = true; s.premiumExpiry = exp.toISOString(); saveSession(s);
+        return { success: true, message: `Premium aktif hingga ${formatDate(exp.toISOString())}.` };
+      }
+
+      function logout() { clearSession(); navigate('landing'); showToast('Logout berhasil.', 'info'); }
+
+      Object.assign(MS, {
+        navigate, escapeHTML, formatDate, formatPrice,
+        storageGet, storageSet, getAllUsers, saveAllUsers, getSession, saveSession, clearSession,
+        getValidCodes, saveValidCodes, getPackages, savePackages, getChatMessages, saveChatMessages,
+        getProjects, saveProjects, isPremium, activatePremium, logout
+      });
+      window.MS = MS;
+
+      function init() {
+        const users = getAllUsers();
+        if (!users.find(u => u.role === 'superadmin')) { users.push(DEFAULT_ADMIN); saveAllUsers(users); }
+        document.getElementById('initialLoader').remove();
+        const session = getSession();
+        if (session) navigate('dashboard');
+        else navigate('landing');
+      }
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+
+    // ========== FUNGSI DOWNLOAD ==========
+    function downloadCurrentPage(filename) {
+      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([html], { type: 'text/html' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = filename; a.click();
+      showToast('✅ Halaman di-download!', 'success');
+    }
+
+    // ========== FUNGSI AUTH ==========
+    function switchAuthTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.add('hidden'));
+      const tabEl = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+      const formEl = document.getElementById('form' + tab.charAt(0).toUpperCase() + tab.slice(1));
+      if (tabEl) tabEl.classList.add('active');
+      if (formEl) formEl.classList.remove('hidden');
+      document.querySelectorAll('.form-error,.form-success').forEach(e => { e.textContent = ''; e.classList.remove('show'); });
+    }
+    function handleLogin() {
+      const u = document.getElementById('loginUsername').value.trim();
+      const p = document.getElementById('loginPassword').value;
+      const err = document.getElementById('loginError'); err.textContent = ''; err.classList.remove('show');
+      if (!u || !p) { err.textContent = 'Isi semua field!'; err.classList.add('show'); return; }
+      if (u === 'superadmin' && p === 'admin123') {
+        MS.saveSession({ id:'sa', username:'superadmin', nama:'Super Admin', role:'superadmin', premium:true });
+        MS.navigate('dashboard'); showToast('Login Super Admin!', 'success'); return;
+      }
+      const users = MS.getAllUsers();
+      const user = users.find(x => (x.username===u||x.email===u) && p===atob(x.password));
+      if (!user) { err.textContent = 'Username/password salah!'; err.classList.add('show'); return; }
+      if (user.locked) { err.textContent = 'Akun terkunci!'; err.classList.add('show'); return; }
+      MS.saveSession(user); MS.navigate('dashboard'); showToast('Selamat datang!', 'success');
+    }
+    function handleRegister() {
+      const n = document.getElementById('regNama').value.trim();
+      const e = document.getElementById('regEmail').value.trim();
+      const hp = document.getElementById('regHp').value.trim();
+      const un = document.getElementById('regUsername').value.trim();
+      const pw = document.getElementById('regPassword').value;
+      const cp = document.getElementById('regPasswordConfirm').value;
+      const err = document.getElementById('regError'); const suc = document.getElementById('regSuccess');
+      err.textContent = ''; err.classList.remove('show'); suc.textContent = ''; suc.classList.remove('show');
+      if (!n||!e||!hp||!un||!pw||!cp) { err.textContent = 'Semua field wajib!'; err.classList.add('show'); return; }
+      if (pw !== cp) { err.textContent = 'Password tidak cocok!'; err.classList.add('show'); return; }
+      const users = MS.getAllUsers();
+      if (users.find(x => x.username===un)) { err.textContent = 'Username sudah dipakai!'; err.classList.add('show'); return; }
+      users.push({ id:Date.now().toString(), nama:n, email:e, hp, username:un, password:btoa(pw), role:'user', premium:false, premiumExpiry:null, locked:false });
+      MS.saveAllUsers(users);
+      suc.textContent = 'Pendaftaran berhasil!'; suc.classList.add('show');
+      setTimeout(() => switchAuthTab('login'), 2000);
+    }
+    function handleForgotPassword() {
+      const n = document.getElementById('forgotNama').value.trim();
+      if (!n) { showToast('Isi nama!', 'error'); return; }
+      const msgs = MS.getChatMessages();
+      msgs.push({ from:'guest', to:'admin', text:'[RESET PASSWORD] ' + n, time:new Date().toISOString() });
+      MS.saveChatMessages(msgs);
+      showToast('Permintaan dikirim.', 'success'); switchAuthTab('login');
+    }
+
+    // ========== FUNGSI PROYEK ==========
+    function openProyekForm(editId) {
+      document.getElementById('proyekFormModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('proyekFormModal').classList.add('show'), 10);
+    }
+    function closeProyekForm() {
+      document.getElementById('proyekFormModal').classList.remove('show');
+      setTimeout(() => document.getElementById('proyekFormModal').style.display = 'none', 300);
+    }
+    function saveProyek() {
+      const nama = document.getElementById('proyekNama').value.trim();
+      if (!nama) { document.getElementById('proyekError').textContent = 'Nama wajib!'; document.getElementById('proyekError').classList.add('show'); return; }
+      const projects = MS.getProjects(MS.getSession().username);
+      projects.push({ id:Date.now().toString(), nama, desc:document.getElementById('proyekDesc').value, tracks:[], createdAt:new Date().toISOString() });
+      MS.saveProjects(MS.getSession().username, projects);
+      closeProyekForm(); renderProyekList(); showToast('Proyek disimpan!', 'success');
+    }
+    function renderProyekList() {
+      const projects = MS.getProjects(MS.getSession().username);
+      const grid = document.getElementById('proyekGrid');
+      if (projects.length === 0) { grid.innerHTML = ''; document.getElementById('emptyProyek').classList.remove('hidden'); return; }
+      document.getElementById('emptyProyek').classList.add('hidden');
+      grid.innerHTML = projects.map(p => `<div class="proyek-card"><h4>${p.nama}</h4><small>${(p.tracks||[]).length} trek</small><div class="proyek-actions"><button class="btn btn-sm btn-primary" onclick="MS.navigate('proyek-editor',{proyekId:'${p.id}'})">Buka</button><button class="btn btn-sm btn-warning" onclick="openProyekForm('${p.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="hapusProyek('${p.id}')">Hapus</button></div></div>`).join('');
+    }
+    function hapusProyek(id) {
+      if (confirm('Hapus proyek ini?')) {
+        const projects = MS.getProjects(MS.getSession().username).filter(p => p.id !== id);
+        MS.saveProjects(MS.getSession().username, projects);
+        renderProyekList(); showToast('Proyek dihapus.', 'warning');
+      }
+    }
+
+    // ========== FUNGSI PROYEK EDITOR ==========
+    function saveCurrentProject() { showToast('Proyek disimpan (simulasi)', 'success'); }
+    function addNewTrack() { showToast('Tambah trek (simulasi)', 'info'); }
+    function togglePlay() { showToast('Play (simulasi)', 'info'); }
+    function stopAll() { showToast('Stop (simulasi)', 'info'); }
+    function setMasterVolume(v) { /* simulasi */ }
+    function toggleMute(i) { showToast('Mute toggled', 'info'); }
+    function toggleSolo(i) { showToast('Solo toggled', 'info'); }
+    function setTrackVolume(i,v) {}
+    function setTrackPan(i,v) {}
+    function deleteTrack(i) { showToast('Trek dihapus (simulasi)', 'warning'); }
+
+    // ========== FUNGSI UPLOAD & REKAM ==========
+    function kembaliKeEditor() { MS.navigate('proyek-list'); }
+    function addToProject() { showToast('File ditambahkan (simulasi)', 'success'); }
+    function clearFiles() { document.getElementById('fileList').innerHTML = ''; document.getElementById('btnAddToProject').disabled = true; }
+    function toggleRecording() { showToast('Rekaman dimulai (simulasi)', 'info'); }
+    function stopRecording() { showToast('Rekaman dihentikan', 'info'); }
+    function addRecordingToProject() { showToast('Rekaman disimpan ke proyek', 'success'); }
+    function resetRecording() { showToast('Perekam direset', 'info'); }
+
+    // ========== STEM, MIXER, LIRIK, TRANSPOSE, MODIFIKASI ==========
+    function previewStemFile(input) { showToast('File dipilih', 'info'); }
+    function startSeparation() { showToast('Pemisahan dimulai (simulasi)', 'info'); }
+    function saveStemsToProject() { showToast('Stem disimpan ke proyek', 'success'); }
+    function loadCurrentProjectTracks() { showToast('Trek dimuat ke mixer', 'info'); }
+    function updateMaster() { document.getElementById('masterValue').textContent = Math.round(document.getElementById('masterMixerVolume').value*100)+'%'; }
+    function startSyncProcess() { showToast('Sinkronisasi lirik dimulai', 'info'); }
+    function saveLirikToProject() { showToast('Lirik disimpan ke proyek', 'success'); }
+    function copyLRC() { navigator.clipboard.writeText(document.getElementById('lrcOutput').textContent); showToast('LRC disalin!', 'success'); }
+    function loadProjectLyrics() { showToast('Lirik proyek dimuat', 'info'); }
+    function prosesTranspose() {
+      const input = document.getElementById('chordInput').value.trim();
+      if (!input) { showToast('Masukkan chord!', 'error'); return; }
+      document.getElementById('transposedChords').textContent = input + ' (transposed)';
+      document.getElementById('transposeResult').style.display = 'block';
+    }
+    function copyTransposeResult() {
+      navigator.clipboard.writeText(document.getElementById('transposedChords').textContent);
+      showToast('Hasil disalin!', 'success');
+    }
+    function previewModifFile(input) { showToast('File dipilih', 'info'); }
+    function prosesModifikasi() { showToast('Modifikasi genre (simulasi)', 'info'); document.getElementById('modifResult').style.display = 'block'; }
+    function simpanHasilModifikasi() { showToast('Hasil modifikasi disimpan ke proyek', 'success'); }
+
+    // ========== AI GENERATOR & VOICE ==========
+    function generateSong() {
+      document.getElementById('aiProgress').style.display = 'block';
+      document.getElementById('aiResults').style.display = 'none';
+      setTimeout(() => {
+        document.getElementById('aiProgress').style.display = 'none';
+        document.getElementById('aiResults').style.display = 'grid';
+        document.getElementById('aiResults').innerHTML = '<div class="result-card"><h4>Lagu 1</h4><p>Simulasi</p></div>';
+        showToast('Lagu berhasil di-generate (simulasi)', 'success');
+      }, 2000);
+    }
+    function pilihSuara() { showToast('Suara dipilih!', 'success'); MS.navigate('ai-generator'); }
+    function generateLyrics() {
+      document.getElementById('lyricProgress').style.display = 'block';
+      document.getElementById('lyricResults').style.display = 'none';
+      setTimeout(() => {
+        document.getElementById('lyricProgress').style.display = 'none';
+        document.getElementById('lyricResults').style.display = 'block';
+        document.getElementById('lyricVersions').innerHTML = '<div class="lyric-version"><pre>Lirik simulasi...</pre></div>';
+        showToast('Lirik di-generate!', 'success');
+      }, 1500);
+    }
+
+    // ========== PREMIUM & ADMIN ==========
+    function aktivasiPremium() {
+      const code = document.getElementById('activationCode').value.trim();
+      if (!code) { showToast('Masukkan kode!', 'error'); return; }
+      const result = MS.activatePremium(code);
+      if (result.success) { document.getElementById('activationSuccess').textContent = result.message; document.getElementById('activationSuccess').classList.add('show'); }
+      else { document.getElementById('activationError').textContent = result.message; document.getElementById('activationError').classList.add('show'); }
+    }
+    function switchAdminTab(tab) {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.admin-tab').forEach(t => { if (t.textContent.toLowerCase().includes(tab)) t.classList.add('active'); });
+      document.getElementById('adminTabContent').innerHTML = '<p>Tab: ' + tab + '</p>';
+    }
+
+    // ========== CHAT ==========
+    function switchChatTab(tab) {
+      document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('chatTab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    }
+    function kirimPesan() {
+      const input = document.getElementById('chatInput');
+      if (!input.value.trim()) return;
+      const msgs = MS.getChatMessages();
+      msgs.push({ from: MS.getSession()?.username || 'guest', to: 'admin', text: input.value, time: new Date().toISOString() });
+      MS.saveChatMessages(msgs);
+      input.value = '';
+      showToast('Pesan terkirim!', 'success');
+    }
+
+    // ========== BACKUP ==========
+    function exportData() {
+      const data = { projects: MS.getProjects(MS.getSession().username), exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'musikplus_backup.json'; a.click();
+      showToast('Data diekspor!', 'success');
+    }
+    function restoreData(input) {
+      if (!input.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.projects) { MS.saveProjects(MS.getSession().username, data.projects); showToast('Data dipulihkan!', 'success'); }
+        } catch(ex) { showToast('File tidak valid!', 'error'); }
+      };
+      reader.readAsText(input.files[0]);
+    }
+
+    // ========== PAGE INIT ==========
+    MS.pageInit = function(page, params) {
+      if (page === 'dashboard') {
+        const s = MS.getSession(); if (!s) return;
+        document.getElementById('dashAvatar').textContent = s.nama.charAt(0).toUpperCase();
+        document.getElementById('dashGreeting').textContent = 'Selamat datang, ' + s.nama + '!';
+        const prem = MS.isPremium();
+        document.getElementById('dashStatus').textContent = prem ? '⭐ Premium' : 'Free';
+        document.getElementById('premiumExpiryBanner').classList.toggle('hidden', !prem);
+        const proj = MS.getProjects(s.username);
+        document.getElementById('statProjects').textContent = proj.length;
+        document.getElementById('statTracks').textContent = proj.reduce((a,p) => a + (p.tracks||[]).length, 0);
+        document.getElementById('statPremiumDays').textContent = prem ? (s.role==='superadmin'?'∞':Math.max(0, Math.ceil((new Date(s.premiumExpiry)-new Date())/86400000))+' hari') : '0';
+      }
+      if (page === 'proyek-list') renderProyekList();
+      if (page === 'proyek-editor') {
+        const s = MS.getSession(); if (!s) return;
+        const p = MS.getProjects(s.username).find(x => x.id === params.proyekId);
+        if (!p) return;
+        document.getElementById('editorProjectName').textContent = p.nama;
+        document.getElementById('editorTrackCount').textContent = (p.tracks||[]).length + ' trek';
+      }
+      if (page === 'auth') {
+        const mode = params && params.mode ? params.mode : 'login';
+        switchAuthTab(mode);
+      }
+    };
+  </script>
+</body>
+</html>
