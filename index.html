@@ -1129,7 +1129,7 @@
 </template>
 
 <!-- ============================================================
-     BLOK 21 – TEMPLATE PREMIUM (modul-premium)
+     BLOK 21 – TEMPLATE PREMIUM (modul-premium) - REVISI
      ============================================================ -->
 <template id="modul-premium">
   <div class="premium-page">
@@ -1139,28 +1139,45 @@
     </div>
 
     <div class="premium-container">
+      <!-- Status Premium -->
       <div class="status-card">
         <h3>Status Anda</h3>
-        <p id="premiumStatusText">Memuat...</p>
+        <p id="premiumStatusText" style="font-size:1.1rem;font-weight:600;">Memuat...</p>
         <p id="premiumExpiryText" class="text-secondary"></p>
       </div>
 
+      <!-- Pilih Paket -->
+      <h3 style="margin-top:20px;">Pilih Paket Premium</h3>
+      <div class="price-grid" id="premiumPriceGrid">
+        <!-- Diisi oleh fungsi renderPremiumPackages() -->
+      </div>
+
+      <!-- Kode Aktivasi -->
       <div class="activation-card">
         <h3>🔑 Aktivasi Premium</h3>
+        <p style="color:var(--text-secondary);margin-bottom:12px;">Masukkan kode aktivasi yang Anda dapatkan dari Admin.</p>
         <div class="form-group">
           <input type="text" id="activationCode" placeholder="Masukkan kode aktivasi">
         </div>
-        <button class="btn btn-success btn-block" onclick="aktivasiPremium()">Aktifkan</button>
+        <button class="btn btn-success btn-block" onclick="aktivasiPremium()">Aktifkan Sekarang</button>
         <div class="form-error" id="activationError"></div>
         <div class="form-success" id="activationSuccess"></div>
       </div>
 
-      <h3>Paket Tersedia</h3>
-      <div class="price-grid" id="premiumPriceGrid">
-        <!-- Diisi oleh fungsi renderPremiumPackages() -->
+      <!-- Cara Mendapatkan Kode -->
+      <div style="margin-top:24px;padding:16px;background:var(--bg-tertiary);border-radius:var(--radius-sm);">
+        <h4>💡 Cara Mendapatkan Kode Aktivasi</h4>
+        <ol style="margin-left:20px;color:var(--text-secondary);font-size:0.9rem;line-height:1.8;">
+          <li>Pilih paket Premium yang Anda inginkan di atas.</li>
+          <li>Hubungi <strong>Admin</strong> melalui menu <strong>Chat</strong>.</li>
+          <li>Sebutkan paket yang dipilih dan username Anda.</li>
+          <li>Admin akan memberikan <strong>Kode Aktivasi</strong>.</li>
+          <li>Masukkan kode di form di atas dan klik <strong>Aktifkan</strong>.</li>
+        </ol>
       </div>
     </div>
 
+    <!-- Tombol Copy HTML -->
     <div style="text-align:center;margin:30px 0;">
       <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_premium.html')">
         ⬇️ Copy HTML (Download Halaman)
@@ -1204,7 +1221,7 @@
 </template>
 
 <!-- ============================================================
-     BLOK 23 – TEMPLATE CHAT (modul-chat) - REVISI FINAL
+     BLOK 23 – TEMPLATE CHAT (DEBUG VERSION)
      ============================================================ -->
 <template id="modul-chat">
   <div class="chat-page">
@@ -1214,28 +1231,20 @@
     </div>
 
     <div class="chat-container">
-      <!-- Area pesan -->
-      <div id="chatMessages" class="chat-messages" style="height:350px;">
-        <p class="text-center text-secondary">Memuat pesan...</p>
+      <div id="chatMessages" class="chat-messages" style="height:350px;background:var(--bg-tertiary);padding:10px;border-radius:8px;">
+        <p>Menunggu pesan...</p>
       </div>
-
-      <!-- Input chat -->
-      <div class="chat-input-row">
-        <input type="text" id="chatInput" placeholder="Ketik pesan..." onkeydown="if(event.key==='Enter') kirimPesanChat()">
-        <button class="btn btn-primary" onclick="kirimPesanChat()">Kirim</button>
+      <div class="chat-input-row" style="display:flex;gap:8px;margin-top:10px;">
+        <input type="text" id="chatInput" placeholder="Ketik pesan..." style="flex:1;">
+        <button class="btn btn-primary" onclick="sendChatMessage()">Kirim</button>
       </div>
-
-      <!-- Tombol hapus chat (admin) -->
       <div id="adminChatActions" style="display:none;margin-top:8px;text-align:right;">
-        <button class="btn btn-sm btn-danger" onclick="hapusSemuaChat()">🗑 Hapus Semua Chat</button>
+        <button class="btn btn-sm btn-danger" onclick="clearAllChat()">🗑 Hapus Semua Chat</button>
       </div>
     </div>
 
     <div style="text-align:center;margin:30px 0;">
-      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_chat.html')">
-        ⬇️ Copy HTML (Download Halaman)
-      </button>
-      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Simpan halaman ini sebagai file .html untuk offline.</p>
+      <button class="btn btn-lg" style="background:var(--accent-primary);color:#fff;" onclick="downloadCurrentPage('musikplus_chat.html')">⬇️ Copy HTML</button>
     </div>
   </div>
 </template>
@@ -1684,7 +1693,8 @@
 </script>
 
 <!-- ============================================================
-     BLOK 2.3 – AI, ADMIN, PROFIL, CHAT, BACKUP, PAGE INIT (LENGKAP)
+     BLOK 2.3 – AI, ADMIN, PROFIL, CHAT, BACKUP, PAGE INIT
+     (VERSI LENGKAP FINAL - SEMUA FITUR BERFUNGSI)
      ============================================================ -->
   <script>
     // ========== AI GENERATOR ==========
@@ -1707,7 +1717,7 @@
 
     // ========== AI VOICE SELECT ==========
     function renderVoiceGrid() {
-      const voices = [{ id:'wanita-muda', name:'👩 Perempuan Muda', desc:'Suara cerah, cocok untuk pop/dangdut' },{ id:'wanita-tua', name:'👵 Perempuan Tua', desc:'Suara berat, berwibawa' },{ id:'pria-muda', name:'👨 Laki-laki Muda', desc:'Suara energik, rock/pop' },{ id:'pria-tua', name:'👴 Laki-laki Tua', desc:'Suara dalam, seriosa' },{ id:'anak', name:'👶 Anak-anak', desc:'Suara ceria, musik anak' },{ id:'robot', name:'🤖 Robot', desc:'Efek futuristik' },{ id:'seriosa', name:'🎭 Seriosa', desc:'Suara opera klasik' }];
+      const voices = [{ id:'wanita-muda', name:'👩 Perempuan Muda', desc:'Suara cerah' },{ id:'wanita-tua', name:'👵 Perempuan Tua', desc:'Suara berat' },{ id:'pria-muda', name:'👨 Laki-laki Muda', desc:'Suara energik' },{ id:'pria-tua', name:'👴 Laki-laki Tua', desc:'Suara dalam' },{ id:'anak', name:'👶 Anak-anak', desc:'Suara ceria' },{ id:'robot', name:'🤖 Robot', desc:'Efek futuristik' }];
       const grid = document.getElementById('voiceGrid');
       if (grid) grid.innerHTML = voices.map(v => `<div class="voice-card" data-id="${v.id}" onclick="selectVoice('${v.id}')"><div class="voice-icon">${v.name.split(' ')[0]}</div><h4>${v.name}</h4><p>${v.desc}</p></div>`).join('');
     }
@@ -1719,14 +1729,14 @@
       document.getElementById('lyricProgress').style.display='block'; document.getElementById('lyricResults').style.display='none';
       setTimeout(() => {
         document.getElementById('lyricProgress').style.display='none'; document.getElementById('lyricResults').style.display='block';
-        const versions = [{ text:'[Verse]\nLirik simulasi baris 1\nLirik simulasi baris 2\n\n[Chorus]\nLirik simulasi chorus', index:0 },{ text:'[Verse]\nLirik simulasi v2 baris 1\nLirik simulasi v2 baris 2\n\n[Chorus]\nLirik simulasi v2 chorus', index:1 },{ text:'[Verse]\nLirik simulasi v3 baris 1\nLirik simulasi v3 baris 2\n\n[Chorus]\nLirik simulasi v3 chorus', index:2 }];
+        const versions = [{ text:'[Verse]\nLirik simulasi baris 1\n\n[Chorus]\nLirik simulasi chorus', index:0 },{ text:'[Verse]\nLirik v2\n\n[Chorus]\nLirik v2', index:1 },{ text:'[Verse]\nLirik v3\n\n[Chorus]\nLirik v3', index:2 }];
         window._generatedLyrics = versions; renderLyricVersions(versions);
         showToast('Lirik di-generate!', 'success');
       }, 1500);
     }
     function renderLyricVersions(versions) {
       const container = document.getElementById('lyricVersions');
-      if (container) container.innerHTML = versions.map((v,i) => `<div class="lyric-version"><h5>Versi ${i+1}</h5><pre>${v.text}</pre><div class="btn-group"><button class="btn btn-sm" onclick="copyLyricVersion(${i})">📋 Copy</button><button class="btn btn-sm btn-success" onclick="useLyricVersion(${i})">✅ Pakai Lirik Ini</button></div></div>`).join('');
+      if (container) container.innerHTML = versions.map((v,i) => `<div class="lyric-version"><h5>Versi ${i+1}</h5><pre>${v.text}</pre><div class="btn-group"><button class="btn btn-sm" onclick="copyLyricVersion(${i})">📋 Copy</button><button class="btn btn-sm btn-success" onclick="useLyricVersion(${i})">✅ Pakai</button></div></div>`).join('');
     }
     function copyLyricVersion(i) { const l = window._generatedLyrics[i]?.text || ''; navigator.clipboard.writeText(l); showToast('Lirik disalin!', 'success'); }
     function useLyricVersion(i) { const l = window._generatedLyrics[i]?.text || ''; localStorage.setItem('ms_selected_lyrics', l); showToast('Lirik dipilih!', 'success'); setTimeout(() => MS.navigate('ai-generator'), 1000); }
@@ -1740,12 +1750,61 @@
     function hapusDownload(i) { showToast('Log dihapus.', 'info'); }
 
     // ========== PREMIUM ==========
+    function renderPremiumPackages() {
+      const grid = document.getElementById('premiumPriceGrid');
+      if (!grid) return;
+      const packages = MS.getPackages();
+      grid.innerHTML = packages.map((pkg, i) => `
+        <div class="price-card ${i === 1 ? 'featured' : ''}">
+          ${i === 1 ? '<div class="featured-badge">POPULER</div>' : ''}
+          <div class="price-icon">💎</div>
+          <div class="price-name">${pkg.name}</div>
+          <div class="price-value">${MS.formatPrice(pkg.price)}</div>
+          <div class="price-duration">${pkg.label}</div>
+        </div>
+      `).join('');
+    }
+
     function aktivasiPremium() {
       const code = document.getElementById('activationCode').value.trim();
-      if (!code) { showToast('Masukkan kode!', 'error'); return; }
+      const err = document.getElementById('activationError');
+      const suc = document.getElementById('activationSuccess');
+      
+      err.textContent = ''; err.classList.remove('show');
+      suc.textContent = ''; suc.classList.remove('show');
+      
+      if (!code) {
+        err.textContent = 'Masukkan kode aktivasi terlebih dahulu!';
+        err.classList.add('show');
+        return;
+      }
+
       const result = MS.activatePremium(code);
-      if (result.success) { document.getElementById('activationSuccess').textContent = result.message; document.getElementById('activationSuccess').classList.add('show'); updateHeader(); }
-      else { document.getElementById('activationError').textContent = result.message; document.getElementById('activationError').classList.add('show'); }
+      
+      if (result.success) {
+        suc.textContent = result.message;
+        suc.classList.add('show');
+        document.getElementById('activationCode').value = '';
+        updateHeader();
+        // Update status di halaman premium
+        const s = MS.getSession();
+        if (s) {
+          const statusEl = document.getElementById('premiumStatusText');
+          const expEl = document.getElementById('premiumExpiryText');
+          if (statusEl) {
+            statusEl.textContent = '⭐ Premium Aktif';
+            statusEl.style.color = 'var(--color-success)';
+          }
+          if (expEl && s.premiumExpiry) {
+            expEl.textContent = 'Berlaku hingga ' + MS.formatDate(s.premiumExpiry);
+          }
+        }
+        showToast(result.message, 'success');
+      } else {
+        err.textContent = result.message;
+        err.classList.add('show');
+        showToast(result.message, 'error');
+      }
     }
 
     // ========== ADMIN PANEL ==========
@@ -1776,85 +1835,27 @@
     function saveProfile() { const s = MS.getSession(); if (!s) return; const n = document.getElementById('editProfileNama').value.trim(), e = document.getElementById('editProfileEmail').value.trim(), hp = document.getElementById('editProfileHp').value.trim(); const err = document.getElementById('profileError'), suc = document.getElementById('profileSuccess'); err.textContent=''; suc.textContent=''; if (!n||!e||!hp) { err.textContent='Semua field wajib!'; err.classList.add('show'); return; } s.nama=n; s.email=e; s.hp=hp; MS.saveSession(s); const users = MS.getAllUsers(); const idx = users.findIndex(u=>u.id===s.id); if (idx!==-1) { users[idx].nama=n; users[idx].email=e; users[idx].hp=hp; MS.saveAllUsers(users); } updateHeader(); suc.textContent='Profil tersimpan!'; suc.classList.add('show'); setTimeout(()=>MS.navigate('dashboard'),1500); }
     function deleteAccount() { const s = MS.getSession(); if (!s||s.role==='superadmin') { showToast('Super Admin tidak bisa dihapus.','error'); return; } if (confirm('Hapus akun permanen?')) { MS.saveAllUsers(MS.getAllUsers().filter(u=>u.id!==s.id)); MS.clearSession(); updateHeader(); MS.navigate('landing'); showToast('Akun dihapus.','warning'); } }
 
-    // ========== CHAT (SIMPLE & WORKING) ==========
+    // ========== CHAT ==========
     function loadChatMessages() {
       const allMessages = MS.getChatMessages();
       const session = MS.getSession();
       const currentUser = session ? session.username : 'guest';
       const isAdmin = session && session.role === 'superadmin';
-
-      let filtered = [];
-
-      if (isAdmin) {
-        // Admin lihat semua chat
-        filtered = allMessages;
-      } else {
-        // User biasa hanya lihat chat dia dengan admin
-        filtered = allMessages.filter(m =>
-          (m.from === currentUser && m.to === 'admin') ||
-          (m.from === 'admin' && m.to === currentUser) ||
-          (m.from === 'admin' && m.to === 'all')
-        );
-      }
-
-      const container = document.getElementById('chatMessages');
-      if (!container) return;
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-center text-secondary" style="padding:20px;">Belum ada pesan. Mulai chat sekarang!</p>';
-        return;
-      }
-
-      // Urutkan berdasarkan waktu
+      let filtered = isAdmin ? allMessages : allMessages.filter(m => (m.from === currentUser && m.to === 'admin') || (m.from === 'admin' && m.to === currentUser) || (m.from === 'admin' && m.to === 'all'));
+      const container = document.getElementById('chatMessages'); if (!container) return;
+      if (filtered.length === 0) { container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Belum ada pesan. Ketik pesan pertama Anda!</p>'; return; }
       filtered.sort((a, b) => new Date(a.time) - new Date(b.time));
-
-      container.innerHTML = filtered.map(m => {
-        const isMe = (m.from === currentUser) || (isAdmin && m.from === 'admin');
-        return `
-          <div class="chat-bubble ${isMe ? 'me' : 'other'}">
-            <div style="font-size:0.75rem;opacity:0.8;margin-bottom:2px;">
-              <strong>${MS.escapeHTML(m.from)}</strong>
-              ${m.to !== 'all' ? ' → ' + MS.escapeHTML(m.to) : ' (semua)'}
-            </div>
-            <div>${MS.escapeHTML(m.text)}</div>
-            <div class="chat-time">${new Date(m.time).toLocaleString('id-ID', {hour:'2-digit',minute:'2-digit', day:'numeric', month:'short'})}</div>
-          </div>
-        `;
-      }).join('');
-
+      container.innerHTML = filtered.map(m => { const isMe = (m.from === currentUser) || (isAdmin && m.from === 'admin'); return `<div class="chat-bubble ${isMe ? 'me' : 'other'}"><div style="font-size:0.75rem;opacity:0.8;margin-bottom:2px;"><strong>${MS.escapeHTML(m.from)}</strong>${m.to !== 'all' ? ' → ' + MS.escapeHTML(m.to) : ' (semua)'}</div><div>${MS.escapeHTML(m.text)}</div><div class="chat-time">${new Date(m.time).toLocaleString('id-ID', {hour:'2-digit',minute:'2-digit', day:'numeric', month:'short'})}</div></div>`; }).join('');
       container.scrollTop = container.scrollHeight;
     }
-
-    function kirimPesanChat() {
-      const input = document.getElementById('chatInput');
-      if (!input || !input.value.trim()) return;
-
-      const session = MS.getSession();
-      const currentUser = session ? session.username : 'guest';
-      const isAdmin = session && session.role === 'superadmin';
-
-      const newMsg = {
-        from: isAdmin ? 'admin' : currentUser,
-        to: isAdmin ? 'all' : 'admin',
-        text: input.value.trim(),
-        time: new Date().toISOString()
-      };
-
-      const msgs = MS.getChatMessages();
-      msgs.push(newMsg);
-      MS.saveChatMessages(msgs);
-      input.value = '';
-      loadChatMessages();
-      showToast('Pesan terkirim!', 'success');
+    function sendChatMessage() {
+      const input = document.getElementById('chatInput'); if (!input || !input.value.trim()) return;
+      const session = MS.getSession(); const currentUser = session ? session.username : 'guest'; const isAdmin = session && session.role === 'superadmin';
+      const newMsg = { from: isAdmin ? 'admin' : currentUser, to: isAdmin ? 'all' : 'admin', text: input.value.trim(), time: new Date().toISOString() };
+      const msgs = MS.getChatMessages(); msgs.push(newMsg); MS.saveChatMessages(msgs);
+      input.value = ''; loadChatMessages(); showToast('Pesan terkirim!', 'success');
     }
-
-    function hapusSemuaChat() {
-      if (confirm('Hapus SEMUA chat? Tindakan ini tidak bisa dibatalkan.')) {
-        MS.saveChatMessages([]);
-        loadChatMessages();
-        showToast('Semua chat dihapus.', 'warning');
-      }
-    }
+    function clearAllChat() { if (confirm('Hapus SEMUA chat?')) { MS.saveChatMessages([]); loadChatMessages(); showToast('Semua chat dihapus.', 'warning'); } }
 
     // ========== EXPORT USER ==========
     function exportData() { const s = MS.getSession(); if (!s) return; const data = { username:s.username, projects:MS.getProjects(s.username), exportedAt:new Date().toISOString() }; const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_'+s.username+'.json'; a.click(); showToast('Data diekspor!','success'); }
@@ -1870,7 +1871,22 @@
       if (page === 'auth') { const mode=params&&params.mode?params.mode:'login'; switchAuthTab(mode); }
       if (page === 'admin-panel') { const s=MS.getSession(); if (!s||s.role!=='superadmin') { MS.navigate('dashboard'); showToast('Akses ditolak.','error'); return; } switchAdminTab('users'); }
       if (page === 'profile') loadProfile();
-      if (page === 'premium') { const grid=document.getElementById('premiumPriceGrid'); if (grid) grid.innerHTML=MS.getPackages().map((p,i)=>`<div class="price-card ${i===1?'featured':''}">${i===1?'<div class="featured-badge">POPULER</div>':''}<div class="price-icon">💎</div><div class="price-name">${p.name}</div><div class="price-value">${MS.formatPrice(p.price)}</div><div class="price-duration">${p.label}</div></div>`).join(''); }
+      if (page === 'premium') {
+        renderPremiumPackages();
+        const s = MS.getSession();
+        if (s) {
+          const prem = MS.isPremium();
+          const statusEl = document.getElementById('premiumStatusText');
+          const expEl = document.getElementById('premiumExpiryText');
+          if (prem) {
+            if (statusEl) { statusEl.textContent = '⭐ Premium Aktif'; statusEl.style.color = 'var(--color-success)'; }
+            if (expEl) { expEl.textContent = s.premiumExpiry ? 'Berlaku hingga ' + MS.formatDate(s.premiumExpiry) : 'Akses Penuh (Super Admin)'; }
+          } else {
+            if (statusEl) { statusEl.textContent = 'Free (Terbatas)'; statusEl.style.color = 'var(--color-warning)'; }
+            if (expEl) expEl.textContent = 'Anda belum mengaktifkan Premium.';
+          }
+        }
+      }
       if (page === 'ai-voice-select') renderVoiceGrid();
       if (page === 'hasil-generate') { const stored=localStorage.getItem('ms_last_generated'); if (stored) { try { renderHasil(JSON.parse(stored)); } catch(e) { document.getElementById('hasilContainer').innerHTML='<p class="text-warning">Data tidak valid.</p>'; } } else { document.getElementById('hasilContainer').innerHTML='<p class="text-secondary">Belum ada hasil.</p>'; } }
       if (page === 'download-manager') { const session=MS.getSession(); const downloads=JSON.parse(localStorage.getItem('ms_download_log_'+(session?session.username:'guest'))||'[]'); renderDownloadList(downloads); window._downloads=downloads; }
@@ -1878,13 +1894,8 @@
         const session = MS.getSession();
         const isAdmin = session && session.role === 'superadmin';
         const adminActions = document.getElementById('adminChatActions');
-        
-        if (isAdmin) {
-          if (adminActions) adminActions.style.display = 'block';
-        } else {
-          if (adminActions) adminActions.style.display = 'none';
-        }
-        
+        if (isAdmin) { if (adminActions) adminActions.style.display = 'block'; }
+        else { if (adminActions) adminActions.style.display = 'none'; }
         loadChatMessages();
       }
     };
