@@ -1701,144 +1701,143 @@
   function simpanHasilModifikasi() { showToast('Hasil modifikasi disimpan ke proyek', 'success'); }
 </script>
 
-<!-- ============================================================
-     BLOK 2.3 – AI, ADMIN, PROFIL, CHAT, BACKUP, PAGE INIT
-     (VERSI LENGKAP - CHAT MINIMAL TANPA ALERT)
-     ============================================================ -->
+<script>
+  // ========== AI GENERATOR ==========
+  function generateSong() {
+    document.getElementById('aiProgress').style.display='block'; document.getElementById('aiResults').style.display='none';
+    setTimeout(function() {
+      document.getElementById('aiProgress').style.display='none'; document.getElementById('aiResults').style.display='grid';
+      var results = [{ id:1, name:'Lagu 1', desc:'Pop - Wanita Muda' },{ id:2, name:'Lagu 2', desc:'Pop - Wanita Muda (Alternate)' },{ id:3, name:'Lagu 3', desc:'Pop - Wanita Muda (Remix)' }];
+      window._aiResults = results; renderAIResults(results);
+      showToast('Lagu berhasil di-generate (simulasi)', 'success');
+    }, 2000);
+  }
+  function renderAIResults(results) {
+    var container = document.getElementById('aiResults');
+    if (container) container.innerHTML = results.map(function(r,i) { return '<div class="result-card"><h4>🎵 '+r.name+'</h4><p>'+r.desc+'</p><div class="result-actions"><button class="btn btn-sm" onclick="previewAIResult('+i+')">▶ Preview</button><button class="btn btn-sm btn-success" onclick="saveAIResult('+i+')">💾 Simpan ke Proyek</button><button class="btn btn-sm btn-primary" onclick="downloadAIResult('+i+')">⬇ Download</button></div></div>'; }).join('');
+  }
+  function previewAIResult(i) { showToast('Preview: simulasi', 'info'); }
+  function saveAIResult(i) { var r = window._aiResults[i]; if (r) { var projects = MS.getProjects(MS.getSession().username); if (projects.length===0) { showToast('Buat proyek dulu!', 'error'); return; } projects[projects.length-1].tracks.push({ id:Date.now().toString(), name:r.name, type:'ai-generated', data:null, volume:0.8, pan:0, muted:false, solo:false }); MS.saveProjects(MS.getSession().username, projects); showToast(r.name+' disimpan ke proyek!', 'success'); } }
+  function downloadAIResult(i) { var r = window._aiResults[i]; if (r) { var blob = new Blob(['Judul: '+r.name+'\nDeskripsi: '+r.desc], {type:'text/plain'}); var a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=r.name.replace(/\s+/g,'_')+'.txt'; a.click(); showToast('Lirik di-download!', 'success'); } }
+
+  // ========== AI VOICE SELECT ==========
+  function renderVoiceGrid() {
+    var voices = [{ id:'wanita-muda', name:'👩 Perempuan Muda', desc:'Suara cerah' },{ id:'wanita-tua', name:'👵 Perempuan Tua', desc:'Suara berat' },{ id:'pria-muda', name:'👨 Laki-laki Muda', desc:'Suara energik' },{ id:'pria-tua', name:'👴 Laki-laki Tua', desc:'Suara dalam' },{ id:'anak', name:'👶 Anak-anak', desc:'Suara ceria' },{ id:'robot', name:'🤖 Robot', desc:'Efek futuristik' }];
+    var grid = document.getElementById('voiceGrid');
+    if (grid) grid.innerHTML = voices.map(function(v) { return '<div class="voice-card" data-id="'+v.id+'" onclick="selectVoice(\''+v.id+'\')"><div class="voice-icon">'+v.name.split(' ')[0]+'</div><h4>'+v.name+'</h4><p>'+v.desc+'</p></div>'; }).join('');
+  }
+  function selectVoice(id) { var cards = document.querySelectorAll('.voice-card'); for (var i=0;i<cards.length;i++) { cards[i].classList.toggle('selected', cards[i].getAttribute('data-id')===id); } window._selectedVoice = id; }
+  function pilihSuara() { if (window._selectedVoice) { localStorage.setItem('ms_selected_voice', window._selectedVoice); showToast('Suara dipilih!', 'success'); MS.navigate('ai-generator'); } else { showToast('Pilih suara dulu!', 'error'); } }
+
+  // ========== AI LYRICS GENERATOR ==========
+  function generateLyrics() {
+    document.getElementById('lyricProgress').style.display='block'; document.getElementById('lyricResults').style.display='none';
+    setTimeout(function() {
+      document.getElementById('lyricProgress').style.display='none'; document.getElementById('lyricResults').style.display='block';
+      var versions = [{ text:'[Verse]\nLirik simulasi baris 1\n\n[Chorus]\nLirik simulasi chorus', index:0 },{ text:'[Verse]\nLirik v2\n\n[Chorus]\nLirik v2', index:1 },{ text:'[Verse]\nLirik v3\n\n[Chorus]\nLirik v3', index:2 }];
+      window._generatedLyrics = versions; renderLyricVersions(versions);
+      showToast('Lirik di-generate!', 'success');
+    }, 1500);
+  }
+  function renderLyricVersions(versions) {
+    var container = document.getElementById('lyricVersions');
+    if (container) container.innerHTML = versions.map(function(v,i) { return '<div class="lyric-version"><h5>Versi '+(i+1)+'</h5><pre>'+v.text+'</pre><div class="btn-group"><button class="btn btn-sm" onclick="copyLyricVersion('+i+')">📋 Copy</button><button class="btn btn-sm btn-success" onclick="useLyricVersion('+i+')">✅ Pakai</button></div></div>'; }).join('');
+  }
+  function copyLyricVersion(i) { var l = window._generatedLyrics[i] ? window._generatedLyrics[i].text : ''; navigator.clipboard.writeText(l); showToast('Lirik disalin!', 'success'); }
+  function useLyricVersion(i) { var l = window._generatedLyrics[i] ? window._generatedLyrics[i].text : ''; localStorage.setItem('ms_selected_lyrics', l); showToast('Lirik dipilih!', 'success'); setTimeout(function() { MS.navigate('ai-generator'); }, 1000); }
+
+  // ========== HASIL GENERATE & DOWNLOAD MANAGER ==========
+  function renderHasil(results) { var container = document.getElementById('hasilContainer'); if (container) container.innerHTML = results.map(function(r,i) { return '<div class="hasil-card"><h4>'+r.name+'</h4><p>'+r.desc+'</p></div>'; }).join(''); }
+  function previewHasil(i) { showToast('Preview: simulasi', 'info'); }
+  function simpanKeProyek(i) { showToast('Disimpan ke proyek (simulasi)', 'success'); }
+  function downloadHasil(i) { showToast('Lirik di-download (simulasi)', 'success'); }
+  function renderDownloadList(list) { var container = document.getElementById('downloadList'); if (container) container.innerHTML = list.length===0 ? '<p class="text-secondary">Belum ada file.</p>' : list.map(function(item,i) { return '<div class="download-item">'+item.name+'</div>'; }).join(''); }
+  function hapusDownload(i) { showToast('Log dihapus.', 'info'); }
+
+  // ========== PREMIUM ==========
+  function renderPremiumPackages() {
+    var grid = document.getElementById('premiumPriceGrid');
+    if (!grid) return;
+    var packages = MS.getPackages();
+    grid.innerHTML = packages.map(function(pkg, i) {
+      return '<div class="price-card '+(i===1?'featured':'')+'">'+(i===1?'<div class="featured-badge">POPULER</div>':'')+'<div class="price-icon">💎</div><div class="price-name">'+pkg.name+'</div><div class="price-value">'+MS.formatPrice(pkg.price)+'</div><div class="price-duration">'+pkg.label+'</div></div>';
+    }).join('');
+  }
+  function aktivasiPremium() {
+    var code = document.getElementById('activationCode').value.trim();
+    var err = document.getElementById('activationError');
+    var suc = document.getElementById('activationSuccess');
+    err.textContent = ''; err.classList.remove('show');
+    suc.textContent = ''; suc.classList.remove('show');
+    if (!code) { err.textContent = 'Masukkan kode aktivasi!'; err.classList.add('show'); return; }
+    var result = MS.activatePremium(code);
+    if (result.success) {
+      suc.textContent = result.message; suc.classList.add('show');
+      document.getElementById('activationCode').value = '';
+      updateHeader();
+      var s = MS.getSession();
+      if (s) {
+        var statusEl = document.getElementById('premiumStatusText');
+        var expEl = document.getElementById('premiumExpiryText');
+        if (statusEl) { statusEl.textContent = '⭐ Premium Aktif'; statusEl.style.color = 'var(--color-success)'; }
+        if (expEl && s.premiumExpiry) { expEl.textContent = 'Berlaku hingga '+MS.formatDate(s.premiumExpiry); }
+      }
+      showToast(result.message, 'success');
+    } else {
+      err.textContent = result.message; err.classList.add('show');
+      showToast(result.message, 'error');
+    }
+  }
+
+  // ========== ADMIN PANEL ==========
+  function switchAdminTab(tab) {
+    var tabs = document.querySelectorAll('.admin-tab');
+    for (var i=0;i<tabs.length;i++) { tabs[i].classList.remove('active'); }
+    for (var i=0;i<tabs.length;i++) { if (tabs[i].textContent.toLowerCase().indexOf(tab) !== -1) tabs[i].classList.add('active'); }
+    var content = document.getElementById('adminTabContent'); if (!content) return;
+    if (tab === 'users') {
+      var users = MS.getAllUsers();
+      var html = '<h3>Daftar User</h3><table class="admin-table"><tr><th>Nama</th><th>Username</th><th>Email</th><th>Premium</th><th>Aksi</th></tr>';
+      for (var i=0;i<users.length;i++) {
+        var u = users[i];
+        html += '<tr><td>'+u.nama+'</td><td>'+u.username+'</td><td>'+u.email+'</td><td>'+(u.premium?'Ya':'Tidak')+'</td><td><button class="btn btn-sm btn-warning" onclick="toggleLockUser(\''+u.id+'\')">'+(u.locked?'Buka':'Kunci')+'</button>'+(u.role!=='superadmin'?'<button class="btn btn-sm btn-danger" onclick="hapusUser(\''+u.id+'\')">Hapus</button>':'')+'</td></tr>';
+      }
+      html += '</table>';
+      content.innerHTML = html;
+    } else if (tab === 'codes') {
+      var packages = MS.getPackages();
+      var opt = '';
+      for (var i=0;i<packages.length;i++) { opt += '<option value="'+packages[i].id+'">'+packages[i].name+' - '+packages[i].label+'</option>'; }
+      content.innerHTML = '<h3>Buat Kode Aktivasi</h3><div class="form-group"><input id="adminCodeUser" placeholder="Username"></div><div class="form-group"><select id="adminCodePackage">'+opt+'</select></div><button class="btn btn-success" onclick="buatKode()">Buat Kode</button><div id="codeResult"></div><h4>Kode Aktif</h4><div id="activeCodes"></div>';
+      renderActiveCodes();
+    } else if (tab === 'packages') {
+      content.innerHTML = '<h3>Paket Premium</h3><div id="packageList"></div><button class="btn btn-primary btn-sm" onclick="tambahPaket()">+ Paket Baru</button>';
+      renderPackageList();
+    } else if (tab === 'backup') {
+      content.innerHTML = '<h3>💾 Backup & Restore</h3><button class="btn btn-primary btn-block" onclick="backupAllDataJSON()">⬇ Backup Data (JSON)</button><label class="btn btn-warning btn-block" style="cursor:pointer;">📤 Restore Data (JSON)<input type="file" accept=".json" onchange="restoreAllDataJSON(this)" hidden></label><hr><button class="btn btn-success btn-block" onclick="downloadOfflineHTML()">⬇ Download HTML (Offline)</button><label class="btn btn-warning btn-block" style="cursor:pointer;">📤 Restore HTML<input type="file" accept=".html" onchange="restoreFromHTML(this)" hidden></label>';
+    }
+  }
+  function toggleLockUser(uid) { var users = MS.getAllUsers(); for (var i=0;i<users.length;i++) { if (users[i].id===uid) { users[i].locked = !users[i].locked; break; } } MS.saveAllUsers(users); switchAdminTab('users'); }
+  function hapusUser(uid) { if (confirm('Hapus user ini?')) { var users = MS.getAllUsers(); var newUsers = []; for (var i=0;i<users.length;i++) { if (users[i].id!==uid) newUsers.push(users[i]); } MS.saveAllUsers(newUsers); switchAdminTab('users'); showToast('User dihapus.','warning'); } }
+  function buatKode() { var uf = document.getElementById('adminCodeUser').value.trim(); var pid = document.getElementById('adminCodePackage').value; if (!uf) { showToast('Masukkan username!','error'); return; } var code = 'MK-'+Date.now().toString(36).toUpperCase(); var codes = MS.getValidCodes(); codes[code] = { packageId:pid, used:false, createdAt:new Date().toISOString() }; MS.saveValidCodes(codes); document.getElementById('codeResult').innerHTML = '<p class="form-success show">✅ Kode: <strong>'+code+'</strong></p>'; renderActiveCodes(); }
+  function renderActiveCodes() { var el = document.getElementById('activeCodes'); if (!el) return; var codes = MS.getValidCodes(); var keys = Object.keys(codes); if (keys.length===0) { el.innerHTML = '<p class="text-muted">Belum ada kode.</p>'; return; } var html = ''; for (var i=0;i<keys.length;i++) { var c = keys[i]; html += '<div>'+c+' - '+codes[c].packageId+' ('+(codes[c].used?'Terpakai':'Aktif')+')</div>'; } el.innerHTML = html; }
+  function renderPackageList() { var el = document.getElementById('packageList'); if (!el) return; var packages = MS.getPackages(); var html = ''; for (var i=0;i<packages.length;i++) { html += '<div>'+packages[i].name+' - '+MS.formatPrice(packages[i].price)+' ('+packages[i].label+')</div>'; } el.innerHTML = html; }
+  function tambahPaket() { var pkgs = MS.getPackages(); pkgs.push({ id:'pkg_'+Date.now(), name:'Paket Baru', price:0, days:30, label:'1 Bulan' }); MS.savePackages(pkgs); renderPackageList(); showToast('Paket baru ditambahkan.','success'); }
+
+  // ========== BACKUP RESTORE ==========
+  function backupAllDataJSON() { var allData = {}; for (var i=0;i<localStorage.length;i++) { var key = localStorage.key(i); allData[key] = localStorage.getItem(key); } var blob = new Blob([JSON.stringify(allData,null,2)], {type:'application/json'}); var a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_full_backup_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); showToast('✅ Backup JSON berhasil!','success'); }
+  function restoreAllDataJSON(input) { var file = input.files[0]; if (!file) return; if (!confirm('⚠️ SEMUA data akan ditimpa. Lanjutkan?')) return; var reader = new FileReader(); reader.onload = function(e) { try { var data = JSON.parse(e.target.result); localStorage.clear(); var keys = Object.keys(data); for (var i=0;i<keys.length;i++) { localStorage.setItem(keys[i], data[keys[i]]); } showToast('✅ Data di-restore! Refresh...','success'); setTimeout(function() { location.reload(); }, 2000); } catch(err) { showToast('❌ File JSON tidak valid.','error'); } }; reader.readAsText(file); }
+  function downloadOfflineHTML() { var html = '<!DOCTYPE html>\n'+document.documentElement.outerHTML; var blob = new Blob([html], {type:'text/html'}); var a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_offline_'+new Date().toISOString().slice(0,10)+'.html'; a.click(); showToast('⬇ HTML didownload!','success'); }
+  function restoreFromHTML(input) { var file = input.files[0]; if (!file) return; if (!confirm('⚠️ Halaman akan diganti. Lanjutkan?')) return; var reader = new FileReader(); reader.onload = function(e) { var match = e.target.result.match(/<html[^>]*>([\s\S]*)<\/html>/i); if (match) { document.documentElement.innerHTML = match[1]; showToast('✅ Dipulihkan! Refresh...','success'); setTimeout(function() { location.reload(); }, 1500); } else { document.open(); document.write(e.target.result); document.close(); showToast('✅ Dipulihkan! Refresh...','success'); setTimeout(function() { location.reload(); }, 1500); } }; reader.readAsText(file); }
+</script>
+
   <script>
-    // ========== AI GENERATOR ==========
-    function generateSong() {
-      document.getElementById('aiProgress').style.display='block'; document.getElementById('aiResults').style.display='none';
-      setTimeout(() => {
-        document.getElementById('aiProgress').style.display='none'; document.getElementById('aiResults').style.display='grid';
-        const results = [{ id:1, name:'Lagu 1', desc:'Pop - Wanita Muda' },{ id:2, name:'Lagu 2', desc:'Pop - Wanita Muda (Alternate)' },{ id:3, name:'Lagu 3', desc:'Pop - Wanita Muda (Remix)' }];
-        window._aiResults = results; renderAIResults(results);
-        showToast('Lagu berhasil di-generate (simulasi)', 'success');
-      }, 2000);
-    }
-    function renderAIResults(results) {
-      const container = document.getElementById('aiResults');
-      if (container) container.innerHTML = results.map((r,i) => `<div class="result-card"><h4>🎵 ${r.name}</h4><p>${r.desc}</p><div class="result-actions"><button class="btn btn-sm" onclick="previewAIResult(${i})">▶ Preview</button><button class="btn btn-sm btn-success" onclick="saveAIResult(${i})">💾 Simpan ke Proyek</button><button class="btn btn-sm btn-primary" onclick="downloadAIResult(${i})">⬇ Download</button></div></div>`).join('');
-    }
-    function previewAIResult(i) { showToast('Preview: simulasi', 'info'); }
-    function saveAIResult(i) { const r = window._aiResults[i]; if (r) { const projects = MS.getProjects(MS.getSession().username); if (projects.length===0) { showToast('Buat proyek dulu!', 'error'); return; } projects[projects.length-1].tracks.push({ id:Date.now().toString(), name:r.name, type:'ai-generated', data:null, volume:0.8, pan:0, muted:false, solo:false }); MS.saveProjects(MS.getSession().username, projects); showToast(r.name+' disimpan ke proyek!', 'success'); } }
-    function downloadAIResult(i) { const r = window._aiResults[i]; if (r) { const blob = new Blob(['Judul: '+r.name+'\nDeskripsi: '+r.desc], {type:'text/plain'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=r.name.replace(/\s+/g,'_')+'.txt'; a.click(); showToast('Lirik di-download!', 'success'); } }
-
-    // ========== AI VOICE SELECT ==========
-    function renderVoiceGrid() {
-      const voices = [{ id:'wanita-muda', name:'👩 Perempuan Muda', desc:'Suara cerah' },{ id:'wanita-tua', name:'👵 Perempuan Tua', desc:'Suara berat' },{ id:'pria-muda', name:'👨 Laki-laki Muda', desc:'Suara energik' },{ id:'pria-tua', name:'👴 Laki-laki Tua', desc:'Suara dalam' },{ id:'anak', name:'👶 Anak-anak', desc:'Suara ceria' },{ id:'robot', name:'🤖 Robot', desc:'Efek futuristik' }];
-      const grid = document.getElementById('voiceGrid');
-      if (grid) grid.innerHTML = voices.map(v => `<div class="voice-card" data-id="${v.id}" onclick="selectVoice('${v.id}')"><div class="voice-icon">${v.name.split(' ')[0]}</div><h4>${v.name}</h4><p>${v.desc}</p></div>`).join('');
-    }
-    function selectVoice(id) { document.querySelectorAll('.voice-card').forEach(c => c.classList.toggle('selected', c.dataset.id===id)); window._selectedVoice = id; }
-    function pilihSuara() { if (window._selectedVoice) { localStorage.setItem('ms_selected_voice', window._selectedVoice); showToast('Suara dipilih!', 'success'); MS.navigate('ai-generator'); } else { showToast('Pilih suara dulu!', 'error'); } }
-
-    // ========== AI LYRICS GENERATOR ==========
-    function generateLyrics() {
-      document.getElementById('lyricProgress').style.display='block'; document.getElementById('lyricResults').style.display='none';
-      setTimeout(() => {
-        document.getElementById('lyricProgress').style.display='none'; document.getElementById('lyricResults').style.display='block';
-        const versions = [{ text:'[Verse]\nLirik simulasi baris 1\n\n[Chorus]\nLirik simulasi chorus', index:0 },{ text:'[Verse]\nLirik v2\n\n[Chorus]\nLirik v2', index:1 },{ text:'[Verse]\nLirik v3\n\n[Chorus]\nLirik v3', index:2 }];
-        window._generatedLyrics = versions; renderLyricVersions(versions);
-        showToast('Lirik di-generate!', 'success');
-      }, 1500);
-    }
-    function renderLyricVersions(versions) {
-      const container = document.getElementById('lyricVersions');
-      if (container) container.innerHTML = versions.map((v,i) => `<div class="lyric-version"><h5>Versi ${i+1}</h5><pre>${v.text}</pre><div class="btn-group"><button class="btn btn-sm" onclick="copyLyricVersion(${i})">📋 Copy</button><button class="btn btn-sm btn-success" onclick="useLyricVersion(${i})">✅ Pakai</button></div></div>`).join('');
-    }
-    function copyLyricVersion(i) { const l = window._generatedLyrics[i]?.text || ''; navigator.clipboard.writeText(l); showToast('Lirik disalin!', 'success'); }
-    function useLyricVersion(i) { const l = window._generatedLyrics[i]?.text || ''; localStorage.setItem('ms_selected_lyrics', l); showToast('Lirik dipilih!', 'success'); setTimeout(() => MS.navigate('ai-generator'), 1000); }
-
-    // ========== HASIL GENERATE & DOWNLOAD MANAGER ==========
-    function renderHasil(results) { const container = document.getElementById('hasilContainer'); if (container) container.innerHTML = results.map((r,i) => `<div class="hasil-card"><h4>${r.name}</h4><p>${r.desc}</p></div>`).join(''); }
-    function previewHasil(i) { showToast('Preview: simulasi', 'info'); }
-    function simpanKeProyek(i) { showToast('Disimpan ke proyek (simulasi)', 'success'); }
-    function downloadHasil(i) { showToast('Lirik di-download (simulasi)', 'success'); }
-    function renderDownloadList(list) { const container = document.getElementById('downloadList'); if (container) container.innerHTML = list.length===0 ? '<p class="text-secondary">Belum ada file.</p>' : list.map((item,i) => `<div class="download-item">${item.name}</div>`).join(''); }
-    function hapusDownload(i) { showToast('Log dihapus.', 'info'); }
-
-    // ========== PREMIUM ==========
-    function renderPremiumPackages() {
-      const grid = document.getElementById('premiumPriceGrid');
-      if (!grid) return;
-      const packages = MS.getPackages();
-      grid.innerHTML = packages.map((pkg, i) => `
-        <div class="price-card ${i === 1 ? 'featured' : ''}">
-          ${i === 1 ? '<div class="featured-badge">POPULER</div>' : ''}
-          <div class="price-icon">💎</div>
-          <div class="price-name">${pkg.name}</div>
-          <div class="price-value">${MS.formatPrice(pkg.price)}</div>
-          <div class="price-duration">${pkg.label}</div>
-        </div>
-      `).join('');
-    }
-
-    function aktivasiPremium() {
-      const code = document.getElementById('activationCode').value.trim();
-      const err = document.getElementById('activationError');
-      const suc = document.getElementById('activationSuccess');
-      
-      err.textContent = ''; err.classList.remove('show');
-      suc.textContent = ''; suc.classList.remove('show');
-      
-      if (!code) {
-        err.textContent = 'Masukkan kode aktivasi terlebih dahulu!';
-        err.classList.add('show');
-        return;
-      }
-
-      const result = MS.activatePremium(code);
-      
-      if (result.success) {
-        suc.textContent = result.message;
-        suc.classList.add('show');
-        document.getElementById('activationCode').value = '';
-        updateHeader();
-        const s = MS.getSession();
-        if (s) {
-          const statusEl = document.getElementById('premiumStatusText');
-          const expEl = document.getElementById('premiumExpiryText');
-          if (statusEl) { statusEl.textContent = '⭐ Premium Aktif'; statusEl.style.color = 'var(--color-success)'; }
-          if (expEl && s.premiumExpiry) { expEl.textContent = 'Berlaku hingga ' + MS.formatDate(s.premiumExpiry); }
-        }
-        showToast(result.message, 'success');
-      } else {
-        err.textContent = result.message;
-        err.classList.add('show');
-        showToast(result.message, 'error');
-      }
-    }
-
-    // ========== ADMIN PANEL ==========
-    function switchAdminTab(tab) {
-      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.admin-tab').forEach(t => { if (t.textContent.toLowerCase().includes(tab)) t.classList.add('active'); });
-      const content = document.getElementById('adminTabContent'); if (!content) return;
-      if (tab === 'users') { const users = MS.getAllUsers(); content.innerHTML = `<h3>Daftar User</h3><table class="admin-table"><tr><th>Nama</th><th>Username</th><th>Email</th><th>Premium</th><th>Aksi</th></tr>${users.map(u => `<tr><td>${u.nama}</td><td>${u.username}</td><td>${u.email}</td><td>${u.premium?'Ya':'Tidak'}</td><td><button class="btn btn-sm btn-warning" onclick="toggleLockUser('${u.id}')">${u.locked?'Buka':'Kunci'}</button>${u.role!=='superadmin'?`<button class="btn btn-sm btn-danger" onclick="hapusUser('${u.id}')">Hapus</button>`:''}</td></tr>`).join('')}</table>`; }
-      else if (tab === 'codes') { content.innerHTML = `<h3>Buat Kode Aktivasi</h3><div class="form-group"><input id="adminCodeUser" placeholder="Username"></div><div class="form-group"><select id="adminCodePackage">${MS.getPackages().map(p => `<option value="${p.id}">${p.name} - ${p.label}</option>`).join('')}</select></div><button class="btn btn-success" onclick="buatKode()">Buat Kode</button><div id="codeResult"></div><h4>Kode Aktif</h4><div id="activeCodes"></div>`; renderActiveCodes(); }
-      else if (tab === 'packages') { content.innerHTML = `<h3>Paket Premium</h3><div id="packageList"></div><button class="btn btn-primary btn-sm" onclick="tambahPaket()">+ Paket Baru</button>`; renderPackageList(); }
-      else if (tab === 'backup') { content.innerHTML = `<h3>💾 Backup & Restore</h3><button class="btn btn-primary btn-block" onclick="backupAllDataJSON()">⬇ Backup Data (JSON)</button><label class="btn btn-warning btn-block" style="cursor:pointer;">📤 Restore Data (JSON)<input type="file" accept=".json" onchange="restoreAllDataJSON(this)" hidden></label><hr><button class="btn btn-success btn-block" onclick="downloadOfflineHTML()">⬇ Download HTML (Offline)</button><label class="btn btn-warning btn-block" style="cursor:pointer;">📤 Restore HTML<input type="file" accept=".html" onchange="restoreFromHTML(this)" hidden></label>`; }
-    }
-    function toggleLockUser(uid) { const users = MS.getAllUsers(); const u = users.find(x=>x.id===uid); if (u) { u.locked=!u.locked; MS.saveAllUsers(users); switchAdminTab('users'); } }
-    function hapusUser(uid) { if (confirm('Hapus user ini?')) { MS.saveAllUsers(MS.getAllUsers().filter(u=>u.id!==uid)); switchAdminTab('users'); showToast('User dihapus.','warning'); } }
-    function buatKode() { const uf = document.getElementById('adminCodeUser').value.trim(), pid = document.getElementById('adminCodePackage').value; if (!uf) { showToast('Masukkan username!','error'); return; } const code = 'MK-'+Date.now().toString(36).toUpperCase(); const codes = MS.getValidCodes(); codes[code] = { packageId:pid, used:false, createdAt:new Date().toISOString() }; MS.saveValidCodes(codes); document.getElementById('codeResult').innerHTML = `<p class="form-success show">✅ Kode: <strong>${code}</strong></p>`; renderActiveCodes(); }
-    function renderActiveCodes() { const el = document.getElementById('activeCodes'); if (el) { const codes = MS.getValidCodes(); el.innerHTML = Object.keys(codes).length===0 ? '<p class="text-muted">Belum ada kode.</p>' : Object.keys(codes).map(c => `<div>${c} - ${codes[c].packageId} (${codes[c].used?'Terpakai':'Aktif'})</div>`).join(''); } }
-    function renderPackageList() { const el = document.getElementById('packageList'); if (el) el.innerHTML = MS.getPackages().map(p => `<div>${p.name} - ${MS.formatPrice(p.price)} (${p.label})</div>`).join(''); }
-    function tambahPaket() { const pkgs = MS.getPackages(); pkgs.push({ id:'pkg_'+Date.now(), name:'Paket Baru', price:0, days:30, label:'1 Bulan' }); MS.savePackages(pkgs); renderPackageList(); showToast('Paket baru ditambahkan.','success'); }
-
-    // ========== BACKUP RESTORE ==========
-    function backupAllDataJSON() { const allData = {}; for (let i=0;i<localStorage.length;i++) { const key = localStorage.key(i); allData[key] = localStorage.getItem(key); } const blob = new Blob([JSON.stringify(allData,null,2)], {type:'application/json'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_full_backup_'+new Date().toISOString().slice(0,10)+'.json'; a.click(); showToast('✅ Backup JSON berhasil!','success'); }
-    function restoreAllDataJSON(input) { const file = input.files[0]; if (!file) return; if (!confirm('⚠️ SEMUA data akan ditimpa. Lanjutkan?')) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); localStorage.clear(); Object.keys(data).forEach(key => localStorage.setItem(key, data[key])); showToast('✅ Data di-restore! Refresh...','success'); setTimeout(()=>location.reload(),2000); } catch(err) { showToast('❌ File JSON tidak valid.','error'); } }; reader.readAsText(file); }
-    function downloadOfflineHTML() { const html = '<!DOCTYPE html>\n'+document.documentElement.outerHTML; const blob = new Blob([html], {type:'text/html'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_offline_'+new Date().toISOString().slice(0,10)+'.html'; a.click(); showToast('⬇ HTML didownload!','success'); }
-    function restoreFromHTML(input) { const file = input.files[0]; if (!file) return; if (!confirm('⚠️ Halaman akan diganti. Lanjutkan?')) return; const reader = new FileReader(); reader.onload = function(e) { const match = e.target.result.match(/<html[^>]*>([\s\S]*)<\/html>/i); if (match) { document.documentElement.innerHTML = match[1]; showToast('✅ Dipulihkan! Refresh...','success'); setTimeout(()=>location.reload(),1500); } else { document.open(); document.write(e.target.result); document.close(); showToast('✅ Dipulihkan! Refresh...','success'); setTimeout(()=>location.reload(),1500); } }; reader.readAsText(file); }
-
     // ========== PROFIL ==========
-    function loadProfile() { const s = MS.getSession(); if (!s) return; document.getElementById('profileAvatarBig').textContent = s.nama.charAt(0).toUpperCase(); document.getElementById('profileName').textContent = s.nama; document.getElementById('profileRole').textContent = s.role==='superadmin'?'Super Admin':(s.premium?'User Premium':'User Biasa'); document.getElementById('editProfileNama').value = s.nama||''; document.getElementById('editProfileEmail').value = s.email||''; document.getElementById('editProfileHp').value = s.hp||''; }
-    function saveProfile() { const s = MS.getSession(); if (!s) return; const n = document.getElementById('editProfileNama').value.trim(), e = document.getElementById('editProfileEmail').value.trim(), hp = document.getElementById('editProfileHp').value.trim(); const err = document.getElementById('profileError'), suc = document.getElementById('profileSuccess'); err.textContent=''; suc.textContent=''; if (!n||!e||!hp) { err.textContent='Semua field wajib!'; err.classList.add('show'); return; } s.nama=n; s.email=e; s.hp=hp; MS.saveSession(s); const users = MS.getAllUsers(); const idx = users.findIndex(u=>u.id===s.id); if (idx!==-1) { users[idx].nama=n; users[idx].email=e; users[idx].hp=hp; MS.saveAllUsers(users); } updateHeader(); suc.textContent='Profil tersimpan!'; suc.classList.add('show'); setTimeout(()=>MS.navigate('dashboard'),1500); }
-    function deleteAccount() { const s = MS.getSession(); if (!s||s.role==='superadmin') { showToast('Super Admin tidak bisa dihapus.','error'); return; } if (confirm('Hapus akun permanen?')) { MS.saveAllUsers(MS.getAllUsers().filter(u=>u.id!==s.id)); MS.clearSession(); updateHeader(); MS.navigate('landing'); showToast('Akun dihapus.','warning'); } }
+    function loadProfile() { var s = MS.getSession(); if (!s) return; document.getElementById('profileAvatarBig').textContent = s.nama.charAt(0).toUpperCase(); document.getElementById('profileName').textContent = s.nama; document.getElementById('profileRole').textContent = s.role==='superadmin'?'Super Admin':(s.premium?'User Premium':'User Biasa'); document.getElementById('editProfileNama').value = s.nama||''; document.getElementById('editProfileEmail').value = s.email||''; document.getElementById('editProfileHp').value = s.hp||''; }
+    function saveProfile() { var s = MS.getSession(); if (!s) return; var n = document.getElementById('editProfileNama').value.trim(), e = document.getElementById('editProfileEmail').value.trim(), hp = document.getElementById('editProfileHp').value.trim(); var err = document.getElementById('profileError'), suc = document.getElementById('profileSuccess'); err.textContent=''; suc.textContent=''; if (!n||!e||!hp) { err.textContent='Semua field wajib!'; err.classList.add('show'); return; } s.nama=n; s.email=e; s.hp=hp; MS.saveSession(s); var users = MS.getAllUsers(); for (var i=0;i<users.length;i++) { if (users[i].id===s.id) { users[i].nama=n; users[i].email=e; users[i].hp=hp; break; } } MS.saveAllUsers(users); updateHeader(); suc.textContent='Profil tersimpan!'; suc.classList.add('show'); setTimeout(function() { MS.navigate('dashboard'); }, 1500); }
+    function deleteAccount() { var s = MS.getSession(); if (!s||s.role==='superadmin') { showToast('Super Admin tidak bisa dihapus.','error'); return; } if (confirm('Hapus akun permanen?')) { var users = MS.getAllUsers(); var newUsers = []; for (var i=0;i<users.length;i++) { if (users[i].id!==s.id) newUsers.push(users[i]); } MS.saveAllUsers(newUsers); MS.clearSession(); updateHeader(); MS.navigate('landing'); showToast('Akun dihapus.','warning'); } }
 
-    // ========== CHAT (MINIMAL - PASTI BERFUNGSI) ==========
+    // ========== CHAT ==========
     function loadChatMessages() {
       var allMessages = MS.getChatMessages();
       var session = MS.getSession();
@@ -1849,11 +1848,14 @@
       if (isAdmin) {
         filtered = allMessages;
       } else {
-        filtered = allMessages.filter(function(m) {
-          return (m.from === currentUser && m.to === 'admin') ||
-                 (m.from === 'admin' && m.to === currentUser) ||
-                 (m.from === 'admin' && m.to === 'all');
-        });
+        for (var i=0;i<allMessages.length;i++) {
+          var m = allMessages[i];
+          if ((m.from === currentUser && m.to === 'admin') ||
+              (m.from === 'admin' && m.to === currentUser) ||
+              (m.from === 'admin' && m.to === 'all')) {
+            filtered.push(m);
+          }
+        }
       }
 
       var container = document.getElementById('chatMessages');
@@ -1867,15 +1869,15 @@
       filtered.sort(function(a, b) { return new Date(a.time) - new Date(b.time); });
 
       var html = '';
-      for (var i = 0; i < filtered.length; i++) {
+      for (var i=0;i<filtered.length;i++) {
         var m = filtered[i];
         var isMe = (m.from === currentUser) || (isAdmin && m.from === 'admin');
         var bg = isMe ? 'var(--accent-primary)' : 'var(--bg-hover)';
         var color = isMe ? '#fff' : 'var(--text-primary)';
         var align = isMe ? 'right' : 'left';
-        html += '<div style="margin-bottom:8px;text-align:' + align + ';">';
-        html += '<div style="font-size:0.7rem;color:gray;margin-bottom:2px;"><strong>' + MS.escapeHTML(m.from) + '</strong> · ' + new Date(m.time).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'}) + '</div>';
-        html += '<div style="display:inline-block;max-width:80%;padding:8px 14px;border-radius:16px;background:' + bg + ';color:' + color + ';">' + MS.escapeHTML(m.text) + '</div>';
+        html += '<div style="margin-bottom:8px;text-align:'+align+';">';
+        html += '<div style="font-size:0.7rem;color:gray;margin-bottom:2px;"><strong>'+MS.escapeHTML(m.from)+'</strong> &middot; '+new Date(m.time).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'})+'</div>';
+        html += '<div style="display:inline-block;max-width:80%;padding:8px 14px;border-radius:16px;background:'+bg+';color:'+color+';">'+MS.escapeHTML(m.text)+'</div>';
         html += '</div>';
       }
       container.innerHTML = html;
@@ -1916,26 +1918,26 @@
     }
 
     // ========== EXPORT USER ==========
-    function exportData() { const s = MS.getSession(); if (!s) return; const data = { username:s.username, projects:MS.getProjects(s.username), exportedAt:new Date().toISOString() }; const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_'+s.username+'.json'; a.click(); showToast('Data diekspor!','success'); }
-    function restoreData(input) { if (!input.files[0]) return; const reader = new FileReader(); reader.onload = function(e) { try { const data=JSON.parse(e.target.result); if (data.projects) { MS.saveProjects(MS.getSession().username, data.projects); showToast('Data dipulihkan!','success'); } } catch(ex) { showToast('File tidak valid!','error'); } }; reader.readAsText(input.files[0]); }
+    function exportData() { var s = MS.getSession(); if (!s) return; var data = { username:s.username, projects:MS.getProjects(s.username), exportedAt:new Date().toISOString() }; var blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); var a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='musikplus_'+s.username+'.json'; a.click(); showToast('Data diekspor!','success'); }
+    function restoreData(input) { if (!input.files[0]) return; var reader = new FileReader(); reader.onload = function(e) { try { var data=JSON.parse(e.target.result); if (data.projects) { MS.saveProjects(MS.getSession().username, data.projects); showToast('Data dipulihkan!','success'); } } catch(ex) { showToast('File tidak valid!','error'); } }; reader.readAsText(input.files[0]); }
 
     // ========== PAGE INIT ==========
     MS.pageInit = function(page, params) {
       updateHeader();
-      if (page === 'landing') { const grid=document.getElementById('landingPriceGrid'); if (grid) grid.innerHTML=MS.getPackages().map((p,i)=>`<div class="price-card ${i===1?'featured':''}" onclick="MS.navigate('auth',{mode:'register'})">${i===1?'<div class="featured-badge">POPULER</div>':''}<div class="price-icon">💎</div><div class="price-name">${p.name}</div><div class="price-value">${MS.formatPrice(p.price)}</div><div class="price-duration">${p.label}</div></div>`).join(''); }
-      if (page === 'dashboard') { const s=MS.getSession(); if (!s) return; document.getElementById('dashAvatar').textContent=s.nama.charAt(0).toUpperCase(); document.getElementById('dashGreeting').textContent='Selamat datang, '+s.nama+'!'; const prem=MS.isPremium(); document.getElementById('dashStatus').textContent=prem?'⭐ Premium':'Free'; document.getElementById('premiumExpiryBanner').classList.toggle('hidden',!prem); if (prem&&s.premiumExpiry) document.getElementById('premiumExpiryText').textContent=' Berlaku hingga '+MS.formatDate(s.premiumExpiry); const proj=MS.getProjects(s.username); document.getElementById('statProjects').textContent=proj.length; document.getElementById('statTracks').textContent=proj.reduce((a,p)=>a+(p.tracks||[]).length,0); document.getElementById('statPremiumDays').textContent=prem?(s.role==='superadmin'?'∞':Math.max(0,Math.ceil((new Date(s.premiumExpiry)-new Date())/86400000))+' hari'):'0'; }
+      if (page === 'landing') { var grid=document.getElementById('landingPriceGrid'); if (grid) { var packages=MS.getPackages(); var html=''; for (var i=0;i<packages.length;i++) { var p=packages[i]; html+='<div class="price-card '+(i===1?'featured':'')+'" onclick="MS.navigate(\'auth\',{mode:\'register\'})">'+(i===1?'<div class="featured-badge">POPULER</div>':'')+'<div class="price-icon">💎</div><div class="price-name">'+p.name+'</div><div class="price-value">'+MS.formatPrice(p.price)+'</div><div class="price-duration">'+p.label+'</div></div>'; } grid.innerHTML=html; } }
+      if (page === 'dashboard') { var s=MS.getSession(); if (!s) return; document.getElementById('dashAvatar').textContent=s.nama.charAt(0).toUpperCase(); document.getElementById('dashGreeting').textContent='Selamat datang, '+s.nama+'!'; var prem=MS.isPremium(); document.getElementById('dashStatus').textContent=prem?'⭐ Premium':'Free'; document.getElementById('premiumExpiryBanner').classList.toggle('hidden',!prem); if (prem&&s.premiumExpiry) document.getElementById('premiumExpiryText').textContent=' Berlaku hingga '+MS.formatDate(s.premiumExpiry); var proj=MS.getProjects(s.username); document.getElementById('statProjects').textContent=proj.length; var totalTracks=0; for (var i=0;i<proj.length;i++) { totalTracks+=(proj[i].tracks||[]).length; } document.getElementById('statTracks').textContent=totalTracks; document.getElementById('statPremiumDays').textContent=prem?(s.role==='superadmin'?'∞':Math.max(0, Math.ceil((new Date(s.premiumExpiry)-new Date())/86400000))+' hari'):'0'; }
       if (page === 'proyek-list') renderProyekList();
-      if (page === 'proyek-editor') { const s=MS.getSession(); if (!s) return; const p=MS.getProjects(s.username).find(x=>x.id===params.proyekId); if (!p) return; window._editorProject=p; window._editorUsername=s.username; document.getElementById('editorProjectName').textContent=p.nama; document.getElementById('editorTrackCount').textContent=(p.tracks||[]).length+' trek'; renderTracks(); }
-      if (page === 'auth') { const mode=params&&params.mode?params.mode:'login'; switchAuthTab(mode); }
-      if (page === 'admin-panel') { const s=MS.getSession(); if (!s||s.role!=='superadmin') { MS.navigate('dashboard'); showToast('Akses ditolak.','error'); return; } switchAdminTab('users'); }
+      if (page === 'proyek-editor') { var s=MS.getSession(); if (!s) return; var projects=MS.getProjects(s.username); var p=null; for (var i=0;i<projects.length;i++) { if (projects[i].id===params.proyekId) { p=projects[i]; break; } } if (!p) return; window._editorProject=p; window._editorUsername=s.username; document.getElementById('editorProjectName').textContent=p.nama; document.getElementById('editorTrackCount').textContent=(p.tracks||[]).length+' trek'; renderTracks(); }
+      if (page === 'auth') { var mode=params&&params.mode?params.mode:'login'; switchAuthTab(mode); }
+      if (page === 'admin-panel') { var s=MS.getSession(); if (!s||s.role!=='superadmin') { MS.navigate('dashboard'); showToast('Akses ditolak.','error'); return; } switchAdminTab('users'); }
       if (page === 'profile') loadProfile();
       if (page === 'premium') {
         renderPremiumPackages();
-        const s = MS.getSession();
+        var s = MS.getSession();
         if (s) {
-          const prem = MS.isPremium();
-          const statusEl = document.getElementById('premiumStatusText');
-          const expEl = document.getElementById('premiumExpiryText');
+          var prem = MS.isPremium();
+          var statusEl = document.getElementById('premiumStatusText');
+          var expEl = document.getElementById('premiumExpiryText');
           if (prem) {
             if (statusEl) { statusEl.textContent = '⭐ Premium Aktif'; statusEl.style.color = 'var(--color-success)'; }
             if (expEl) { expEl.textContent = s.premiumExpiry ? 'Berlaku hingga ' + MS.formatDate(s.premiumExpiry) : 'Akses Penuh (Super Admin)'; }
@@ -1946,8 +1948,8 @@
         }
       }
       if (page === 'ai-voice-select') renderVoiceGrid();
-      if (page === 'hasil-generate') { const stored=localStorage.getItem('ms_last_generated'); if (stored) { try { renderHasil(JSON.parse(stored)); } catch(e) { document.getElementById('hasilContainer').innerHTML='<p class="text-warning">Data tidak valid.</p>'; } } else { document.getElementById('hasilContainer').innerHTML='<p class="text-secondary">Belum ada hasil.</p>'; } }
-      if (page === 'download-manager') { const session=MS.getSession(); const downloads=JSON.parse(localStorage.getItem('ms_download_log_'+(session?session.username:'guest'))||'[]'); renderDownloadList(downloads); window._downloads=downloads; }
+      if (page === 'hasil-generate') { var stored=localStorage.getItem('ms_last_generated'); if (stored) { try { renderHasil(JSON.parse(stored)); } catch(e) { document.getElementById('hasilContainer').innerHTML='<p class="text-warning">Data tidak valid.</p>'; } } else { document.getElementById('hasilContainer').innerHTML='<p class="text-secondary">Belum ada hasil.</p>'; } }
+      if (page === 'download-manager') { var session=MS.getSession(); var downloads=JSON.parse(localStorage.getItem('ms_download_log_'+(session?session.username:'guest'))||'[]'); renderDownloadList(downloads); window._downloads=downloads; }
       if (page === 'chat') {
         setTimeout(function() {
           loadChatMessages();
